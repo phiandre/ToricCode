@@ -30,6 +30,10 @@ numberOfErrors = 4 # must be even!
 
 
 class Maze(tk.Tk, object):
+
+    """
+    Konstruktor för Mazeklassen.
+    """
     def __init__(self):
         super(Maze, self).__init__()
         self.action_space = ['u', 'd', 'l', 'r']
@@ -48,7 +52,9 @@ class Maze(tk.Tk, object):
 
         self.filename="".join(tmp)
 
-
+    """
+    Skapar spelplanen.
+    """
     def _build_maze(self):
         self.canvas = tk.Canvas(self, bg='white',
                            height=MAZE_H * UNIT,
@@ -118,7 +124,7 @@ class Maze(tk.Tk, object):
     def getCenter(self,edges):
         return [(edges[2]+edges[0])/2, (edges[3]+edges[1])/2]
 
-    def step(self, observation, action, errorIndex):
+    def step(self, action, errorIndex):
         #print("self.errors ",self.errors)
         self.errors = observation
         self.errors_ = self.errors[:]
@@ -200,6 +206,10 @@ def update():
             s, r, done = env.step(a)
             if done:
                 break
+
+"""
+Mainmetod för att testa Environmentklassen.
+"""
 
 if __name__ == '__main__':
     env = Maze()
