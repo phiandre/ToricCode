@@ -44,27 +44,20 @@ class Env:
 
 		firstPos = self.errors[errorIndex, :]			# Positionen för felet som skall flyttas
 		secondPos = self.getPos(action, firstPos)		# Nya positionen för felet givet action och position
-		print("2ndPos")
-		print(secondPos)
+		
 		self.state[firstPos] = 0
-		print("secondPos")
-		print(secondPos)
-		if self.state[secondPos[0],secondPos[1]] == 0:
+
+		if self.state[secondPos[0], secondPos[1]] == 0:
 			self.state[secondPos] = 1
 		else:
 			self.state[secondPos] = 0
-
-		print("newstate")
-		print(self.state)
-
-
+			
 		self.updateErrors()									# Kolla igenom igen vart fel finns
 
 	def getPos(self, action, position):					# Input: vilken action, felets position
 
 		nextPos = np.array(position, copy=True)
-		print("nextpos")
-		print(nextPos)
+
 		if action == 0:									# Beroende på action väljs steg
 			nextPos[0] -= 1
 			if nextPos[0] == 0:
@@ -81,12 +74,12 @@ class Env:
 			nextPos[1] += 1
 			if nextPos[1] == self.length:
 				nextPos[1] = 0
-		print("newpos")
-		print(nextPos)
+
 		return nextPos									# Output: nya positionen för felet
 
 if __name__ == '__main__':
 
+	# Här testas i princip ovanstående klass!
 	S = np.zeros([3,3])
 	S[0,0] = 1
 	S[1,1] = 1
