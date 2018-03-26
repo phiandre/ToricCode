@@ -28,11 +28,11 @@ class Env:
 
 		for i in range(self.length):		#Kollar igenom tillståndet och sparar felen i en array
 			for j in range(self.length):
-				if self.state[i,j] == 1:
-					temp[x,0:2] = [i, j]
+				if self.state[i, j] == 1:
+					temp[x, 0:2] = [i, j]
 					x += 1
 
-		self.errors = temp[0:x,0:2]			# Arrayen innehåller positionen för alla fel
+		self.errors = temp[0:x, 0:2]			# Arrayen innehåller positionen för alla fel
 
 	def getErrors(self):					# Skapar funktion så vi kan hämta felen
 		return self.errors
@@ -44,14 +44,14 @@ class Env:
 	"""
 	def moveError(self, action, errorIndex):            # Tar in ett fel och vilken action den ska ta
 
-		firstPos = self.errors[errorIndex,:]            # Positionen för felet som skall flyttas
+		firstPos = self.errors[errorIndex, :]            # Positionen för felet som skall flyttas
 		secondPos = self.getPos(action, firstPos)       # Nya positionen för felet givet action och position
 
-        # Uppdatera den gamla positionen
-		self.state[firstPos[0],firstPos[1]] = 0
-        # Uppdatera den nya positionen
+		#  Uppdatera den gamla positionen
+		self.state[firstPos[0], firstPos[1]] = 0
+		# Uppdatera den nya positionen
 		if self.state[secondPos[0], secondPos[1]] == 0:
-			self.state[secondPos[0],secondPos[1]] = 1
+			self.state[secondPos[0], secondPos[1]] = 1
 		else:
 			self.state[secondPos] = 0
 
@@ -95,29 +95,41 @@ class Env:
 		# Returnera nya positionen för felet
 		return nextPos
 
-	def getArray(self,errorIndex):
-		a = np.zeros([self.length,self.length])
-		a[errorIndex] = 1
+	def getArray(self, errorIndex):
+		a = np.zeros((self.length, self.length))
+		a[errorIndex[0], errorIndex[1]]= 1
 		return a
 
+
+
+
+	def getObservation(self):
+		M = np.zeros((self.errors.shape[0]+1, self.length, self.length))
+		M[0, :, :]= self.state
+		for i in range(len(self.errors)):
+			M[i+1, :, :] = self.getArray(self.errors[i,:])
+		print("M:", M)
+
+		return M
 """
 Mainmetod för att testa ovanstående klass.
 """
 if __name__ == '__main__':
 
 	# Här testas i princip ovanstående klass!
-	S = np.zeros([3,3])
-	S[0,0] = 1
-	S[1,1] = 1
-	S[2,2] = 1
+	S = np.zeros([3, 3])
+	S[0, 0] = 1
+	S[1, 1] = 1
+	S[2, 1] = 1
+	S[0, 2] = 1
 	env = Env(S)
 	print("Start state:")
 	print(env.state)
 
-	env.moveError(3,2)
+	env.moveError(1, 1)
 	print("final state")
 	print(env.state)
-
+	env.getObservation()
 
 
 
