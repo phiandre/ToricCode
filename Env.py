@@ -48,20 +48,21 @@ class Env:
         # Uppdatera den gamla positionen
 		self.state[firstPos] = 0
         # Uppdatera den nya positionen
-		self.state[secondPos] = 0
 		if self.state[secondPos[0], secondPos[1]] == 0:
 			self.state[secondPos] = 1
+		else:
+			self.state[secondPos] = 0
 
 		self.updateErrors()     # Kolla igenom igen vart fel finns
 
-    """
-    Returnerar positionen efter att ha rört sig i en viss riktning.
-        @param
-            action: den associerade riktningsrörelsen.
-            position: positionen vi står vid innan vi flyttar oss.
-        @return
-            numpy: koordinater för nya positionen.
-    """
+	"""
+	Returnerar positionen efter att ha rört sig i en viss riktning.
+		@param
+			action: den associerade riktningsrörelsen.
+			position: positionen vi står vid innan vi flyttar oss.
+		@return
+			numpy: koordinater för nya positionen.
+	"""
 	def getPos(self, action, position):					# Input: vilken action, felets position
 
 		nextPos = np.array(position, copy=True)
@@ -106,3 +107,4 @@ if __name__ == '__main__':
 
 
 
+			
