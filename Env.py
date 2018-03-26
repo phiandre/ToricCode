@@ -63,28 +63,35 @@ class Env:
 		@return
 			numpy: koordinater för nya positionen.
 	"""
-	def getPos(self, action, position):					# Input: vilken action, felets position
+	def getPos(self, action, position):
 
+		# Kopiera tidigare position så vi får ny pekare
 		nextPos = np.array(position, copy=True)
 
-		if action == 0:									# Beroende på action väljs steg
-			nextPos[0] -= 1
+		# Beroende på action väljs steg
+		if action == 0:
 			if nextPos[0] == 0:
-				nextPos[0] = self.length - 1			# Flyttar genom väggen
+				nextPos[0] = self.length - 1
+			else:
+				nextPos[0] -= 1
 		if action == 1:
-			nextPos[0] += 1
 			if nextPos[0] == self.length:
 				nextPos[0] = 0
+			else:
+				nextPos[0] += 1
 		if action == 2:
-			nextPos[1] -= 1
 			if nextPos[1] == 0:
 				nextPos[1] = self.length - 1
+			else:
+				nextPos[1] -= 1
 		if action == 3:
-			nextPos[1] += 1
 			if nextPos[1] == self.length:
 				nextPos[1] = 0
+			else:
+				nextPos[1] += 1
 
-		return nextPos									# Output: nya positionen för felet
+		# Returnera nya positionen för felet
+		return nextPos
 
 """
 Mainmetod för att testa ovanstående klass.
