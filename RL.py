@@ -79,25 +79,34 @@ class RLsys:
         @param
             state: the previous state of the system.
             action: the action taken.
-            reward: the reward received.
-            state_: the resulting state.
+            reward: the immediate reward received.
+            observation_p: the resulting observation.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def learn(self, state, action, reward, state_):
+    def learn(self, state, action, reward, observation_p):
+
         # Check if we are at terminal state
         if state_ != 'terminal':
-            # Produce Q based on possible actions
-            predQ = np.zeros(len(self.actions))
-            # Do predictions for each action
-            for a in range(0, len(self.actions)):
-                # Predict action with Neural Network
-                predQ[a] = self.qnet.predictQ(state_, a)
+			# Q is the more optimal Q
+			Q = self.qnet.predictQ(state)
+			# ska returnera z-dimensionen
+			numErrors = observation_p.shape[2] - 1
+			state_p = np.zeros([state_size, state_size, 2])
+			state_p[:,:,0] = observation_p[:,:,0]
+		
+			predQ = np.zeros([4, numErrors])
+
+			for x in range(1,numErrors+1):
+				state[:,:,1] = observation[:,:,x]
+				predQ[:,x] = self.qnet.predictQ(state)
+
             # Update the approximation of Q
-            q_target = reward + self.gamma * predQ.max()
+            Q[action] = reward + self.gamma * predQ.max()
         else:
             # Update the approximation of Q
-            q_target = reward
+            Q[action] = reward
+
         # Update the neural network
-        self.qnet.improveQ(state, action, q_target)
+        self.qnet.improveQ(state, Q)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     Changes the epsilon in the epsilon-greedy policy.
