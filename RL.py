@@ -53,7 +53,8 @@ class RLsys:
 		
 		predQ = np.zeros([4, numErrors])
 
-		for x in range(1,numErrors+1):					# ändrat till +1;annars tror jag vi utvärderar ett fel för lite
+		# borde vara +1
+		for x in range(1,numErrors+1):
 			
 			state[:,:,1] = observation[:,:,x]
 			predQ[:,x] = self.qnet.predictQ(state)
