@@ -75,7 +75,7 @@ class Env:
 			else:
 				nextPos[0] -= 1
 		if action == 1:
-			if nextPos[0] == self.length:
+			if nextPos[0] == self.length - 1:
 				nextPos[0] = 0
 			else:
 				nextPos[0] += 1
@@ -85,7 +85,7 @@ class Env:
 			else:
 				nextPos[1] -= 1
 		if action == 3:
-			if nextPos[1] == self.length:
+			if nextPos[1] == self.length - 1:
 				nextPos[1] = 0
 			else:
 				nextPos[1] += 1
