@@ -70,7 +70,7 @@ class Env:
 		if action == 0:									# Beroende på action väljs steg
 			nextPos[0] -= 1
 			if nextPos[0] == 0:
-				nextPos[0] = self.length			# Flyttar genom väggen
+				nextPos[0] = self.length - 1			# Flyttar genom väggen
 		if action == 1:
 			nextPos[0] += 1
 			if nextPos[0] == self.length:
@@ -78,7 +78,7 @@ class Env:
 		if action == 2:
 			nextPos[1] -= 1
 			if nextPos[1] == 0:
-				nextPos[1] = self.length
+				nextPos[1] = self.length - 1
 		if action == 3:
 			nextPos[1] += 1
 			if nextPos[1] == self.length:
