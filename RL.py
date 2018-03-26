@@ -25,7 +25,7 @@ class RLsys:
     RL class constructor.
         @param
             actions: the possible actions of the system.
-			state_size: the size of the state matrix.
+	    state_size: the size of the state matrix.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def __init__(self, actions, state_size, reward_decay=0.9, e_greedy=0.9):
         # Save parameters for later use
@@ -42,7 +42,7 @@ class RLsys:
             observation: the current state of the system.
         @return
             int: the given action based on the state.
-			int: the associated error.
+	    int: the associated error.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def choose_action(self, observation):
 
@@ -50,29 +50,27 @@ class RLsys:
 		numErrors = observation.shape[2] - 1
 		state = np.zeros([state_size, state_size, 2])
 		state[:,:,0] = observation[:,:,0]
-		
+		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
-
-		# borde vara +1
+		# evaluera Q för de olika errors
 		for x in range(1,numErrors+1):
-			
 			state[:,:,1] = observation[:,:,x]
 			predQ[:,x] = self.qnet.predictQ(state)
 
-
         # Check the epsilon-greedy criterion
         if np.random.uniform() < self.epsilon:
-            # Select the best action
-			index = predQ.argmax()						
-
-			action = index[0]
-			error = index[1]
-
+		# Select the best action
+		index = predQ.argmax()						
+		# hämta det bästa action för ett visst error
+		action = index[0]
+		error = index[1]
         else:
-            # Choose random action and error
-            action = np.random.choice(self.actions)
-			error = np.random.choice(range(numErrors))
-			# slumpa error här
+		# Choose random action and error
+		action = np.random.choice(self.actions)
+		error = np.random.choice(range(numErrors))
+		# slumpa error här
+		
+	# returnera action och error
         return action, error
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -87,24 +85,23 @@ class RLsys:
 
         # Check if we are at terminal state
         if state_ != 'terminal':
-			# Q is the more optimal Q
-			Q = self.qnet.predictQ(state)
-			# ska returnera z-dimensionen
-			numErrors = observation_p.shape[2] - 1
-			state_p = np.zeros([state_size, state_size, 2])
-			state_p[:,:,0] = observation_p[:,:,0]
-		
-			predQ = np.zeros([4, numErrors])
-
-			for x in range(1,numErrors+1):
-				state[:,:,1] = observation[:,:,x]
-				predQ[:,x] = self.qnet.predictQ(state)
-
-            # Update the approximation of Q
-            Q[action] = reward + self.gamma * predQ.max()
+		# Q is the more optimal Q
+		Q = self.qnet.predictQ(state)
+		# ska returnera z-dimensionen
+		numErrors = observation_p.shape[2] - 1
+		state_p = np.zeros([state_size, state_size, 2])
+		state_p[:,:,0] = observation_p[:,:,0]
+		# de olika Q för alla errors
+		predQ = np.zeros([4, numErrors])
+		# evaluera Q för de olika errors
+		for x in range(1,numErrors+1):
+			state[:,:,1] = observation[:,:,x]
+			predQ[:,x] = self.qnet.predictQ(state)
+		# Update the approximation of Q
+		Q[action] = reward + self.gamma * predQ.max()
         else:
-            # Update the approximation of Q
-            Q[action] = reward
+		# Update the approximation of Q
+		Q[action] = reward
 
         # Update the neural network
         self.qnet.improveQ(state, Q)
