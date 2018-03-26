@@ -40,19 +40,19 @@ class Env:
 		@param
 	Action: "u - 0" "d - 1" "l - 2" "r - 3"
 	"""
-	def moveError(self, action, errorIndex):   			# Tar in ett fel och vilken action den ska ta
+	def moveError(self, action, errorIndex):            # Tar in ett fel och vilken action den ska ta
 
-		firstPos = self.errors[errorIndex, :]			# Positionen för felet som skall flyttas
-		secondPos = self.getPos(action, firstPos)		# Nya positionen för felet givet action och position
-		
+		firstPos = self.errors[errorIndex,:]           # Positionen för felet som skall flyttas
+		secondPos = self.getPos(action, firstPos)       # Nya positionen för felet givet action och position
+
+        # Uppdatera den gamla positionen
 		self.state[firstPos] = 0
-
+        # Uppdatera den nya positionen
+		self.state[secondPos] = 0
 		if self.state[secondPos[0], secondPos[1]] == 0:
 			self.state[secondPos] = 1
-		else:
-			self.state[secondPos] = 0
-			
-		self.updateErrors()									# Kolla igenom igen vart fel finns
+
+		self.updateErrors()     # Kolla igenom igen vart fel finns
 
     """
     Returnerar positionen efter att ha rört sig i en viss riktning.
@@ -69,7 +69,7 @@ class Env:
 		if action == 0:									# Beroende på action väljs steg
 			nextPos[0] -= 1
 			if nextPos[0] == 0:
-				nextPos[0] = self.length			#Flyttar genom väggen
+				nextPos[0] = self.length			# Flyttar genom väggen
 		if action == 1:
 			nextPos[0] += 1
 			if nextPos[0] == self.length:
