@@ -85,6 +85,9 @@ class Env:
 
 		return nextPos									# Output: nya positionen för felet
 
+"""
+Mainmetod för att testa ovanstående klass.
+"""
 if __name__ == '__main__':
 
 	# Här testas i princip ovanstående klass!
