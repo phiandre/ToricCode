@@ -54,6 +54,14 @@ class Env:
 			
 		self.updateErrors()									# Kolla igenom igen vart fel finns
 
+    """
+    Returnerar positionen efter att ha rört sig i en viss riktning.
+        @param
+            action: den associerade riktningsrörelsen.
+            position: positionen vi står vid innan vi flyttar oss.
+        @return
+            numpy: koordinater för nya positionen.
+    """
 	def getPos(self, action, position):					# Input: vilken action, felets position
 
 		nextPos = np.array(position, copy=True)
