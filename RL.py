@@ -25,8 +25,9 @@ class RLsys:
     RL class constructor.
         @param
             actions: the possible actions of the system.
+			state_size: the size of the state matrix.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def __init__(self, actions, reward_decay=0.9, e_greedy=0.9, state_size=4):
+    def __init__(self, actions, state_size, reward_decay=0.9, e_greedy=0.9):
         # Save parameters for later use
         self.state_size = state_size
         self.actions = actions
@@ -36,27 +37,42 @@ class RLsys:
         self.qnet = QNet(self.state_size, 1)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    Method which returns the action based on specified state.
+    Method which returns the action based on specified state and error.
         @param
             observation: the current state of the system.
         @return
             int: the given action based on the state.
+			int: the associated error.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def choose_action(self, observation):
+
+		# ska returnera z-dimensionen
+		numErrors = observation.shape[2] - 1
+		state = np.zeros([state_size, state_size, 2])
+		state[:,:,0] = observation[:,:,0]
+		
+		predQ = np.zeros([4, numErrors])
+
+		for x in range(1,numErrors+1):					# ändrat till +1;annars tror jag vi utvärderar ett fel för lite
+			
+			state[:,:,1] = observation[:,:,x]
+			predQ[:,x] = self.qnet.predictQ(state)
+
+
         # Check the epsilon-greedy criterion
         if np.random.uniform() < self.epsilon:
-            # Produce Q for all possible actions
-            predQ = np.zeros(len(self.actions))
-            # Do predictions for each action
-            for a in range(0, len(self.actions)):
-                # Predict action with Neural Network
-                predQ[a] = self.qnet.predictQ(observation, a)
             # Select the best action
-            action = predQ.argmax()
+			index = predQ.argmax()						
+
+			action = index[0]
+			error = index[1]
+
         else:
-            # Choose random action
+            # Choose random action and error
             action = np.random.choice(self.actions)
-        return action
+			error = np.random.choice(range(numErrors))
+			# slumpa error här
+        return action, error
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     Trains the neural network given the outcome of the action.
