@@ -50,6 +50,8 @@ class Env:
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def moveError(self, action, errorIndex):
 
+		# Kolla antal errors innan
+		amountErrors = len(self.errors)
 		# Positionen för felet som skall flyttas
 		firstPos = self.errors[errorIndex, :]
 		# Nya positionen för felet givet action och position
@@ -65,6 +67,11 @@ class Env:
 
 		# Kolla igenom igen vart fel finns
 		self.updateErrors()
+
+		if amountErrors > len(self.errors):
+			return self.state, self.errors, 10
+
+		return self.state, self.errors, -1
 		
 	def centralize(self):
 		# state är matrisen som karaktäriserar tillståndet
