@@ -4,9 +4,7 @@ import random
 
 class Generate:
 	
-	'''
 	
-	'''
 	def generateData(size, numFlips):
 		humanRepresentation, computerRepresentation = Generate.initialize(size)
 		
@@ -19,9 +17,8 @@ class Generate:
 			
 			computerRepresentation = Generate.updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
 		computerRepresentation = abs((computerRepresentation-1)/(2))
-		print(humanRepresentation)
 		print(computerRepresentation)
-		
+		Generate.saveToFile(humanRepresentation,computerRepresentation)
 		
 		return humanRepresentation, computerRepresentation
 		
@@ -38,6 +35,8 @@ class Generate:
 					if j%2==0:
 						humanRepresentation[i,j] = 1
 		computerRepresentation = np.ones((size,size))
+		
+		Generate.saveToFile(humanRepresentation, computerRepresentation)
 		return humanRepresentation, computerRepresentation
 		
 
@@ -47,9 +46,6 @@ class Generate:
 		computerRepresentation = rep
 		rowIndex = int(np.floor(humanRowIndex / 2))
 		columnIndex = int(np.floor(humanColumnIndex / 2))
-		
-		#print(rowIndex)
-		#print(columnIndex)
 		if humanRowIndex == 0:
 			computerRepresentation[(rowIndex, columnIndex)] = (-1)*computerRepresentation[(rowIndex, columnIndex)]
 			computerRepresentation[(size-1, columnIndex)] = (-1)*computerRepresentation[(size-1, columnIndex)]
@@ -76,8 +72,13 @@ class Generate:
 		while rowIndex % 2 == 0 and columnIndex % 2 == 0:
 			columnIndex = random.randint(0,size-1)
 		return rowIndex , columnIndex
-
-
+		
+	
+	def saveToFile(humanRepresentation, computerRepresentation):
+		np.savetxt('Datafiles/ToricCodeHuman.txt', np.round(humanRepresentation), fmt='%d', delimiter = ",")
+		np.savetxt('Datafiles/ToricCodeComputer.txt', np.round(computerRepresentation), fmt='%d', delimiter = ",")
+			
+			
 if __name__ == '__main__':
 	size = 5
 	numFlips = 6
