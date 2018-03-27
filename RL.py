@@ -25,8 +25,9 @@ class RLsys:
     RL class constructor.
         @param
             actions: the possible actions of the system.
+	    state_size: the size of the state matrix.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def __init__(self, actions, reward_decay=0.9, e_greedy=0.9, state_size=4):
+    def __init__(self, actions, state_size, reward_decay=0.9, e_greedy=0.9):
         # Save parameters for later use
         self.state_size = state_size
         self.actions = actions
@@ -36,52 +37,74 @@ class RLsys:
         self.qnet = QNet(self.state_size, 1)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    Method which returns the action based on specified state.
+    Method which returns the action based on specified state and error.
         @param
             observation: the current state of the system.
         @return
             int: the given action based on the state.
+	    int: the associated error.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def choose_action(self, observation):
+
+		# ska returnera z-dimensionen
+		numErrors = observation.shape[2] - 1
+		state = np.zeros([state_size, state_size, 2])
+		state[:,:,0] = observation[:,:,0]
+		# de olika Q för alla errors
+		predQ = np.zeros([4, numErrors])
+		# evaluera Q för de olika errors
+		for x in range(1,numErrors+1):
+			state[:,:,1] = observation[:,:,x]
+			predQ[:,x] = self.qnet.predictQ(state)
+
         # Check the epsilon-greedy criterion
         if np.random.uniform() < self.epsilon:
-            # Produce Q for all possible actions
-            predQ = np.zeros(len(self.actions))
-            # Do predictions for each action
-            for a in range(0, len(self.actions)):
-                # Predict action with Neural Network
-                predQ[a] = self.qnet.predictQ(observation, a)
-            # Select the best action
-            action = predQ.argmax()
+		# Select the best action
+		index = predQ.argmax()						
+		# hämta det bästa action för ett visst error
+		action = index[0]
+		error = index[1]
         else:
-            # Choose random action
-            action = np.random.choice(self.actions)
-        return action
+		# Choose random action and error
+		action = np.random.choice(self.actions)
+		error = np.random.choice(range(numErrors))
+		# slumpa error här
+		
+	# returnera action och error
+        return action, error
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     Trains the neural network given the outcome of the action.
         @param
             state: the previous state of the system.
             action: the action taken.
-            reward: the reward received.
-            state_: the resulting state.
+            reward: the immediate reward received.
+            observation_p: the resulting observation.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def learn(self, state, action, reward, state_):
+    def learn(self, state, action, reward, observation_p):
+
         # Check if we are at terminal state
         if state_ != 'terminal':
-            # Produce Q based on possible actions
-            predQ = np.zeros(len(self.actions))
-            # Do predictions for each action
-            for a in range(0, len(self.actions)):
-                # Predict action with Neural Network
-                predQ[a] = self.qnet.predictQ(state_, a)
-            # Update the approximation of Q
-            q_target = reward + self.gamma * predQ.max()
+		# Q is the more optimal Q
+		Q = self.qnet.predictQ(state)
+		# ska returnera z-dimensionen
+		numErrors = observation_p.shape[2] - 1
+		state_p = np.zeros([state_size, state_size, 2])
+		state_p[:,:,0] = observation_p[:,:,0]
+		# de olika Q för alla errors
+		predQ = np.zeros([4, numErrors])
+		# evaluera Q för de olika errors
+		for x in range(1,numErrors+1):
+			state[:,:,1] = observation[:,:,x]
+			predQ[:,x] = self.qnet.predictQ(state)
+		# Update the approximation of Q
+		Q[action] = reward + self.gamma * predQ.max()
         else:
-            # Update the approximation of Q
-            q_target = reward
+		# Update the approximation of Q
+		Q[action] = reward
+
         # Update the neural network
-        self.qnet.improveQ(state, action, q_target)
+        self.qnet.improveQ(state, Q)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     Changes the epsilon in the epsilon-greedy policy.
