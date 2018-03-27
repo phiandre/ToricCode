@@ -47,7 +47,7 @@ class Env:
 		@param
 			action: rörelse som vi vill utföra.
 			errorIndex: index till fel som vi vill flytta.
-	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def moveError(self, action, errorIndex):
 
 		# Positionen för felet som skall flyttas
@@ -65,7 +65,18 @@ class Env:
 
 		# Kolla igenom igen vart fel finns
 		self.updateErrors()
-
+		
+	def centralize(self):
+		# state är matrisen som karaktäriserar tillståndet
+		# error är koordinaterna för felet
+		state_=np.concatenate((self.state[:,self.errors[1]:],self.state[:,0:self.errors[1]]),1)
+		state_=np.concatenate((state_[self.errors[0]:,:],state_[0:self.errors[0],:]),0)
+		rowmid=int(np.ceil(self.state.shape[0]/2))
+		colmid=int(np.ceil(self.state.shape[1]/2))
+		state_=np.concatenate((state_[:,colmid:],state_[:,0:colmid]),1)
+		state_=np.concatenate((state_[rowmid:,:],state_[0:rowmid,:]),0)
+		return state_
+	
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Returnerar positionen efter att ha rört sig i en viss riktning.
 		@param
@@ -73,7 +84,7 @@ class Env:
 			position: positionen vi står vid innan vi flyttar oss.
 		@return
 			numpy: koordinater för nya positionen.
-	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getPos(self, action, position):
 
 		# Kopiera tidigare position så vi får ny pekare
@@ -104,6 +115,17 @@ class Env:
 		# Returnera nya positionen för felet
 		return nextPos
 
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Returnerar
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def getObservation(self):
+		numerror=self.errors.shape[0]
+		observation=np.zeros((self.length,self.length,numerror))
+		for i in range(numerror):
+			observation[:,:,i]=self.centralize(self.state,self.errors[i,:])
+
+		return observation
+	
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod för att testa ovanstående klass.
 """""""""""""""""""""""""""""""""""""""""""""
