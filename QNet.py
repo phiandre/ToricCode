@@ -55,10 +55,9 @@ class QNet:
 			action: the action to be explored.
 			true_Q: the better approximative value of Q.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def improveQ(self, state, action, true_Q):
+	def improveQ(self, state, true_Q):
 		# Concatenate the state, action and true_Q data.
-		data = np.append(state, action)
-		data = np.expand_dims(data, axis=0)
+		data = np.expand_dims(state, axis=0)
 		true_Q = np.expand_dims(true_Q, axis=0)
 		# Improve the approximation of Q.
 		self.network.fit(data, true_Q, epochs=10, batch_size=1, verbose=0)

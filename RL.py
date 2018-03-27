@@ -51,7 +51,7 @@ class RLsys:
 		# ska returnera z-dimensionen
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
-		self.predQ = predQ(observation)
+		predQ = self.predQ(observation)
 
 		# Check the epsilon-greedy criterion
 		if np.random.uniform() < self.epsilon:
@@ -69,7 +69,7 @@ class RLsys:
 		# returnera action och error
 		return action, error
 		
-	def predQ(self,observation)
+	def predQ(self,observation):
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
@@ -87,11 +87,11 @@ class RLsys:
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def learn(self, state, action, reward, observation_p):
-
+		# Q is the more optimal Q
+		Q = self.qnet.predictQ(state)[0,:]
 		# Check if we are at terminal state
-		if state_ != 'terminal':
-			# Q is the more optimal Q
-			Q = self.qnet.predictQ(state)
+		if observation_p != 'terminal':
+			print(Q)
 			# ska returnera z-dimensionen
 			predQ=self.predQ(observation_p)
 			# Update the approximation of Q

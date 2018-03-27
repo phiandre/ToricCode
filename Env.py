@@ -128,12 +128,15 @@ class Env:
 	Returnerar
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getObservation(self):
-		numerror=self.errors.shape[0]
-		observation=np.zeros((self.length,self.length,numerror))
-		for i in range(numerror):
-			observation[:,:,i]=self.centralize(self.errors[i,:])
+		if len(self.errors)==0:
+			return 'terminal'
+		else:
+			numerror=self.errors.shape[0]
+			observation=np.zeros((self.length,self.length,numerror))
+			for i in range(numerror):
+				observation[:,:,i]=self.centralize(self.errors[i,:])
 
-		return observation
+			return observation
 	
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod för att testa ovanstående klass.
