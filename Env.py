@@ -104,26 +104,6 @@ class Env:
 		# Returnera nya positionen för felet
 		return nextPos
 
-	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	Returnerar 
-	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def getArray(self, errorIndex):
-		a = np.zeros((self.length, self.length))
-		a[errorIndex[0], errorIndex[1]] = 1
-		return a
-
-
-	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	Returnerar
-	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def getObservation(self):
-		M = np.zeros((self.errors.shape[0]+1, self.length, self.length))
-		M[0, :, :]= self.state
-		for i in range(len(self.errors)):
-			M[i+1, :, :] = self.getArray(self.errors[i,:])
-		print("M:", M)
-
-		return M
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod för att testa ovanstående klass.
 """""""""""""""""""""""""""""""""""""""""""""
