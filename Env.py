@@ -4,11 +4,11 @@ import numpy as np
 
 class Env:
 
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Konstruktor för klass Env.
 		@param
 			state: tar in initial statematris i numpy.
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	def __init__(self, state):
 
 		self.state = state
@@ -17,10 +17,10 @@ class Env:
 		self.updateErrors()
 
 
-	"""
-	Hittar alla fel och uppdaterar matrisen errors där felens
-	koordinater finns uppradade.
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""
+	Hittar alla fel och uppdaterar matrisen errors där
+	felens koordinater finns uppradade.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	def updateErrors(self):
 
 		temp = np.zeros([self.length * self.length, 2], dtype=np.int8)
@@ -37,11 +37,13 @@ class Env:
 	def getErrors(self):					# Skapar funktion så vi kan hämta felen
 		return self.errors
 
-	"""
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Flyttar errors, och släcker ut som två errors möter varandra.
+	Actions följer: [u = 0, d = 1, l = 2, r = 3]
 		@param
-	Action: "u - 0" "d - 1" "l - 2" "r - 3"
-	"""
+			action: rörelse som vi vill utföra.
+			errorIndex: index till fel som vi vill flytta.
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def moveError(self, action, errorIndex):            # Tar in ett fel och vilken action den ska ta
 
 		firstPos = self.errors[errorIndex, :]            # Positionen för felet som skall flyttas
@@ -57,14 +59,14 @@ class Env:
 
 		self.updateErrors()     						# Kolla igenom igen vart fel finns
 
-	"""
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Returnerar positionen efter att ha rört sig i en viss riktning.
 		@param
 			action: den associerade riktningsrörelsen.
 			position: positionen vi står vid innan vi flyttar oss.
 		@return
 			numpy: koordinater för nya positionen.
-	"""
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getPos(self, action, position):
 
 		# Kopiera tidigare position så vi får ny pekare
@@ -95,14 +97,18 @@ class Env:
 		# Returnera nya positionen för felet
 		return nextPos
 
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Returnerar 
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getArray(self, errorIndex):
 		a = np.zeros((self.length, self.length))
-		a[errorIndex[0], errorIndex[1]]= 1
+		a[errorIndex[0], errorIndex[1]] = 1
 		return a
 
 
-
-
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Returnerar
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getObservation(self):
 		M = np.zeros((self.errors.shape[0]+1, self.length, self.length))
 		M[0, :, :]= self.state
@@ -111,9 +117,9 @@ class Env:
 		print("M:", M)
 
 		return M
-"""
+"""""""""""""""""""""""""""""""""""""""""""""
 Mainmetod för att testa ovanstående klass.
-"""
+"""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
 
 	# Här testas i princip ovanstående klass!
