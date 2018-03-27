@@ -51,11 +51,7 @@ class RLsys:
 		# ska returnera z-dimensionen
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
-		predQ = np.zeros([4, numErrors])
-		# evaluera Q för de olika errors
-		for x in range(numErrors):
-			state = observation[:,:,x]
-			predQ[:,x] = self.qnet.predictQ(state)
+		self.predQ = predQ(observation)
 
 		# Check the epsilon-greedy criterion
 		if np.random.uniform() < self.epsilon:
@@ -72,7 +68,16 @@ class RLsys:
 		
 		# returnera action och error
 		return action, error
-
+		
+	def predQ(self,observation)
+		numErrors = observation.shape[2]
+		# de olika Q för alla errors
+		predQ = np.zeros([4, numErrors])
+		# evaluera Q för de olika errors
+		for x in range(numErrors):
+			state = observation[:,:,x]
+			predQ[:,x] = self.qnet.predictQ(state)
+		return predQ
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Trains the neural network given the outcome of the action.
 		@param
@@ -88,15 +93,7 @@ class RLsys:
 			# Q is the more optimal Q
 			Q = self.qnet.predictQ(state)
 			# ska returnera z-dimensionen
-			numErrors = observation_p.shape[2] - 1
-			state_p = np.zeros([state_size, state_size, 2])
-			state_p[:,:,0] = observation_p[:,:,0]
-			# de olika Q för alla errors
-			predQ = np.zeros([4, numErrors])
-			# evaluera Q för de olika errors
-			for x in range(1,numErrors+1):
-				state[:,:,1] = observation[:,:,x]
-				predQ[:,x] = self.qnet.predictQ(state)
+			predQ=self.predQ(observation_p)
 			# Update the approximation of Q
 			Q[action] = reward + self.gamma * predQ.max()
 		else:
