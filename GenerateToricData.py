@@ -18,8 +18,7 @@ class Generate:
 			humanRepresentation[(rowIndex, columnIndex)] = -1*humanRepresentation[(rowIndex, columnIndex)];
 			
 			computerRepresentation = Generate.updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
-			
-				
+		computerRepresentation = abs((computerRepresentation-1)/(2))
 		print(humanRepresentation)
 		print(computerRepresentation)
 		
