@@ -75,11 +75,11 @@ class Env:
 
 		return -1
 		
-	def centralize(self):
+	def centralize(self, error):
 		# state är matrisen som karaktäriserar tillståndet
 		# error är koordinaterna för felet
-		state_=np.concatenate((self.state[:,self.errors[1]:],self.state[:,0:self.errors[1]]),1)
-		state_=np.concatenate((state_[self.errors[0]:,:],state_[0:self.errors[0],:]),0)
+		state_=np.concatenate((self.state[:,error[1]:],self.state[:,0:error[1]]),1)
+		state_=np.concatenate((state_[error[0]:,:],state_[0:error[0],:]),0)
 		rowmid=int(np.ceil(self.state.shape[0]/2))
 		colmid=int(np.ceil(self.state.shape[1]/2))
 		state_=np.concatenate((state_[:,colmid:],state_[:,0:colmid]),1)
@@ -131,7 +131,7 @@ class Env:
 		numerror=self.errors.shape[0]
 		observation=np.zeros((self.length,self.length,numerror))
 		for i in range(numerror):
-			observation[:,:,i]=self.centralize(self.state,self.errors[i,:])
+			observation[:,:,i]=self.centralize(self.errors[i,:])
 
 		return observation
 	
