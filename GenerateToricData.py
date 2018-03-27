@@ -3,32 +3,29 @@ import random
 
 
 class Generate:
-	@staticmethod
+	
 	def generateData(size, numFlips):
-		humanRepresentation, computerRepresentation = intialize(size)
+		humanRepresentation, computerRepresentation = Generate.initialize(size)
 		
 		
 		
 		for iteration in range(0,numFlips):
-			rowIndex, columnIndex = flipRandomIndex(2*size)
+			rowIndex, columnIndex = Generate.flipRandomIndex(2*size)
 			while (humanRepresentation[(rowIndex, columnIndex)]== -1):
-				rowIndex, columnIndex = flipRandomIndex(2*size)
-			#print("human: " + str(rowIndex) +"," + str(columnIndex))
+				rowIndex, columnIndex = Generate.flipRandomIndex(2*size)
+			
 			humanRepresentation[(rowIndex, columnIndex)] = -1*humanRepresentation[(rowIndex, columnIndex)];
 			
-			#print("computer: " + str(computerRowIndex) +"," +str(computerColumnIndex))
-			
-			computerRepresentation = updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
+			computerRepresentation = Generate.updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
 			
 				
 		print(humanRepresentation)
-		print(computerRepresentation)	
-		#humanRepresentation[]
+		print(computerRepresentation)
 		
 		
 		return humanRepresentation, computerRepresentation
 		
-	def intialize(size):
+	def initialize(size):
 		humanRepresentation = np.zeros((2*size,2*size))
 		for i in range(0,2*size):
 			if i%2==0:
@@ -85,6 +82,3 @@ if __name__ == '__main__':
 	size = 5
 	numFlips = 6
 	Generate.generateData(size,numFlips)
-	
-
-
