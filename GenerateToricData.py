@@ -4,10 +4,11 @@ import random
 
 class Generate:
 	
+	'''
+	
+	'''
 	def generateData(size, numFlips):
 		humanRepresentation, computerRepresentation = Generate.initialize(size)
-		
-		
 		
 		for iteration in range(0,numFlips):
 			rowIndex, columnIndex = Generate.flipRandomIndex(2*size)
@@ -48,8 +49,8 @@ class Generate:
 		rowIndex = int(np.floor(humanRowIndex / 2))
 		columnIndex = int(np.floor(humanColumnIndex / 2))
 		
-		print(rowIndex)
-		print(columnIndex)
+		#print(rowIndex)
+		#print(columnIndex)
 		if humanRowIndex == 0:
 			computerRepresentation[(rowIndex, columnIndex)] = (-1)*computerRepresentation[(rowIndex, columnIndex)]
 			computerRepresentation[(size-1, columnIndex)] = (-1)*computerRepresentation[(size-1, columnIndex)]
