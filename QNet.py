@@ -29,8 +29,8 @@ class QNet:
         self.state_size = state_size
         # Define a Neural Network based on these parameters
         self.network = Sequential()
-        self.network.add(Conv2D(25, input_shape=(self.state_size,self.state_size,2), activation='relu', data_format="channels_last"))
-        self.network.add(Dense(1))
+        self.network.add(Conv2D(25, strides=[2, 2], kernel=[2, 2], input_shape=[self.state_size, self.state_size, 2], activation='relu', data_format="channels_last"))
+        self.network.add(Dense(4))
         self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
