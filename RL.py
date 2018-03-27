@@ -34,12 +34,14 @@ class RLsys:
 		self.gamma = reward_decay
 		self.epsilon = e_greedy
 		# Produce neural network
-		self.qnet = QNet(self.state_size, 1)
+		self.qnet = QNet(self.state_size)
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which returns the action based on specified state and error.
 		@param
-			observation: the current state of the system.
+			observation: the current state of the system, centered
+			around the errors. Dimensionality: NxNxE, where E is the
+			amount of errors we wish to evaluate actions for.
 		@return
 			int: the given action based on the state.
 			int: the associated error.
@@ -58,7 +60,7 @@ class RLsys:
 		# Check the epsilon-greedy criterion
 		if np.random.uniform() < self.epsilon:
 			# Select the best action
-			index = predQ.argmax()						
+			index = np.unravel_index(predQ.argmax(), predQ.shape)			
 			# hämta det bästa action för ett visst error
 			action = index[0]
 			error = index[1]
@@ -112,3 +114,11 @@ class RLsys:
 	def changeEpsilon(self, epsilon):
 		self.epsilon = epsilon
 
+
+if __name__ == '__main__':
+
+	rl = RLsys(4, 3)
+	M = np.zeros([3, 3, 2])
+	a, c = rl.choose_action(M)
+	print(a)
+	print(c)
