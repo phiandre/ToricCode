@@ -47,6 +47,8 @@ class Env:
 		@param
 			action: rörelse som vi vill utföra.
 			errorIndex: index till fel som vi vill flytta.
+		@return
+			int: reward, 10 för att ta bort, -1 för ingen skillnad.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def moveError(self, action, errorIndex):
 
@@ -69,9 +71,9 @@ class Env:
 		self.updateErrors()
 
 		if amountErrors > len(self.errors):
-			return self.state, self.errors, 10
+			return 10
 
-		return self.state, self.errors, -1
+		return -1
 		
 	def centralize(self):
 		# state är matrisen som karaktäriserar tillståndet
