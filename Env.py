@@ -10,31 +10,35 @@ class Env:
 			state: tar in initial statematris i numpy.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	def __init__(self, state):
-
+		# Spara viktiga matriser och variabler
 		self.state = state
 		self.length = state.shape[0]
-
+		# Uppdatera platser där fel finns
 		self.updateErrors()
-
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Hittar alla fel och uppdaterar matrisen errors där
 	felens koordinater finns uppradade.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	def updateErrors(self):
-
+		# Skapa tillfällig matris
 		temp = np.zeros([self.length * self.length, 2], dtype=np.int8)
 		x = 0
-
-		for i in range(self.length):		#Kollar igenom tillståndet och sparar felen i en array
+		#Kollar igenom tillståndet och sparar felen i en array
+		for i in range(self.length):
 			for j in range(self.length):
 				if self.state[i, j] == 1:
 					temp[x, 0:2] = [i, j]
 					x += 1
+		# Arrayen innehåller positionen för alla fel
+		self.errors = temp[0:x, 0:2]
 
-		self.errors = temp[0:x, 0:2]			# Arrayen innehåller positionen för alla fel
-
-	def getErrors(self):					# Skapar funktion så vi kan hämta felen
+	"""""""""""""""""""""""""""""""""""""""
+	Returnerar matris innehållande felen.
+		@return
+			numpy: matris innehållande fel.
+	"""""""""""""""""""""""""""""""""""""""
+	def getErrors(self):					
 		return self.errors
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -44,10 +48,12 @@ class Env:
 			action: rörelse som vi vill utföra.
 			errorIndex: index till fel som vi vill flytta.
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def moveError(self, action, errorIndex):            # Tar in ett fel och vilken action den ska ta
+	def moveError(self, action, errorIndex):
 
-		firstPos = self.errors[errorIndex, :]            # Positionen för felet som skall flyttas
-		secondPos = self.getPos(action, firstPos)       # Nya positionen för felet givet action och position
+		# Positionen för felet som skall flyttas
+		firstPos = self.errors[errorIndex, :]
+		# Nya positionen för felet givet action och position
+		secondPos = self.getPos(action, firstPos)
 
 		#  Uppdatera den gamla positionen
 		self.state[firstPos[0], firstPos[1]] = 0
@@ -57,7 +63,8 @@ class Env:
 		else:
 			self.state[secondPos] = 0
 
-		self.updateErrors()     						# Kolla igenom igen vart fel finns
+		# Kolla igenom igen vart fel finns
+		self.updateErrors()
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Returnerar positionen efter att ha rört sig i en viss riktning.
