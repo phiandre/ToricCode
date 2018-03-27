@@ -6,6 +6,7 @@ import pickle
 class Generate:
 	
 	""""
+		generateData är huvudmetoden. 
 		@param
 			size: antalet plaketter längs en sida i gittret. Det blir kvadratiskt
 			numFlips: antalet spinflips som ska göras. Finns sannolikhet för att
