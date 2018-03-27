@@ -39,4 +39,6 @@ if __name__ == '__main__':
 		observation = env.getObservation()
 		a, e = rl.choose_action(observation)
 		r = env.moveError(a, e)
+		new_observation = env.getObservation()
+		rl.learn(state, a, r, new_observation)
 			
