@@ -115,15 +115,6 @@ class Env:
 		return nextPos
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	Returnerar 
-	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def getArray(self, errorIndex):
-		a = np.zeros((self.length, self.length))
-		a[errorIndex[0], errorIndex[1]] = 1
-		return a
-
-
-	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Returnerar
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getObservation(self):
@@ -133,6 +124,7 @@ class Env:
 			observation[:,:,i]=self.centralize(self.state,self.errors[i,:])
 
 		return observation
+	
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod för att testa ovanstående klass.
 """""""""""""""""""""""""""""""""""""""""""""
