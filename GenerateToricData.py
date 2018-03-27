@@ -78,7 +78,10 @@ class Generate:
 		np.savetxt('Datafiles/ToricCodeHuman.txt', np.round(humanRepresentation), fmt='%d', delimiter = ",")
 		np.savetxt('Datafiles/ToricCodeComputer.txt', np.round(computerRepresentation), fmt='%d', delimiter = ",")
 			
-			
+
+"""""""""""""""""""""""""""""""""""""""""""""
+Mainmetod för att testa ovanstående klass.
+"""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
 	size = 5
 	numFlips = 6

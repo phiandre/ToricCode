@@ -42,10 +42,9 @@ class QNet:
 		@return
 			float: the value of the predicted Q.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def predictQ(self, state, action):
+	def predictQ(self, state):
 		# Concatenate the state and action data.
-		data = np.append(state, action)
-		data = np.expand_dims(data, axis=0)
+		data = np.expand_dims(state, axis=0)
 		# Predict the value of Q
 		return self.network.predict(data)
 
