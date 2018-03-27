@@ -48,12 +48,11 @@ class RLsys:
 
 		# ska returnera z-dimensionen
 		numErrors = observation.shape[2]
-		state = np.zeros([state_size, state_size, 1])
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
 		for x in range(numErrors):
-			state[:,:,0] = observation[:,:,x]
+			state = observation[:,:,x]
 			predQ[:,x] = self.qnet.predictQ(state)
 
         # Check the epsilon-greedy criterion
