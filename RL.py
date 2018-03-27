@@ -47,14 +47,13 @@ class RLsys:
     def choose_action(self, observation):
 
 		# ska returnera z-dimensionen
-		numErrors = observation.shape[2] - 1
-		state = np.zeros([state_size, state_size, 2])
-		state[:,:,0] = observation[:,:,0]
+		numErrors = observation.shape[2]
+		state = np.zeros([state_size, state_size, 1])
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
-		for x in range(1,numErrors+1):
-			state[:,:,1] = observation[:,:,x]
+		for x in range(numErrors):
+			state[:,:,0] = observation[:,:,x]
 			predQ[:,x] = self.qnet.predictQ(state)
 
         # Check the epsilon-greedy criterion
