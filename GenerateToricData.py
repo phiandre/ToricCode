@@ -161,7 +161,8 @@ if __name__ == '__main__':
 	size = 5 #Storlek på gittret
 	numFlips = 6 #Antalet spin som ska flippas
 	
-	numGenerations = 100 #Antalet datapunkter som ska skapas
+	
+	numGenerations = 1000 #Antalet datapunkter som ska skapas
 	
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	tmpComputer = np.zeros((size,size,numGenerations))

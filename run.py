@@ -36,21 +36,29 @@ if __name__ == '__main__':
 	comRep=np.load('ToricCodeComputer.npy')
 	print(comRep[:,:,3])
 	
+	iterations = np.zeros(comRep.shape[2])
 	
 	for i in range(comRep.shape[2]):
 		state=comRep[:,:,i]
 		env = Env(state)
-		
+		numIter = 0
 		
 		while len(env.getErrors()) > 0:
-			print('Bana nummer ' + str(i))
-			print(state)
+			#print('Bana nummer ' + str(i))
+			#print(state)
+			numIter = numIter + 1
 			observation = env.getObservation()
 			a, e = rl.choose_action(observation)
 			r = env.moveError(a, e)
 			new_observation = env.getObservation()
 			
 			rl.learn(observation[:,:,e], a, r, new_observation)
+			
+		print("Steps taken at iteration " +str(i) + ": ", numIter)
+		iterations[i] = numIter
+	
+	np.save('steps',iterations)
+	'''
 	for i in range(10)
 		while len(env.getErrors()) > 0:
 			print('Bana nummer ' + str(i))
@@ -60,4 +68,5 @@ if __name__ == '__main__':
 			r = env.moveError(a, e)
 			new_observation = env.getObservation()
 			time.sleep(2)
+	'''
 				
