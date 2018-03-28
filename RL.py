@@ -91,7 +91,6 @@ class RLsys:
 		Q = self.qnet.predictQ(state)[0,:]
 		# Check if we are at terminal state
 		if observation_p != 'terminal':
-			print(Q)
 			# ska returnera z-dimensionen
 			predQ=self.predQ(observation_p)
 			# Update the approximation of Q

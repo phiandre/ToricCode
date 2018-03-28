@@ -65,7 +65,7 @@ class Env:
 		if self.state[secondPos[0], secondPos[1]] == 0:
 			self.state[secondPos[0], secondPos[1]] = 1
 		else:
-			self.state[secondPos] = 0
+			self.state[secondPos[0],secondPos[1]] = 0
 
 		# Kolla igenom igen vart fel finns
 		self.updateErrors()

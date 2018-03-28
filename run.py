@@ -2,6 +2,7 @@ import numpy as np
 from RL import RLsys
 from Env import Env
 from GenerateToricData import Generate
+import time
 
 
 """
@@ -31,15 +32,32 @@ if __name__ == '__main__':
 
 	rl = RLsys(4, size)
 	
-	humRep, state = Generate.generateData(size, 1)
-	env = Env(state)
-
-	while len(env.getErrors()) > 0:
-		print(state)
-		observation = env.getObservation()
-		a, e = rl.choose_action(observation)
-		r = env.moveError(a, e)
-		new_observation = env.getObservation()
+	humRep=np.load('ToricCodeHuman.npy')
+	comRep=np.load('ToricCodeComputer.npy')
+	print(comRep[:,:,3])
+	
+	
+	for i in range(comRep.shape[2]):
+		state=comRep[:,:,i]
+		env = Env(state)
 		
-		rl.learn(observation[:,:,e], a, r, new_observation)
+		
+		while len(env.getErrors()) > 0:
+			print('Bana nummer ' + str(i))
+			print(state)
+			observation = env.getObservation()
+			a, e = rl.choose_action(observation)
+			r = env.moveError(a, e)
+			new_observation = env.getObservation()
 			
+			rl.learn(observation[:,:,e], a, r, new_observation)
+	for i in range(10)
+		while len(env.getErrors()) > 0:
+			print('Bana nummer ' + str(i))
+			print(state)
+			observation = env.getObservation()
+			a, e = rl.choose_action(observation)
+			r = env.moveError(a, e)
+			new_observation = env.getObservation()
+			time.sleep(2)
+				
