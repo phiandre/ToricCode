@@ -13,6 +13,7 @@ class Env:
 		# Spara viktiga matriser och variabler
 		self.state = state
 		self.length = state.shape[0]
+		
 		# Uppdatera platser där fel finns
 		self.updateErrors()
 
