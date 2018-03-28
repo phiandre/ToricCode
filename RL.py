@@ -35,7 +35,7 @@ class RLsys:
 		self.epsilon = e_greedy
 		# Produce neural network
 		self.qnet = QNet(self.state_size)
-
+		
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which returns the action based on specified state and error.
 		@param
