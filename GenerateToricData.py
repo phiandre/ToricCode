@@ -105,7 +105,9 @@ class Generate:
 		else:
 			computerRepresentation[(rowIndex,columnIndex)] = (-1)*computerRepresentation[(rowIndex,columnIndex)]
 			computerRepresentation[(rowIndex-1,columnIndex)] = (-1)*computerRepresentation[(rowIndex-1,columnIndex)]
-			
+		
+		# TODO Ska vi inte bara ha 0:or och 1:or som representerar icke-fel och fel? (Tänker på minustecknen) 
+		# Behöver vi inte kolla andra gränsen, dvs då tex humanRowIndex = size?
 		return computerRepresentation
 		
 	
