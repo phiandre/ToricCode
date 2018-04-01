@@ -61,7 +61,7 @@ class Generate:
 				for j in range(0,2*size):
 					if j%2==0:
 						humanRepresentation[i,j] = 1
-		computerRepresentation = np.ones((size,size))
+		computerRepresentation = np.ones((size,size)) #TODO Varför sätter vi allt till 1or? Innebär inte detta att alla plaketter är fel?
 		
 		
 		return humanRepresentation, computerRepresentation
