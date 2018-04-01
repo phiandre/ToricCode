@@ -105,7 +105,7 @@ class Env:
 			if nextPos[0] == 0:
 				nextPos[0] = self.length - 1
 			else:
-				nextPos[0] -= 1
+				nextPos[0] -= 1   #TODO Flyttar vi inte felet neråt här? Actions följer: [u = 0, d = 1, l = 2, r = 3]
 		if action == 1:
 			if nextPos[0] == self.length - 1:
 				nextPos[0] = 0
