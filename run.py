@@ -4,6 +4,7 @@ from Env import Env
 from GenerateToricData import Generate
 import time
 import os.path
+from keras.models import load_model
 
 
 class MainClass:
@@ -11,6 +12,9 @@ class MainClass:
 	
 	def __init__(self):
 		# creates a new filename each time we run the code
+
+		self.networkName = 'trainedNetwork.h5'
+
 		tmp = list('numSteps1.npy')
 		static_element = 1
 		while os.path.isfile("".join(tmp)):
@@ -26,16 +30,17 @@ class MainClass:
 		actions=4
 
 		rl = RLsys(4, size)
-		
+		rl.qnet.network=load_model(self.networkName)
 		humRep=np.load('ToricCodeHuman.npy')
 		comRep=np.load('ToricCodeComputer.npy')
 		print(comRep[:,:,3])
-		
+		print(humRep[:,:,3])
 		iterations = np.zeros(comRep.shape[2])
 		
 		for i in range(comRep.shape[2]):
 			state=comRep[:,:,i]
-			env = Env(state)
+			humanRep = humRep[:,:,i]
+			env = Env(state, humanRep)
 			numIter = 0
 			
 			while len(env.getErrors()) > 0:

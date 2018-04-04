@@ -9,10 +9,12 @@ class Env:
 		@param
 			state: tar in initial statematris i numpy.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, state):
+	def __init__(self, compState, humanState, groundState=0):
 		# Spara viktiga matriser och variabler
-		self.state = state
-		self.length = state.shape[0]
+		self.state = compState
+		self.humanState = humanState
+		self.length = self.state.shape[0]
+		self.groundState = groundState
 		
 		# Uppdatera platser där fel finns
 		self.updateErrors()
@@ -52,14 +54,20 @@ class Env:
 			int: reward, 10 för att ta bort, -1 för ingen skillnad.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def moveError(self, action, errorIndex):
-
 		# Kolla antal errors innan
 		amountErrors = len(self.errors)
 		# Positionen för felet som skall flyttas
 		firstPos = self.errors[errorIndex, :]
 		# Nya positionen för felet givet action och position
 		secondPos = self.getPos(action, firstPos)
-
+		# Positionen för felet i humanState
+		firstHumPos=2*firstPos
+		# Positionen för felets nya plats i humanState
+		secondHumPos=2*secondPos
+		# Positionen för vertexen som ska flippas
+		vertexPos = 1/2 * (firstHumPos + secondHumPos)
+		vertexPos = vertexPos.astype(int)
+		self.humanState[vertexPos[0], vertexPos[1]] = self.humanState[vertexPos[0], vertexPos[1]]*-1
 		#  Uppdatera den gamla positionen
 		self.state[firstPos[0], firstPos[1]] = 0
 		# Uppdatera den nya positionen
@@ -70,6 +78,14 @@ class Env:
 
 		# Kolla igenom igen vart fel finns
 		self.updateErrors()
+
+		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
+		if len(self.errors) == 0:
+			print("groundState: " + str(self.evaluateGroundState()))
+			if (self.evaluateGroundState() == self.groundState):
+				return 100
+			else:
+				return -100
 
 		if amountErrors > len(self.errors):
 			return 10
@@ -138,6 +154,36 @@ class Env:
 				observation[:,:,i]=self.centralize(self.errors[i,:])
 
 			return observation
+
+
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Avgör vilket grundtillstånd vi befinner oss i (kräver att vi
+	har en felfri tillståndsmatris).
+
+	Grundtillstånd: 0 (inga icketriviala loopar)
+					1 (vertikal icketrivial loop)
+					2 (horisontell icketrivial loop)
+					3 (vertikal + horisontell icketrivial loop)
+
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def evaluateGroundState(self):
+
+		yProd = 1
+		xProd = 1
+
+		groundState = 0
+
+		for i in range(self.length):
+
+			yProd = yProd * self.humanState[2*i+1, 0]
+			xProd = xProd * self.humanState[0, 2*i+1]
+			
+		if (yProd == -1):
+			groundState += 1
+		if (xProd == -1):
+			groundState += 2
+		
+		return groundState
 	
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod för att testa ovanstående klass.

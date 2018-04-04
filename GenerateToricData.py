@@ -157,7 +157,7 @@ class Generate:
 	def saveToFile(human, computer):
 		np.save('ToricCodeHuman',human)
 		np.save('ToricCodeComputer', computer)
-	
+
 			
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
