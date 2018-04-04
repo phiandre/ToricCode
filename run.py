@@ -59,6 +59,29 @@ class MainClass:
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
 		
+		"""""
+		En början på implemantation av Monte-Carlo learning:
+		Behöver ändra i reward-funktionen eller på något annat sätt ta hänsyn till sigmaoperatorerna 
+		(vilket grundtillstånd vi kommer till)
+		
+			env = Env(state)
+			observation = env.getObservation
+			C = 1
+			Q = 0
+			
+			while observation != 'terminal':
+				a, e = rl.choose_action(observation)
+				reward = env.moveError(a, e)
+				Q = Q+C*reward
+				C = C*self.gamma
+				observation = env.getObservation
+				
+				
+			Q = Q+C*reward	
+				
+			# Update the neural network
+			self.qnet.improveQ(state, Q)
+		"""""
         
        
        
