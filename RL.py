@@ -78,6 +78,7 @@ class RLsys:
 			state = observation[:,:,x]
 			predQ[:,x] = self.qnet.predictQ(state)
 		return predQ
+
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Trains the neural network given the outcome of the action.
 		@param

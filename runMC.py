@@ -1,5 +1,5 @@
 import numpy as np
-from RL import RLsys
+from RLMC import RLsys
 from Env import Env
 from GenerateToricData import Generate
 import time
@@ -15,6 +15,7 @@ class MainClass:
 
 		self.networkName = 'trainedNetwork.h5'
 
+		self.gamma = 0.9
 		tmp = list('numSteps1.npy')
 		static_element = 1
 		while os.path.isfile("".join(tmp)):
@@ -43,16 +44,46 @@ class MainClass:
 			env = Env(state, humanRep)
 			numIter = 0
 			
+			#######################################
+			# Här utförs Monte Carlo för varje fall
+			#######################################
 			while len(env.getErrors()) > 0:
-				#print('Bana nummer ' + str(i))
-				#print(state)
+
 				numIter = numIter + 1
+				C = 1
+				R = 0
+				firstA = -1
+				"""""""""""""""""""""""""""""""""""""""
+				Skapa ett nytt temporär Env-objekt och
+				initiera det till att vara just där
+				fallet står just nu.
+				"""""""""""""""""""""""""""""""""""""""
+				tempState = env.state
+				tempRep = env.humanState
+				tempEnv = Env(state, humanRep, groundState=env.groundState)
+
+				#########################################
+				# Här utförs Monte Carlo för varje episod
+				#########################################
+				while len(tempEnv.getErrors()) > 0:
+					# Hämta nästa action som bör tas
+					observation = tempEnv.getObservation()
+					a, e = rl.choose_action(observation)
+					# Spara första action som tas Q(s,a)
+					if firstA == -1:
+						firstA = a
+					# Utför förflyttning och iterera reward
+					r = tempEnv.moveError(a, e)
+					C = C*self.gamma
+					R = R + C*r
+
+				# Lär Q(s)
+				rl.learn(tempState, firstA, R)			
+
+				# Ta ett nytt steg
 				observation = env.getObservation()
 				a, e = rl.choose_action(observation)
-				r = env.moveError(a, e)
-				new_observation = env.getObservation()
-				
-				rl.learn(observation[:,:,e], a, r, new_observation)
+				env.moveError(a, e)
 				
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 			iterations[i] = numIter

@@ -86,19 +86,11 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self, state, action, reward, observation_p):
+	def learn(self, state, action, reward):
 		# Q is the more optimal Q
 		Q = self.qnet.predictQ(state)[0,:]
-		# Check if we are at terminal state
-		if observation_p != 'terminal':
-			# ska returnera z-dimensionen
-			predQ=self.predQ(observation_p)
-			# Update the approximation of Q
-			Q[action] = reward + self.gamma * predQ.max()
-		else:
-			# Update the approximation of Q
-			Q[action] = reward
-
+		# Update the approximation of Q
+		Q[action] = reward
 		# Update the neural network
 		self.qnet.improveQ(state, Q)
 
