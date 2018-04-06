@@ -8,12 +8,9 @@ Actions är associerade med heltal på följande vis:
 
 Grundtillstånd:
 
-  0 (inga icketriviala loopar)
-  
-  1 (vertikal icketrivial loop)
-  
+  	0 (inga icketriviala loopar)
+  	1 (vertikal icketrivial loop)
 	2 (horisontell icketrivial loop)
-  
 	3 (vertikal + horisontell icketrivial loop)
 
 # Git-goodies
