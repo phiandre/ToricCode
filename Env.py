@@ -9,7 +9,7 @@ class Env:
 		@param
 			state: tar in initial statematris i numpy.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, compState, humanState, groundState=0, checkGroundState=False):
+	def __init__(self, compState, humanState=np.zeros(0), groundState=0, checkGroundState=False):
 		# Spara viktiga matriser och variabler
 		self.checkGroundState = checkGroundState
 		self.state = compState
@@ -61,14 +61,14 @@ class Env:
 		firstPos = self.errors[errorIndex, :]
 		# Nya positionen för felet givet action och position
 		secondPos = self.getPos(action, firstPos)
-		# Positionen för felet i humanState
-		firstHumPos=2*firstPos
-		# Positionen för felets nya plats i humanState
-		secondHumPos=2*secondPos
-		# Positionen för vertexen som ska flippas
-		vertexPos = 1/2 * (firstHumPos + secondHumPos)
-		vertexPos = vertexPos.astype(int)
-		self.humanState[vertexPos[0], vertexPos[1]] = self.humanState[vertexPos[0], vertexPos[1]]*-1
+		if self.checkGroundState:
+			# Positionen för felet i humanState
+			firstHumPos=2*firstPos
+			# Positionen för felets nya plats i humanState
+			secondHumPos=2*secondPos
+			vertexPos = 1/2 * (firstHumPos + secondHumPos)
+			vertexPos = vertexPos.astype(int)
+			self.humanState[vertexPos[0], vertexPos[1]] = self.humanState[vertexPos[0], vertexPos[1]]*-1
 		#  Uppdatera den gamla positionen
 		self.state[firstPos[0], firstPos[1]] = 0
 		# Uppdatera den nya positionen
