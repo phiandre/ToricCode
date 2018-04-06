@@ -12,8 +12,8 @@ class Env:
 	def __init__(self, compState, humanState=np.zeros(0), groundState=0, checkGroundState=False):
 		# Spara viktiga matriser och variabler
 		self.checkGroundState = checkGroundState
-		self.state = compState
-		self.humanState = humanState
+		self.state = np.copy(compState)
+		self.humanState = np.copy(humanState)
 		self.length = self.state.shape[0]
 		self.groundState = groundState
 		
@@ -83,7 +83,6 @@ class Env:
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
 		if self.checkGroundState:
 			if len(self.errors) == 0:
-				print("groundState: " + str(self.evaluateGroundState()))
 				if (self.evaluateGroundState() == self.groundState):
 					return 100
 				else:

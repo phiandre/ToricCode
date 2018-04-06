@@ -9,13 +9,12 @@ from keras.models import load_model
 
 class MainClass:
 	
-	
 	def __init__(self):
 		# creates a new filename each time we run the code
 
 		self.networkName = 'trainedNetwork.h5'
 
-		self.gamma = 0.9
+		self.gamma = 1
 		tmp = list('numSteps1.npy')
 		static_element = 1
 		while os.path.isfile("".join(tmp)):
@@ -34,8 +33,6 @@ class MainClass:
 		rl.qnet.network=load_model(self.networkName)
 		humRep=np.load('ToricCodeHuman.npy')
 		comRep=np.load('ToricCodeComputer.npy')
-		print(comRep[:,:,3])
-		print(humRep[:,:,3])
 		iterations = np.zeros(comRep.shape[2])
 		
 		for i in range(comRep.shape[2]):
@@ -60,8 +57,7 @@ class MainClass:
 				"""""""""""""""""""""""""""""""""""""""
 				tempState = env.state
 				tempRep = env.humanState
-				tempEnv = Env(state, humanRep, groundState=env.groundState, checkGroundState=True)
-
+				tempEnv = Env(tempState, tempRep, groundState=env.groundState, checkGroundState=True)
 				#########################################
 				# Här utförs Monte Carlo för varje episod
 				#########################################
@@ -78,7 +74,8 @@ class MainClass:
 					R = R + C*r
 
 				# Lär Q(s)
-				rl.learn(tempState, firstA, R)			
+				if firstA != -1:
+					rl.learn(tempState, firstA, R)	
 
 				# Ta ett nytt steg
 				observation = env.getObservation()
