@@ -58,7 +58,6 @@ class MainClass:
 				fallet står just nu.
 				"""""""""""""""""""""""""""""""""""""""
 				tempState = env.state
-				print(tempState)
 				tempRep = env.humanState
 				tempEnv = Env(tempState, tempRep, groundState=env.groundState, checkGroundState=True)
 				#########################################

@@ -70,11 +70,11 @@ class Env:
 			if action==0 and firstPos[0]==0:
 				vertexPos = [0, firstHumPos[1]]
 			elif action==1 and firstPos[0]==self.length - 1:
-				vertexPos = [2*self.length-1, firstHumPos[1]]
+				vertexPos = [0, firstHumPos[1]]
 			elif action==2 and firstPos[1]==0:
 				vertexPos = [firstHumPos[0], 0]
 			elif action==3 and firstPos[1]==self.length - 1:
-				vertexPos = [firstHumPos[0], 2*self.length-1]
+				vertexPos = [firstHumPos[0], 0]
 			else:
 				vertexPos = 1/2 * (firstHumPos + secondHumPos)
 				vertexPos = vertexPos.astype(int)
