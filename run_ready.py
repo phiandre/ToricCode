@@ -32,8 +32,8 @@ class MainClass:
 		rl = RLsys(4, size)
 		rl.qnet.network=load_model(self.networkName)
 		rl.changeEpsilon(1)
-		humRep=np.load('ToricCodeHuman.npy')
-		comRep=np.load('ToricCodeComputer.npy')
+		humRep=np.load('ToricCodeHumanTest.npy')
+		comRep=np.load('ToricCodeComputerTest.npy')
 		print(comRep[:,:,3])
 
 		iterations = np.zeros(comRep.shape[2])
