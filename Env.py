@@ -63,9 +63,9 @@ class Env:
 		secondPos = self.getPos(action, firstPos)
 		if self.checkGroundState:
 			# Positionen för felet i humanState
-			firstHumPos=2*firstPos
+			firstHumPos=2*firstPos+1
 			# Positionen för felets nya plats i humanState
-			secondHumPos=2*secondPos
+			secondHumPos=2*secondPos+1
 			vertexPos = 1/2 * (firstHumPos + secondHumPos)
 			vertexPos = vertexPos.astype(int)
 			self.humanState[vertexPos[0], vertexPos[1]] = self.humanState[vertexPos[0], vertexPos[1]]*-1
@@ -83,7 +83,7 @@ class Env:
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
 		if self.checkGroundState:
 			if len(self.errors) == 0:
-				print(self.evaluateGroundState())
+				print("groundstate: "+str(self.evaluateGroundState()))
 				if (self.evaluateGroundState() == self.groundState):
 					return 100
 				else:
