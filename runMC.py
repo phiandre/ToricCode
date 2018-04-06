@@ -60,7 +60,7 @@ class MainClass:
 				"""""""""""""""""""""""""""""""""""""""
 				tempState = env.state
 				tempRep = env.humanState
-				tempEnv = Env(state, humanRep, groundState=env.groundState)
+				tempEnv = Env(state, humanRep, groundState=env.groundState, checkGroundState=True)
 
 				#########################################
 				# Här utförs Monte Carlo för varje episod
