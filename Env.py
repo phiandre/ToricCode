@@ -83,6 +83,7 @@ class Env:
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
 		if self.checkGroundState:
 			if len(self.errors) == 0:
+				print(self.evaluateGroundState())
 				if (self.evaluateGroundState() == self.groundState):
 					return 100
 				else:

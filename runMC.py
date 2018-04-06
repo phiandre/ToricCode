@@ -14,7 +14,7 @@ class MainClass:
 
 		self.networkName = 'trainedNetwork.h5'
 
-		self.gamma = 1
+		self.gamma = 0.9
 		tmp = list('numSteps1.npy')
 		static_element = 1
 		while os.path.isfile("".join(tmp)):
