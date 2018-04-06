@@ -166,6 +166,7 @@ if __name__ == '__main__':
 	
 	numGenerations = 10000 #Antalet datapunkter som ska skapas
 	
+	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	tmpComputer = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
@@ -174,3 +175,13 @@ if __name__ == '__main__':
 		tmpComputer[:,:,i] = computer
 	
 	Generate.saveToFile(tmpHuman, tmpComputer)
+	
+	#Skapar testdata
+	tmpHumanTest = np.zeros((size*2,size*2,numGenerations))
+	tmpComputerTest = np.zeros((size,size,numGenerations))
+	for i in range(numGenerations):
+		humanTest, computerTest = Generate.generateData(size,numFlips)
+		tmpHumanTest[:,:,i] = humanTest
+		tmpComputerTest[:,:,i] = computerTest
+	
+	Generate.saveToFile(tmpHumanTest, tmpComputerTest)
