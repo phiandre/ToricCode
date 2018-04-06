@@ -11,10 +11,12 @@ class MainClass:
 	
 	def __init__(self):
 		# creates a new filename each time we run the code
+		self.X = 0
+		self.n = 0
 
 		self.networkName = 'trainedNetwork.h5'
 
-		self.gamma = 0.9
+		self.gamma = 1
 		tmp = list('numSteps1.npy')
 		static_element = 1
 		while os.path.isfile("".join(tmp)):
@@ -38,7 +40,7 @@ class MainClass:
 		for i in range(comRep.shape[2]):
 			state=comRep[:,:,i]
 			humanRep = humRep[:,:,i]
-			env = Env(state, humanRep)
+			env = Env(state, humanRep, checkGroundState=True)
 			numIter = 0
 			
 			#######################################
@@ -56,6 +58,7 @@ class MainClass:
 				fallet står just nu.
 				"""""""""""""""""""""""""""""""""""""""
 				tempState = env.state
+				print(tempState)
 				tempRep = env.humanState
 				tempEnv = Env(tempState, tempRep, groundState=env.groundState, checkGroundState=True)
 				#########################################
@@ -80,10 +83,16 @@ class MainClass:
 				# Ta ett nytt steg
 				observation = env.getObservation()
 				a, e = rl.choose_action(observation)
-				env.moveError(a, e)
-				
-			print("Steps taken at iteration " +str(i) + ": ", numIter)
+				r = env.moveError(a, e)
+			
+			print("reward taken: "+str(r))
+			print("Steps taken at iteration: " +str(i) + ": ", numIter)
+			if r == 100:
+				self.X += 1
+			self.n += 1
+			print("Average correct GS: "+str(self.X/self.n))
 			iterations[i] = numIter
+
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
 		
