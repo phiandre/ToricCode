@@ -6,6 +6,18 @@ Actions är associerade med heltal på följande vis:
 
 [upp: 0, ner: 1, vänster: 2, höger: 3]
 
+Grundtillstånd:
+
+  0 (inga icketriviala loopar)
+  
+  1 (vertikal icketrivial loop)
+  
+	2 (horisontell icketrivial loop)
+  
+	3 (vertikal + horisontell icketrivial loop)
+
+# Git-goodies
+
 Om man vill reverta till versionen på github (tar bort lokala varianter):
 
 git reset --hard HEAD
