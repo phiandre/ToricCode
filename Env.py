@@ -9,8 +9,9 @@ class Env:
 		@param
 			state: tar in initial statematris i numpy.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, compState, humanState, groundState=0):
+	def __init__(self, compState, humanState, groundState=0, checkGroundState=False):
 		# Spara viktiga matriser och variabler
+		self.checkGroundState = checkGroundState
 		self.state = compState
 		self.humanState = humanState
 		self.length = self.state.shape[0]
@@ -80,12 +81,13 @@ class Env:
 		self.updateErrors()
 
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
-		if len(self.errors) == 0:
-			print("groundState: " + str(self.evaluateGroundState()))
-			if (self.evaluateGroundState() == self.groundState):
-				return 100
-			else:
-				return -100
+		if self.checkGroundState:
+			if len(self.errors) == 0:
+				print("groundState: " + str(self.evaluateGroundState()))
+				if (self.evaluateGroundState() == self.groundState):
+					return 100
+				else:
+					return -100
 
 		if amountErrors > len(self.errors):
 			return 10
