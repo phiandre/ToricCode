@@ -154,14 +154,16 @@ class Generate:
 				f.write("\n")
 	"""
 	
-	def saveToFile(human, computer):
+	def saveToFile(human, computer, humanTest, computerTest):
 		np.save('ToricCodeHuman',human)
 		np.save('ToricCodeComputer', computer)
+		np.save('ToricCodeHumanTest',humanTest)
+		np.save('ToricCodeComputerTest', computerTest)
 
 			
 if __name__ == '__main__':
-	size = 5 #Storlek på gittret
-	numFlips = 1 #Antalet spin som ska flippas
+	size = 10 #Storlek på gittret
+	numFlips = 5 #Antalet spin som ska flippas
 	
 	
 	numGenerations = 10000 #Antalet datapunkter som ska skapas
@@ -174,7 +176,6 @@ if __name__ == '__main__':
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
 	
-	Generate.saveToFile(tmpHuman, tmpComputer)
 	
 	#Skapar testdata
 	tmpHumanTest = np.zeros((size*2,size*2,numGenerations))
@@ -184,4 +185,4 @@ if __name__ == '__main__':
 		tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest[:,:,i] = computerTest
 	
-	Generate.saveToFile(tmpHumanTest, tmpComputerTest)
+	Generate.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
