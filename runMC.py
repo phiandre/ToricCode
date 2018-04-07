@@ -60,9 +60,9 @@ class MainClass:
 				tempState = env.state
 				tempRep = env.humanState
 				tempEnv = Env(tempState, tempRep, groundState=env.groundState, checkGroundState=True)
-				#########################################
-				# Här utförs Monte Carlo för varje episod
-				#########################################
+				#######################################
+				# Här utförs Monte Carlo för varje steg
+				#######################################
 				while len(tempEnv.getErrors()) > 0:
 					# Hämta nästa action som bör tas
 					observation = tempEnv.getObservation()
