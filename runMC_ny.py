@@ -49,7 +49,6 @@ class MainClass:
 	Main-klassens Monte-Carlo algoritm för inlärning av nätverket.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def run(self):
-
 		# Ladda in modellen (nätverket) från filnamn
 		importNetwork = load_model(self.networkName)
 		# Instansiera ett RLMC-objekt och läs in nätverket
