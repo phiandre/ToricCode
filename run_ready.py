@@ -1,3 +1,6 @@
+"""""""""""""""""""""
+	Importeringar
+"""""""""""""""""""""
 import numpy as np
 from RL import RLsys
 from Env import Env
@@ -7,8 +10,10 @@ import time
 import os.path
 import pickle
 
+"""""""""""""""""""""""
+	Klassdefinition
+"""""""""""""""""""""""
 class MainClass:
-
 
 	def __init__(self):
 		#TODO värden som skall sättas innan varje körning
