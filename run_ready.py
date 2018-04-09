@@ -26,11 +26,12 @@ class MainClass:
 		self.run()
         
 	def run(self):
-		flip = np.arange(5)
-		size=5
-		actions=4
-		rl = RLsys(4, size)
-		rl.qnet.network=load_model(self.networkName)
+
+		importNetwork = load_model(self.networkName)
+
+		rl = RLsys(4, importNetwork.input_shape[2])
+		rl.qnet.network = importNetwork
+
 		rl.changeEpsilon(1)
 		humRep=np.load('ToricCodeHumanTest.npy')
 		comRep=np.load('ToricCodeComputerTest.npy')
