@@ -1,3 +1,16 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Klass för att utföra Monte-Carlo iterationer.
+
+Skapar ett RLMC-objekt, som i sin tur har ett
+QNet-objekt. Nätverket initieras till nätverket
+som är sparat i strängen networkName.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""
+
+#################
+# Importeringar #
+#################
 import numpy as np
 from RLMC import RLsys
 from Env import Env
@@ -6,120 +19,105 @@ import time
 import os.path
 from keras.models import load_model
 
-
+########################
+# Klass för programmet #
+########################
 class MainClass:
 	
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Main-klassens konstruktor.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def __init__(self):
-		# creates a new filename each time we run the code
+		
+		# Inlärningsgamma
+		self.gamma = 1
+
+		# Variabler för statistik
 		self.X = 0
 		self.n = 0
 
+		# Filnamn för det tränade nätverket
 		self.networkName = 'trainedNetwork.h5'
 
-		self.gamma = 1
+		# Skapa ett nytt filnamn för utdata
 		tmp = list('numSteps1.npy')
 		static_element = 1
 		while os.path.isfile("".join(tmp)):
 			static_element += 1
 			tmp[8] = str(static_element)
 		self.filename="".join(tmp)
-		
+
+		# Kör igång Monte-Carlo algoritmen
 		self.run()
-        
+
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Main-klassens Monte-Carlo algoritm för inlärning av nätverket.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def run(self):
 
+		# Ladda in modellen (nätverket) från filnamn
 		importNetwork = load_model(self.networkName)
 
-		rl = RLsys(4, importNetwork.input_shape[2])
-		rl.qnet.network = importNetwork
-
+		# Instansiera ett RLMC-objekt och läs in nätverket
+		self.rl = RLsys(4, importNetwork.input_shape[2])
+		self.rl.qnet.network = importNetwork
+	
+		# Ladda in träningsdatan
 		humRep=np.load('ToricCodeHuman.npy')
 		comRep=np.load('ToricCodeComputer.npy')
 		iterations = np.zeros(comRep.shape[2])
 		
+		############################################
+		# Utför Monte-Carlo för varje träningsdata #
+		############################################
 		for i in range(comRep.shape[2]):
+
+			# Läs in ett träningsfall
 			state=comRep[:,:,i]
 			humanRep = humRep[:,:,i]
-			env = Env(state, humanRep, checkGroundState=True)
-			numIter = 0
+			self.env = Env(state, humanRep, checkGroundState=True)
 			
-			#######################################
-			# Här utförs Monte Carlo för varje fall
-			#######################################
-			while len(env.getErrors()) > 0:
+			######################################################
+			# Leta efter och ta bort fel tills alla fel är borta #
+			######################################################
+			self.learnStep(state)
 
-				numIter = numIter + 1
-				C = 1
-				R = 0
-				firstA = -1
-				"""""""""""""""""""""""""""""""""""""""
-				Skapa ett nytt temporär Env-objekt och
-				initiera det till att vara just där
-				fallet står just nu.
-				"""""""""""""""""""""""""""""""""""""""
-				tempState = env.state
-				tempRep = env.humanState
-				tempEnv = Env(tempState, tempRep, groundState=env.groundState, checkGroundState=True)
-				#######################################
-				# Här utförs Monte Carlo för varje steg
-				#######################################
-				while len(tempEnv.getErrors()) > 0:
-					# Hämta nästa action som bör tas
-					observation = tempEnv.getObservation()
-					a, e = rl.choose_action(observation)
-					# Spara första action som tas Q(s,a)
-					if firstA == -1:
-						firstA = a
-					# Utför förflyttning och iterera reward
-					r = tempEnv.moveError(a, e)
-					C = C*self.gamma
-					R = R + C*r
-
-				# Lär Q(s)
-				if firstA != -1:
-					rl.learn(tempState, firstA, R)	
-
-				# Ta ett nytt steg
-				observation = env.getObservation()
-				a, e = rl.choose_action(observation)
-				r = env.moveError(a, e)
-			
-			print("reward taken: "+str(r))
-			print("Steps taken at iteration: " +str(i) + ": ", numIter)
-			if r == 100:
-				self.X += 1
-			self.n += 1
-			print("Average correct GS: "+str(self.X/self.n))
-			iterations[i] = numIter
-
+		# Spara data (fungerar ej nu)
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
-		
-		"""""
-		En början på implemantation av Monte-Carlo learning:
-		Behöver ändra i reward-funktionen eller på något annat sätt ta hänsyn till sigmaoperatorerna 
-		(vilket grundtillstånd vi kommer till)
-		
-			env = Env(state)
-			observation = env.getObservation
-			C = 1
-			Q = 0
-			
-			while observation != 'terminal':
-				a, e = rl.choose_action(observation)
-				reward = env.moveError(a, e)
-				Q = Q+C*reward
-				C = C*self.gamma
-				observation = env.getObservation
-				
-				
-			Q = Q+C*reward	
-				
-			# Update the neural network
-			self.qnet.improveQ(state, Q)
-		"""""
-        
-       
+
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Rekursiv metod för Monte-Carlo, nätverket uppdateras rekursivt
+	genom att rl söker sig fram till ett errorlöst state.
+		@param
+			state: nuvarande tillstånd.
+		@return
+			int: reward som dyker upp efter state.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""		
+	def learnStep(self, state):
+	
+		# Avsluta om felen (errors) är borttagna
+		if len(self.env.errors) == 0:
+			return 0
+
+		# Kopiera tillstånd för att slippa fel i Env
+		copiedState = np.copy(state)
+
+		# Bestäm action, error och tillhörande reward
+		observation = self.env.getObservation()
+		action, error = self.rl.choose_action(observation)
+
+		# Hämta nuvarande och nästkommande reward
+		newReward = self.env.moveError(action, error)
+		upcomingReward = self.learnStep(newState, newReward)
+
+		# Uppdatera reward (som skall uppdateras i nätverket)
+		reward = newReward + self.gamma * upcomingReward
+
+		# Uppdatera nätverket
+		self.rl.learn(copiedState, action, reward)
+
+		return reward
        
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod, här körs själva simuleringen.
