@@ -93,7 +93,7 @@ class MainClass:
 		action, error = self.rl.choose_action(observation)
 		# Hämta nuvarande och nästkommande reward
 		newReward = self.env.moveError(action, error)
-		upcomingReward = self.learnStep(newState, newReward)
+		upcomingReward = self.learnStep(copiedState, newReward)
 		# Uppdatera reward (som skall uppdateras i nätverket)
 		reward = newReward + self.gamma * upcomingReward
 		# Uppdatera nätverket
