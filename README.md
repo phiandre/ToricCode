@@ -20,7 +20,7 @@ Grundtillstånd:
 
 Om man vill reverta till versionen på github (tar bort lokala varianter):
 
-	git reset --hard HEAD
+	git reset --hard origin/master
 	git clean -f -d
 	git pull
 
