@@ -95,6 +95,8 @@ class MainClass:
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
 		
+		rl.qnet.network.save('MCtrainedNetwork1.h5')
+		
 		"""""
 		En början på implemantation av Monte-Carlo learning:
 		Behöver ändra i reward-funktionen eller på något annat sätt ta hänsyn till sigmaoperatorerna 

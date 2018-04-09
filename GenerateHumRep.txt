@@ -1,0 +1,8 @@
+import numpy as np
+import random
+import pickle
+
+
+humanRepresentation=np.zeros(size)
+
+#np.random.choice(humanRepresentation)

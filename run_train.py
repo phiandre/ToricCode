@@ -25,13 +25,14 @@ class MainClass:
         
 	def run(self):
 		flip = np.arange(5)
-		size=5
+		size=10
 		actions=4
 
 		rl = RLsys(4, size)
-
-		humRep=np.load('ToricCodeHuman.npy')
-		comRep=np.load('ToricCodeComputer.npy')
+		
+		comRep=np.load('ComputerData.npy')
+		humRep=np.zeros((size*2,size*2,comRep.shape[2]))
+		
 
 		iterations = np.zeros(comRep.shape[2])
 

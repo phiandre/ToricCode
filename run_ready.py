@@ -17,8 +17,8 @@ class MainClass:
 
 	def __init__(self):
 		#TODO värden som skall sättas innan varje körning
-		self.networkName = 'trainedNetwork2.h5'
-		self.maxNumberOfIterations = 2000
+		self.networkName = 'trainedNetwork13.h5'
+		self.maxNumberOfIterations = 1000
 
 		# creates a new filename each time we run the code
 		tmp = list('numSteps1.npy')
@@ -50,9 +50,9 @@ class MainClass:
 			env = Env(state,human)
 			numIter = 0
 			while len(env.getErrors()) > 0:
-				print(1)
 				#print('Bana nummer ' + str(i))
-				#print(state)
+				print(env.state)
+				print(' ')
 				numIter = numIter + 1
 				observation = env.getObservation()
 				a, e = rl.choose_action(observation)
@@ -61,6 +61,7 @@ class MainClass:
 
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 			iterations[i] = numIter
+			
 
 
 
