@@ -66,10 +66,19 @@ class MainClass:
 			state=comRep[:,:,i]
 			humanRep = humRep[:,:,i]
 			self.env = Env(state, humanRep, checkGroundState=True)
+			self.currIterations = 0
+			self.currReward = 0
 			######################################################
 			# Leta efter och ta bort fel tills alla fel är borta #
 			######################################################
 			self.learnStep(state)
+			# Uppdatera iterations
+			iterations[i] = self.currIterations
+			#####################
+			# Skriv ut resultat #
+			#####################
+			print("Reward vid sista steg: "+str(self.currReward))
+			print("Antal iterationer: "+str(self.currIterations))
 		# Spara data (fungerar ej nu)
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
@@ -98,6 +107,12 @@ class MainClass:
 		reward = newReward + self.gamma * upcomingReward
 		# Uppdatera nätverket
 		self.rl.learn(copiedState, action, reward)
+		###########################
+		# Uppdatera för statistik #
+		###########################
+		self.currIterations += 1
+		if newReward == 100 or newReward == -100:
+			self.currReward = newReward
 		# Returnera reward uppnådd hittills
 		return reward
        
