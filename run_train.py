@@ -11,15 +11,17 @@ class MainClass:
 
 	def __init__(self):
 		#TODO värden som skall sättas innan en körning
+		self.saveData = True
 		self.maxNumberOfIterations = 5000
 
 		# creates a new filename each time we run the code
-		tmp = list('numSteps1.npy')
-		self.static_element = 1
-		while os.path.isfile("".join(tmp)):
-			self.static_element += 1
-			tmp[8] = str(self.static_element)
-		self.filename="".join(tmp)
+		if(self.saveData):
+			tmp = list('/Users/nikfor/Desktop/Kandidat/Saves/numSteps1.npy')
+			self.static_element = 1
+			while os.path.isfile("".join(tmp)):
+				self.static_element += 1
+				tmp[45] = str(self.static_element)
+			self.filename = "".join(tmp)
 
 		self.run()
         
@@ -54,14 +56,18 @@ class MainClass:
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 			iterations[i] = numIter
 
-		tmp = list('trainedNetwork1.h5')
-		tmp[14] = str(self.static_element)
-		filename = "".join(tmp)
+		if(self.saveData):
 
-		print("Saving data in " + self.filename)
-		np.save(self.filename,iterations)
+			tmp = list('trainedNetwork1.h5')
+			tmp[14] = str(self.static_element)
+			filename = "/Users/nikfor/Desktop/Kandidat/Saves/" + "".join(tmp)
 
-		rl.qnet.network.save(filename)
+			print("Saving data in " + self.filename)
+			np.save(self.filename,iterations)
+
+			rl.qnet.network.save(filename)
+
+		
 
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod, här körs själva simuleringen.
