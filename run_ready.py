@@ -23,6 +23,10 @@ class MainClass:
 		self.maxNumberOfIterations = 1000
 
 		# creates a new filename each time we run the code
+		self.getFilename()
+		self.run()
+
+	def getFilename(self):
 		if (self.saveData):
 			tmp = list('/Users/nikfor/Desktop/Kandidat/Saves/numSteps1.npy')
 			self.static_element = 1
@@ -32,15 +36,15 @@ class MainClass:
 			self.filename = "".join(tmp)
 		else:
 			tmp = list('numSteps1.npy')
-			static_element = 1
+			self.static_element = 1
+
 			while os.path.isfile("".join(tmp)):
-				static_element += 1
-				tmp[8] = str(static_element)
-			self.filename = "".join(tmp)
+				self.static_element += 1
+				tmp[8] = str(self.static_element)
+				self.filename = "".join(tmp)
 
 
-		self.run()
-		
+
 	def printState(self, env):
 		print(env.state)
 		print('')
