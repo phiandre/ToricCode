@@ -11,6 +11,7 @@ class MainClass:
 
 	def __init__(self):
 		#TODO värden som skall sättas innan en körning
+		self.networkName = 'trainedNetwork.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
@@ -29,7 +30,7 @@ class MainClass:
 		actions=4
 
 		rl = RLsys(4, size)
-		
+		rl.qnet.network=load_model(self.networkName)
 		comRep=np.load('ComputerData.npy')
 		humRep=np.zeros((size*2,size*2,comRep.shape[2]))
 		
