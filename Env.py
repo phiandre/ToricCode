@@ -1,14 +1,30 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+	Klassen Env skapar ett objekt som är en matris för kvantdatan.
+	Den kan uppdateras genom att flytta ett specifikt fel (error) i
+	matrisen genom att utföra en förflyttning (action).
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+##########
+# Import #
+##########
 import math
 import numpy as np
 
+###############
+# Klassen Env #
+###############
 class Env:
 
-	"""""""""""""""""""""""""""""""""""""""""""""""""""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Konstruktor för klass Env.
 		@param
-			state: tar in initial statematris i numpy.
-	"""""""""""""""""""""""""""""""""""""""""""""""""""
+			compState: tar in initial statematris i numpy.
+			humanState: tar in spin-matris (för reward).
+			groundState: grundtillståndet, värde från 0 till 3.
+			checkGroundState: beroende på om man vill kolla grundtillstånd.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def __init__(self, compState, humanState=np.zeros(0), groundState=0, checkGroundState=False):
 		# Spara viktiga matriser och variabler
 		self.checkGroundState = checkGroundState
@@ -16,7 +32,6 @@ class Env:
 		self.humanState = np.copy(humanState)
 		self.length = self.state.shape[0]
 		self.groundState = groundState
-		
 		# Uppdatera platser där fel finns
 		self.updateErrors()
 
@@ -66,7 +81,6 @@ class Env:
 			firstHumPos=2*firstPos+1
 			# Positionen för felets nya plats i humanState
 			secondHumPos=2*secondPos+1
-			
 			if action==0 and firstPos[0]==0:
 				vertexPos = [0, firstHumPos[1]]
 			elif action==1 and firstPos[0]==self.length - 1:
@@ -78,9 +92,7 @@ class Env:
 			else:
 				vertexPos = 1/2 * (firstHumPos + secondHumPos)
 				vertexPos = vertexPos.astype(int)
-
 			self.humanState[vertexPos[0], vertexPos[1]] *= -1
-
 		#  Uppdatera den gamla positionen
 		self.state[firstPos[0], firstPos[1]] = 0
 		# Uppdatera den nya positionen
@@ -88,10 +100,8 @@ class Env:
 			self.state[secondPos[0], secondPos[1]] = 1
 		else:
 			self.state[secondPos[0],secondPos[1]] = 0
-
 		# Kolla igenom igen vart fel finns
 		self.updateErrors()
-
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
 		if self.checkGroundState:
 			if len(self.errors) == 0:
@@ -99,12 +109,18 @@ class Env:
 					return 100
 				else:
 					return -100
-
 		if amountErrors > len(self.errors):
 			return 10
-
 		return -1
-		
+
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Flyttar errors, och släcker ut som två errors möter varandra.
+	Actions följer: [u = 0, d = 1, l = 2, r = 3]
+		@param
+			error: index till felet vi vill centralisera.
+		@return
+			numpy: state centrerat kring hänvisat error.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""		
 	def centralize(self, error):
 		# state är matrisen som karaktäriserar tillståndet
 		# error är koordinaterna för felet
@@ -125,10 +141,8 @@ class Env:
 			numpy: koordinater för nya positionen.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getPos(self, action, position):
-
 		# Kopiera tidigare position så vi får ny pekare
 		nextPos = np.array(position, copy=True)
-
 		# Beroende på action väljs steg
 		if action == 0:
 			if nextPos[0] == 0:
@@ -150,12 +164,15 @@ class Env:
 				nextPos[1] = 0
 			else:
 				nextPos[1] += 1
-
 		# Returnera nya positionen för felet
 		return nextPos
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	Returnerar
+	Skapa en 3D-matris där plaketter är samma tillstånd som state
+	fast centraliserad kring alla olika fel, i samma ordning som
+	felen är ordnade i errors-vektorn.
+		@return
+			numpy: matrisen som beskrivs ovan.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getObservation(self):
 		if len(self.errors)==0:
@@ -165,59 +182,44 @@ class Env:
 			observation=np.zeros((self.length,self.length,numerror))
 			for i in range(numerror):
 				observation[:,:,i]=self.centralize(self.errors[i,:])
-
 			return observation
 
-
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	Avgör vilket grundtillstånd vi befinner oss i (kräver att vi
-	har en felfri tillståndsmatris).
+	Avgör vilket grundtillstånd vi befinner oss i
+		@precondition
+			kräver att vi har en felfri tillståndsmatris.
+		@return
+			int: grundtillstånd som vi har just nu.
 
 	Grundtillstånd: 0 (inga icketriviala loopar)
 					1 (vertikal icketrivial loop)
 					2 (horisontell icketrivial loop)
 					3 (vertikal + horisontell icketrivial loop)
-
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def evaluateGroundState(self):
-
 		yProd = 1
 		xProd = 1
-
 		groundState = 0
-
 		for i in range(self.length):
-
 			yProd = yProd * self.humanState[2*i+1, 0]
 			xProd = xProd * self.humanState[0, 2*i+1]
-			
 		if (yProd == -1):
 			groundState += 1
 		if (xProd == -1):
 			groundState += 2
-		
 		return groundState
-	
-"""""""""""""""""""""""""""""""""""""""""""""
-Mainmetod för att testa ovanstående klass.
-"""""""""""""""""""""""""""""""""""""""""""""
-if __name__ == '__main__':
 
-	# Här testas i princip ovanstående klass!
-	S = np.zeros([3, 3])
-	S[0, 0] = 1
-	S[1, 1] = 1
-	S[2, 1] = 1
-	S[0, 2] = 1
-	env = Env(S)
-	print("Start state:")
-	print(env.state)
+	"""""""""""""""""""""""""""""""""""""""""""""
+	Kopierar ett Env-objekt och returnera det.
+		@return
+			Env: en kopia av Env-objektet.
+	"""""""""""""""""""""""""""""""""""""""""""""
+	def copy(self):
+		# Kopiera numpys så vi inte får problem
+		copyState = np.copy(self.state)
+		copyHuman = np.copy(self.humanState)
+		# Instansiera en kopia av samma objekt
+		copyEnv = Env(copyState, copyHuman, self.groundState, self.checkGroundState)
+		# Returnera kopia
+		return copyEnv
 
-	env.moveError(1, 1)
-	print("final state")
-	print(env.state)
-	env.getObservation()
-
-
-
-			

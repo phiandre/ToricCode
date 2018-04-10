@@ -47,12 +47,10 @@ class RLsys:
 			int: the associated error.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def choose_action(self, observation):
-
 		# ska returnera z-dimensionen
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
 		predQ = self.predQ(observation)
-
 		# Check the epsilon-greedy criterion
 		if np.random.uniform() < self.epsilon:
 			# Select the best action
@@ -65,10 +63,19 @@ class RLsys:
 			action = np.random.choice(self.actions)
 			error = np.random.choice(range(numErrors))
 			# slumpa error här
-		
 		# returnera action och error
 		return action, error
-		
+
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Method which returns the Q value predicted for an observation.
+		@param
+			observation: the current state of the system, centered
+			around the errors. Dimensionality: NxNxE, where E is the
+			amount of errors we wish to evaluate actions for.
+		@return
+			numpy: the predicted Q for all states, AxE, where A
+			is the amount of possible actions.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""		
 	def predQ(self,observation):
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
@@ -78,6 +85,7 @@ class RLsys:
 			state = observation[:,:,x]
 			predQ[:,x] = self.qnet.predictQ(state)
 		return predQ
+
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Trains the neural network given the outcome of the action.
 		@param
@@ -101,12 +109,3 @@ class RLsys:
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""       
 	def changeEpsilon(self, epsilon):
 		self.epsilon = epsilon
-
-
-if __name__ == '__main__':
-
-	rl = RLsys(4, 3)
-	M = np.zeros([3, 3, 2])
-	a, c = rl.choose_action(M)
-	print(a)
-	print(c)
