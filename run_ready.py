@@ -17,18 +17,28 @@ class MainClass:
 
 	def __init__(self):
 		#TODO värden som skall sättas innan varje körning
+		self.graphix = True
+		self.saveData = True
 		self.networkName = 'trainedNetwork13.h5'
 		self.maxNumberOfIterations = 1000
 
 		# creates a new filename each time we run the code
-		tmp = list('numSteps1.npy')
-		static_element = 1
-		while os.path.isfile("".join(tmp)):
-			static_element += 1
-			tmp[8] = str(static_element)
-		self.filename="".join(tmp)
+		if (self.saveData):
+			tmp = list('/Users/nikfor/Desktop/Kandidat/Saves/numSteps1.npy')
+			self.static_element = 1
+			while os.path.isfile("".join(tmp)):
+				self.static_element += 1
+				tmp[45] = str(self.static_element)
+			self.filename = "".join(tmp)
+
 
 		self.run()
+		
+	def printState(self, env):
+		print(env.state)
+		print('')
+
+	
         
 	def run(self):
 
@@ -51,8 +61,8 @@ class MainClass:
 			numIter = 0
 			while len(env.getErrors()) > 0:
 				#print('Bana nummer ' + str(i))
-				print(env.state)
-				print(' ')
+				if self.graphix:
+					self.printState(env)
 				numIter = numIter + 1
 				observation = env.getObservation()
 				a, e = rl.choose_action(observation)
