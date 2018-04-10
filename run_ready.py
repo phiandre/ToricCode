@@ -19,7 +19,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = True
 		self.saveData = True
-		self.networkName = 'trainedNetwork13.h5'
+		self.networkName = '/Users/nikfor/Desktop/Kandidat/Saves/trainedNetwork2.h5'
 		self.maxNumberOfIterations = 1000
 
 		# creates a new filename each time we run the code
@@ -29,6 +29,13 @@ class MainClass:
 			while os.path.isfile("".join(tmp)):
 				self.static_element += 1
 				tmp[45] = str(self.static_element)
+			self.filename = "".join(tmp)
+		else:
+			tmp = list('numSteps1.npy')
+			static_element = 1
+			while os.path.isfile("".join(tmp)):
+				static_element += 1
+				tmp[8] = str(static_element)
 			self.filename = "".join(tmp)
 
 
