@@ -32,12 +32,12 @@ class MainClass:
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def __init__(self):
 		# Inlärningsgamma
-		self.gamma = 1
+		self.gamma = 0.8
 		# Variabler för statistik
 		self.X = 0
 		self.n = 0
 		# Filnamn för det tränade nätverket
-		self.networkName = 'trainedNetwork14.h5'
+		self.networkName = 'trainedNetwork15.h5'
 		# Skapa ett nytt filnamn för utdata
 		tmp = list('numSteps1.npy')
 		static_element = 1
@@ -91,9 +91,9 @@ class MainClass:
 				# Uppdatera rewards
 				currReward = env.moveError(action, error)
 				# Uppdatera listor för inlärning senare
-				stateList.append(state)
-				rewardList.append(currReward)
-				actionList.append(action)
+				stateList.appendleft(state)
+				rewardList.appendleft(currReward)
+				actionList.appendleft(action)
 				###########################
 				# Uppdatera för statistik #
 				###########################
@@ -106,7 +106,12 @@ class MainClass:
 				# Skapa reward iterativt
 				reward = rewardList.pop() + self.gamma * reward
 				# Uppdatera nätverket
-				rl.learn(stateList.pop(), actionList.pop(), reward)
+				s = stateList.pop()
+				a = actionList.pop()
+				#print("reward: "+str(reward))
+				#print("action: "+str(a))
+				#print(s)
+				rl.learn(s, a, reward)
 
 			# Uppdatera iterations
 			iterations[i] = currIterations
