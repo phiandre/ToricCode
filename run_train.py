@@ -30,7 +30,7 @@ class MainClass:
 
 		rl = RLsys(4, size)
 		
-		comRep=np.load('ComputerData.npy')
+		comRep=np.load('ToricCodeComputer.npy')
 		humRep=np.zeros((size*2,size*2,comRep.shape[2]))
 
 		iterations = np.zeros(comRep.shape[2])
