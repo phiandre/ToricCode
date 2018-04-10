@@ -5,7 +5,7 @@ import pickle
 
 class Generate:
 	
-	""""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 		generateData är huvudmetoden. 
 		@param
 			size: antalet plaketter längs en sida i gittret. Det blir kvadratiskt
@@ -21,7 +21,7 @@ class Generate:
 								beståendes av ettor och nollor. Ettorna betyder att det finns 
 								ett fel i plaketten och nollor betyder att det inte finns 
 								något fel.
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def generateData(size, numFlips):
 		humanRepresentation, computerRepresentation = Generate.initialize(size)
 		
@@ -38,7 +38,7 @@ class Generate:
 		
 		return humanRepresentation, computerRepresentation
 		
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 		initialize skapar de ursprungliga representationerna av 
 		humanRepresentation och computerRepresentation, kallas på i GenerateData.
 		@param
@@ -48,7 +48,7 @@ class Generate:
 								för humanRepresentation.
 			computerRepresentation: den enklaste formen av grundtillstånd
 								för computerRepresentation.
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def initialize(size):
 		humanRepresentation = np.zeros((2*size,2*size))
 		for i in range(0,2*size):
@@ -67,7 +67,7 @@ class Generate:
 		return humanRepresentation, computerRepresentation
 		
 
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 		updateComputerRepresentation anropas när ett spinn har flippats för att 
 		uppdatera computerRepresentation. Att ändra detta i humanRepresentation 
 		är trivialt, men i computerRepresentation måste man ta hänsyn till att 
@@ -87,7 +87,7 @@ class Generate:
 			computerRepresentation: den uppdaterade versionen av 
 							computerRepresentation 
 	
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 	def updateComputerRepresentation(humanRowIndex, humanColumnIndex, size, rep):
 		computerRepresentation = rep
@@ -111,7 +111,7 @@ class Generate:
 		return computerRepresentation
 		
 	
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 		flipRandomIndex väljer ut ett random index i humanRepresentation
 		som ska flippas, kallas på i GenerateData.
 		
@@ -123,7 +123,7 @@ class Generate:
 			ska flippas
 			columnIndex: kolonnindex i humanRepresentation för spinnet
 			som ska flippas
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	
 	def flipRandomIndex(size):
 		
@@ -137,7 +137,7 @@ class Generate:
 		return rowIndex , columnIndex
 	
 	
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def saveToFile(human, computer):
 		open('Datafiles/ToricCodeComputer.txt', 'w').close()
 		open('Datafiles/ToricCodeHuman.txt', 'w').close()
@@ -152,7 +152,7 @@ class Generate:
 			for i in range(human.shape[2]):
 				f.write(str(human[:,:,i]))
 				f.write("\n")
-	"""
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	
 	def saveToFile(human, computer, humanTest, computerTest):
 		np.save('ToricCodeHuman',human)
@@ -162,8 +162,8 @@ class Generate:
 
 			
 if __name__ == '__main__':
-	size = 10 #Storlek på gittret
-	numFlips = 5 #Antalet spin som ska flippas
+	size = 9 #Storlek på gittret
+	numFlips = 4 #Antalet spin som ska flippas
 	
 	
 	numGenerations = 10000 #Antalet datapunkter som ska skapas

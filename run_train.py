@@ -11,7 +11,7 @@ class MainClass:
 
 	def __init__(self):
 		#TODO värden som skall sättas innan en körning
-		self.maxNumberOfIterations = 10000
+		self.maxNumberOfIterations = 5000
 
 		# creates a new filename each time we run the code
 		tmp = list('numSteps1.npy')
@@ -25,14 +25,13 @@ class MainClass:
         
 	def run(self):
 		flip = np.arange(5)
-		size=10
+		size=9
 		actions=4
 
 		rl = RLsys(4, size)
 		
 		comRep=np.load('ComputerData.npy')
 		humRep=np.zeros((size*2,size*2,comRep.shape[2]))
-		
 
 		iterations = np.zeros(comRep.shape[2])
 
@@ -64,8 +63,6 @@ class MainClass:
 
 		rl.qnet.network.save(filename)
 
-        
-       
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod, här körs själva simuleringen.
 """""""""""""""""""""""""""""""""""""""""""""
