@@ -18,6 +18,7 @@ from GenerateToricData import Generate
 import time
 import os.path
 from keras.models import load_model
+from collections import deque
 
 ########################
 # Klass för programmet #
@@ -25,7 +26,9 @@ from keras.models import load_model
 class MainClass:
 	
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	Main-klassens konstruktor.
+	Main-klassens konstruktor, definierar filnamn där vi skall
+	importera nätverket ifrån. Definierar också avtagningsfaktorn
+	gamma för Monte-Carlo.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def __init__(self):
 		# Inlärningsgamma
@@ -34,7 +37,7 @@ class MainClass:
 		self.X = 0
 		self.n = 0
 		# Filnamn för det tränade nätverket
-		self.networkName = 'trainedNetwork.h5'
+		self.networkName = 'trainedNetwork14.h5'
 		# Skapa ett nytt filnamn för utdata
 		tmp = list('numSteps1.npy')
 		static_element = 1
@@ -49,15 +52,17 @@ class MainClass:
 	Main-klassens Monte-Carlo algoritm för inlärning av nätverket.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def run(self):
+
 		# Ladda in modellen (nätverket) från filnamn
 		importNetwork = load_model(self.networkName)
 		# Instansiera ett RLMC-objekt och läs in nätverket
-		self.rl = RLsys(4, importNetwork.input_shape[2])
-		self.rl.qnet.network = importNetwork
+		rl = RLsys(4, importNetwork.input_shape[2])
+		rl.qnet.network = importNetwork
 		# Ladda in träningsdatan
 		humRep=np.load('ToricCodeHuman.npy')
 		comRep=np.load('ToricCodeComputer.npy')
 		iterations = np.zeros(comRep.shape[2])
+
 		############################################
 		# Utför Monte-Carlo för varje träningsdata #
 		############################################
@@ -65,56 +70,55 @@ class MainClass:
 			# Läs in ett träningsfall
 			state=comRep[:,:,i]
 			humanRep = humRep[:,:,i]
-			self.env = Env(state, humanRep, checkGroundState=True)
-			self.currIterations = 0
-			self.currReward = 0
+			env = Env(state, humanRep, checkGroundState=True)
+			currIterations = 0
+			currReward = 0
+			reward = 0
+			# Använd queue för att få konstant tidskomplexitet
+			stateList = deque()
+			rewardList = deque()
+			actionList = deque()
+
 			######################################################
 			# Leta efter och ta bort fel tills alla fel är borta #
 			######################################################
-			self.learnStep(state)
+			while len(env.errors) > 0:
+				# Bestäm action, error och tillhörande reward
+				observation = env.getObservation()
+				action, error = rl.choose_action(observation)
+				# Ta ut tillstånd som flyttades
+				state = observation[:,:,error]
+				# Uppdatera rewards
+				currReward = env.moveError(action, error)
+				# Uppdatera listor för inlärning senare
+				stateList.append(state)
+				rewardList.append(currReward)
+				actionList.append(action)
+				###########################
+				# Uppdatera för statistik #
+				###########################
+				currIterations += 1
+
+			########################################
+			# Uppdatera nätverket utifrån resultat #
+			########################################
+			for i in range(currIterations):
+				# Skapa reward iterativt
+				reward = rewardList.pop() + self.gamma * reward
+				# Uppdatera nätverket
+				rl.learn(stateList.pop(), actionList.pop(), reward)
+
 			# Uppdatera iterations
-			iterations[i] = self.currIterations
+			iterations[i] = currIterations
 			#####################
 			# Skriv ut resultat #
 			#####################
-			print("Reward vid sista steg: "+str(self.currReward))
-			print("Antal iterationer: "+str(self.currIterations))
+			print("Reward vid sista steg: "+str(currReward))
+			print("Antal iterationer: "+str(currIterations))
+
 		# Spara data (fungerar ej nu)
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
-
-	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	Rekursiv metod för Monte-Carlo, nätverket uppdateras rekursivt
-	genom att rl söker sig fram till ett errorlöst state.
-		@param
-			state: nuvarande tillstånd.
-		@return
-			int: reward som dyker upp efter state.
-	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""		
-	def learnStep(self, state):
-		# Avsluta om felen (errors) är borttagna
-		if len(self.env.errors) == 0:
-			return 0
-		# Kopiera tillstånd för att slippa fel i Env
-		copiedState = np.copy(state)
-		# Bestäm action, error och tillhörande reward
-		observation = self.env.getObservation()
-		action, error = self.rl.choose_action(observation)
-		# Hämta nuvarande och nästkommande reward
-		newReward = self.env.moveError(action, error)
-		upcomingReward = self.learnStep(copiedState)
-		# Uppdatera reward (som skall uppdateras i nätverket)
-		reward = newReward + self.gamma * upcomingReward
-		# Uppdatera nätverket
-		self.rl.learn(copiedState, action, reward)
-		###########################
-		# Uppdatera för statistik #
-		###########################
-		self.currIterations += 1
-		if newReward == 100 or newReward == -100:
-			self.currReward = newReward
-		# Returnera reward uppnådd hittills
-		return reward
        
 """""""""""""""""""""""""""""""""""""""""""""
 Mainmetod, här körs själva simuleringen.
