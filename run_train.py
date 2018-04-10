@@ -38,7 +38,6 @@ class MainClass:
 
 		for i in range(min(comRep.shape[2],self.maxNumberOfIterations)):
 			state=comRep[:,:,i]
-			print(state)
 			env = Env(state)
 			numIter = 0
 
