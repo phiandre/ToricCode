@@ -73,7 +73,7 @@ class MainClass:
 			env = Env(state, humanRep, checkGroundState=True)
 			currIterations = 0
 			currReward = 0
-			reward = 0
+			empiricalQ = 0
 			# Använd queue för att få konstant tidskomplexitet
 			stateList = deque()
 			rewardList = deque()
@@ -104,14 +104,14 @@ class MainClass:
 			########################################
 			for i in range(currIterations):
 				# Skapa reward iterativt
-				reward = rewardList.pop() + self.gamma * reward
+				empiricalQ = rewardList.pop() + self.gamma * empiricalQ
 				# Uppdatera nätverket
 				s = stateList.pop()
 				a = actionList.pop()
 				#print("reward: "+str(reward))
 				#print("action: "+str(a))
 				#print(s)
-				rl.learn(s, a, reward)
+				rl.learn(s, a, empiricalQ)
 
 			# Uppdatera iterations
 			iterations[i] = currIterations
