@@ -12,7 +12,7 @@ class MainClass:
 	def __init__(self):
 		#TODO värden som skall sättas innan en körning
 		self.saveData = False
-		self.maxNumberOfIterations = 100
+		self.maxNumberOfIterations = 5000
 
 		# creates a new filename each time we run the code
 		self.getFilename()
@@ -29,6 +29,7 @@ class MainClass:
 			self.filename = "".join(tmp)
 		else:
 			tmp = list('numSteps1.npy')
+			self.filename = 'numSteps1.npy'
 			self.static_element = 1
 
 			while os.path.isfile("".join(tmp)):
