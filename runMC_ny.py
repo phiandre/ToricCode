@@ -121,7 +121,9 @@ class MainClass:
 			print("Reward vid sista steg: "+str(currReward))
 			print("Antal iterationer: "+str(currIterations))
 
-		# Spara data (fungerar ej nu)
+		###############################
+		# Spara data (fungerar ej nu) #
+		###############################
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
        
