@@ -106,9 +106,9 @@ class Env:
 		if self.checkGroundState:
 			if len(self.errors) == 0:
 				if (self.evaluateGroundState() == self.groundState):
-					return 100
+					return 10
 				else:
-					return -100
+					return -10
 		if amountErrors > len(self.errors):
 			return 10
 		return -1

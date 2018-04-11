@@ -91,9 +91,9 @@ class MainClass:
 				# Uppdatera rewards
 				currReward = env.moveError(action, error)
 				# Uppdatera listor för inlärning senare
-				stateList.appendleft(state)
-				rewardList.appendleft(currReward)
-				actionList.appendleft(action)
+				stateList.append(state)
+				rewardList.append(currReward)
+				actionList.append(action)
 				###########################
 				# Uppdatera för statistik #
 				###########################
