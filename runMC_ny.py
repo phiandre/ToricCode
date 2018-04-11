@@ -108,9 +108,7 @@ class MainClass:
 				# Uppdatera nätverket
 				s = stateList.pop()
 				a = actionList.pop()
-				#print("reward: "+str(reward))
-				#print("action: "+str(a))
-				#print(s)
+				# Skicka till rl för uppdatering
 				rl.learn(s, a, empiricalQ)
 
 			# Uppdatera iterations
