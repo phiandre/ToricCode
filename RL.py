@@ -54,7 +54,7 @@ class RLsys:
 		predQ = self.predQ(observation)
 
 		# Check the epsilon-greedy criterion
-		if np.random.uniform() < self.epsilon:
+		if np.random.uniform() > self.epsilon:
 			# Select the best action
 			index = np.unravel_index(predQ.argmax(), predQ.shape)			
 			# hämta det bästa action för ett visst error
