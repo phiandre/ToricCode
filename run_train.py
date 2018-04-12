@@ -71,24 +71,24 @@ class MainClass:
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 			iterations[i] = numIter
 
-		if(self.saveData):
+			if(self.saveData):
 
-			tmp = list('trainedNetwork1.h5')
-			tmp[14] = str(self.static_element)
-			filename = "/Users/nikfor/Desktop/Kandidat/Saves/" + "".join(tmp)
+				tmp = list('trainedNetwork1.h5')
+				tmp[14] = str(self.static_element)
+				filename = "/Users/nikfor/Desktop/Kandidat/Saves/" + "".join(tmp)
 
-			print("Saving data in " + self.filename)
-			np.save(self.filename,iterations)
+				#print("Saving data in " + self.filename)
+				np.save(self.filename,iterations[0:(i+1)])
 
-			rl.qnet.network.save(filename)
+				rl.qnet.network.save(filename)
 
-		else:
+			else:
 				tmp = list('trainedNetwork1.h5')
 				tmp[14] = str(self.static_element)
 				filename = "".join(tmp)
 
-				print("Saving data in " + self.filename)
-				np.save(self.filename,iterations)
+				#print("Saving data in " + self.filename)
+				np.save(self.filename,iterations[0:(i+1)])
 
 				rl.qnet.network.save(filename)
 
