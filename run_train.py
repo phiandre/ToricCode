@@ -13,6 +13,7 @@ class MainClass:
 		#TODO värden som skall sättas innan en körning
 		self.saveData = False
 		self.maxNumberOfIterations = 5000
+		self.alpha = -0.5
 
 		# creates a new filename each time we run the code
 		self.getFilename()
@@ -56,6 +57,7 @@ class MainClass:
 			state=comRep[:,:,i]
 			env = Env(state)
 			numIter = 0
+			rl.epsilon = (1+x)**(self.alpha)
 
 			while len(env.getErrors()) > 0:
 				#print('Bana nummer ' + str(i))
