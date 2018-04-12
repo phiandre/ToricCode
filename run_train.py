@@ -83,7 +83,6 @@ class MainClass:
 
 					#print("Saving data in " + self.filename)
 					np.save(self.filename,iterations[0:(i+1)])
-					np.savetxt('test.txt',iterations[0:(i+1)])
 
 					rl.qnet.network.save(filename)
 
@@ -94,7 +93,6 @@ class MainClass:
 
 					#print("Saving data in " + self.filename)
 					np.save(self.filename,iterations[0:(i+1)])
-					np.savetxt('test.txt',iterations[0:(i+1)])
 
 					rl.qnet.network.save(filename)
 
