@@ -14,6 +14,7 @@ class MainClass:
 		self.saveData = False
 		self.maxNumberOfIterations = 5000
 		self.alpha = -0.5
+		self.saverate = 1000
 
 		# creates a new filename each time we run the code
 		self.getFilename()
@@ -73,26 +74,29 @@ class MainClass:
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 			iterations[i] = numIter
 
-			if(self.saveData):
+			if(i % self.saverate == 0):
+				if(self.saveData):
 
-				tmp = list('trainedNetwork1.h5')
-				tmp[14] = str(self.static_element)
-				filename = "/Users/nikfor/Desktop/Kandidat/Saves/" + "".join(tmp)
+					tmp = list('trainedNetwork1.h5')
+					tmp[14] = str(self.static_element)
+					filename = "/Users/nikfor/Desktop/Kandidat/Saves/" + "".join(tmp)
 
-				#print("Saving data in " + self.filename)
-				np.save(self.filename,iterations[0:(i+1)])
+					#print("Saving data in " + self.filename)
+					np.save(self.filename,iterations[0:(i+1)])
+					np.savetxt('test.txt',iterations[0:(i+1)])
 
-				rl.qnet.network.save(filename)
+					rl.qnet.network.save(filename)
 
-			else:
-				tmp = list('trainedNetwork1.h5')
-				tmp[14] = str(self.static_element)
-				filename = "".join(tmp)
+				else:
+					tmp = list('trainedNetwork1.h5')
+					tmp[14] = str(self.static_element)
+					filename = "".join(tmp)
 
-				#print("Saving data in " + self.filename)
-				np.save(self.filename,iterations[0:(i+1)])
+					#print("Saving data in " + self.filename)
+					np.save(self.filename,iterations[0:(i+1)])
+					np.savetxt('test.txt',iterations[0:(i+1)])
 
-				rl.qnet.network.save(filename)
+					rl.qnet.network.save(filename)
 
 
 		
