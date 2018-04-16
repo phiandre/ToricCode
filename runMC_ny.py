@@ -36,14 +36,16 @@ class MainClass:
 		# Variabler för statistik
 		self.X = 0
 		self.n = 0
+		self.alpha = -0.5
+		self.saverate = 99
 		# Filnamn för det tränade nätverket
-		self.networkName = 'trainedNetwork15.h5'
+		self.networkName = 'MCtrainedNetwork20.h5'
 		# Skapa ett nytt filnamn för utdata
 		tmp = list('numSteps1.npy')
-		static_element = 1
+		self.static_element = 1
 		while os.path.isfile("".join(tmp)):
-			static_element += 1
-			tmp[8] = str(static_element)
+			self.static_element += 1
+			tmp[8] = str(self.static_element)
 		self.filename="".join(tmp)
 		# Kör igång Monte-Carlo algoritmen
 		self.run()
@@ -110,14 +112,28 @@ class MainClass:
 				a = actionList.pop()
 				# Skicka till rl för uppdatering
 				rl.learn(s, a, empiricalQ)
-
+				
+				
+			
+			if currReward == 10:
+				self.X += 1
+			self.n += 1
 			# Uppdatera iterations
 			iterations[i] = currIterations
 			#####################
 			# Skriv ut resultat #
 			#####################
 			print("Reward vid sista steg: "+str(currReward))
-			print("Antal iterationer: "+str(currIterations))
+			print("Iteration: "+str(self.n))
+			print("Average correct GS: "+str(self.X/self.n))
+			
+			if(self.n % self.saverate == 0):
+				tmp = list('MCtrainedNetwork1.h5')
+				tmp[16] = str(self.static_element)
+				filename = "".join(tmp)
+				#print("Saving data in " + self.filename)
+				np.save(self.filename,iterations[0:(i+1)])
+				rl.qnet.network.save(filename)
 
 		###############################
 		# Spara data (fungerar ej nu) #

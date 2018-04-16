@@ -17,10 +17,10 @@ class MainClass:
 
 	def __init__(self):
 		#TODO värden som skall sättas innan varje körning
-		self.graphix = True
-		self.saveData = True
-		self.networkName = '/Users/nikfor/Desktop/Kandidat/Saves/trainedNetwork2.h5'
-		self.maxNumberOfIterations = 1000
+		self.graphix = False
+		self.saveData = False
+		self.networkName = 'trainedNetwork15.h5'
+		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
 		self.getFilename()
@@ -57,14 +57,14 @@ class MainClass:
 
 		rl = RLsys(4, importNetwork.input_shape[2])
 		rl.qnet.network = importNetwork
-
-		rl.changeEpsilon(1)
+		
+		largeNum = 0
+		rl.changeEpsilon(0)
 		humRep=np.load('ToricCodeHumanTest.npy')
 		comRep=np.load('ToricCodeComputerTest.npy')
 		print(comRep[:,:,3])
-
+		#np.random.shuffle(comRep)
 		iterations = np.zeros(comRep.shape[2])
-
 		for i in range(min(comRep.shape[2],self.maxNumberOfIterations)):
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
@@ -80,9 +80,11 @@ class MainClass:
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()
 
+			if numIter > 50:
+				largeNum = largeNum + 1
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 			iterations[i] = numIter
-			
+			print("largeNum",largeNum)
 
 
 

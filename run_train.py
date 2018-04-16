@@ -2,6 +2,7 @@ import numpy as np
 from RL import RLsys
 from Env import Env
 from GenerateToricData import Generate
+from keras.models import load_model
 import time
 import os.path
 import pickle
@@ -12,9 +13,10 @@ class MainClass:
 	def __init__(self):
 		#TODO värden som skall sättas innan en körning
 		self.saveData = False
-		self.maxNumberOfIterations = 5000
+		self.maxNumberOfIterations = 100000
 		self.alpha = -0.5
-		self.saverate = 1000
+		self.networkName = 'trainedNetwork14.h5'
+		self.saverate = 999
 
 		# creates a new filename each time we run the code
 		self.getFilename()
@@ -46,55 +48,59 @@ class MainClass:
 		flip = np.arange(5)
 		size=9
 		actions=4
-
-		rl = RLsys(4, size)
 		
-		comRep=np.load('ToricCodeComputer.npy')
+		importNetwork = load_model(self.networkName)
+		rl = RLsys(4, size)
+		rl.qnet.network = importNetwork
+		
+		comRep=np.load('ComputerData.npy')
 		humRep=np.zeros((size*2,size*2,comRep.shape[2]))
-
+		np.random.shuffle(comRep)
 		iterations = np.zeros(comRep.shape[2])
 
 		for i in range(min(comRep.shape[2],self.maxNumberOfIterations)):
-			state=comRep[:,:,i]
-			env = Env(state)
-			numIter = 0
-			rl.epsilon = (1+x)**(self.alpha)
+			for j in range(4):
+				state=comRep[:,:,i]
+				state = np.rot90(state,j)
+				env = Env(state)
+				numIter = 0
+				rl.epsilon = (1+i)**(self.alpha)
 
-			while len(env.getErrors()) > 0:
-				#print('Bana nummer ' + str(i))
-				#print(state)
-				numIter = numIter + 1
-				observation = env.getObservation()
-				a, e = rl.choose_action(observation)
-				r = env.moveError(a, e)
-				new_observation = env.getObservation()
+				while len(env.getErrors()) > 0:
+					#print('Bana nummer ' + str(i))
+					#print(state)
+					numIter = numIter + 1
+					observation = env.getObservation()
+					a, e = rl.choose_action(observation)
+					r = env.moveError(a, e)
+					new_observation = env.getObservation()
 
-				rl.learn(observation[:,:,e], a, r, new_observation)
+					rl.learn(observation[:,:,e], a, r, new_observation)
 
-			print("Steps taken at iteration " +str(i) + ": ", numIter)
-			iterations[i] = numIter
+				print("Steps taken at iteration " +str(i) + ": ", numIter)
+				iterations[i] = numIter
 
-			if(i % self.saverate == 0):
-				if(self.saveData):
+				if(i % self.saverate == 0):
+					if(self.saveData):
 
-					tmp = list('trainedNetwork1.h5')
-					tmp[14] = str(self.static_element)
-					filename = "/Users/nikfor/Desktop/Kandidat/Saves/" + "".join(tmp)
+						tmp = list('trainedNetwork1.h5')
+						tmp[14] = str(self.static_element)
+						filename = "/Users/nikfor/Desktop/Kandidat/Saves/" + "".join(tmp)
 
-					#print("Saving data in " + self.filename)
-					np.save(self.filename,iterations[0:(i+1)])
+						#print("Saving data in " + self.filename)
+						np.save(self.filename,iterations[0:(i+1)])
 
-					rl.qnet.network.save(filename)
+						rl.qnet.network.save(filename)
 
-				else:
-					tmp = list('trainedNetwork1.h5')
-					tmp[14] = str(self.static_element)
-					filename = "".join(tmp)
+					else:
+						tmp = list('trainedNetwork1.h5')
+						tmp[14] = str(self.static_element)
+						filename = "".join(tmp)
 
-					#print("Saving data in " + self.filename)
-					np.save(self.filename,iterations[0:(i+1)])
+						#print("Saving data in " + self.filename)
+						np.save(self.filename,iterations[0:(i+1)])
 
-					rl.qnet.network.save(filename)
+						rl.qnet.network.save(filename)
 
 
 		
