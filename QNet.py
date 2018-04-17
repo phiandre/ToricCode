@@ -11,6 +11,7 @@ and ouput the associated approximation Q(s,a).
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
+from keras.layers import Dropout
 from keras.layers import Conv2D
 from keras import optimizers
 import numpy as np
@@ -30,8 +31,9 @@ class QNet:
 		# Define a Neural Network based on these parameters
 		self.network = Sequential()
 		self.network.add(Dense(state_size*state_size, input_shape=[self.state_size, self.state_size], activation='relu'))
-		self.network.add(Dense(state_size*state_size))
-		self.network.add(Dense(state_size))
+		self.network.add(Dropout(0.2))
+		self.network.add(Dense(state_size, activation='relu'))
+		self.network.add(Dropout(0.2))
 		self.network.add(Flatten())
 		self.network.add(Dense(4))
 		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
@@ -62,4 +64,4 @@ class QNet:
 		data = np.expand_dims(state, axis=0)
 		true_Q = np.expand_dims(true_Q, axis=0)
 		# Improve the approximation of Q.
-		self.network.fit(data, true_Q, epochs=10, batch_size=1, verbose=0)
+		self.network.fit(data, true_Q, epochs=1, batch_size=1, verbose=0)
