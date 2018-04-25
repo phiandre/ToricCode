@@ -13,7 +13,7 @@ class MainClass:
 	def __init__(self):
 		#TODO värden som skall sättas innan en körning
 		self.saveData = False
-		self.maxNumberOfIterations = 100000
+		self.maxNumberOfIterations = 10000000
 		self.alpha = -0.5
 		self.networkName = 'trainedNetwork42.h5'
 		self.saverate = 99
@@ -46,14 +46,14 @@ class MainClass:
 
 	def run(self):
 		flip = np.arange(5)
-		size=9
+		size=11
 		actions=4
 		
 		#importNetwork = load_model(self.networkName)
 		rl = RLsys(4, size)
 		#rl.qnet.network = importNetwork
 		
-		comRep=np.load('ToricCodeComputer.npy')
+		comRep=np.load('ComputerData.npy')
 		#humRep=np.zeros((size*2,size*2,comRep.shape[2]))
 		#np.random.shuffle(comRep)
 		iterations = np.zeros(comRep.shape[2]*4)
@@ -100,7 +100,7 @@ class MainClass:
 						filename = "".join(tmp)
 
 						#print("Saving data in " + self.filename)
-						np.save(self.filename,iterations[0:(i+1)])
+						np.save(self.filename,iterations[0:(trainingIteration+1)])
 
 						rl.qnet.network.save(filename)
 					
