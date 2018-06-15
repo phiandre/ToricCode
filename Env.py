@@ -28,8 +28,8 @@ class Env:
 	def __init__(self, compState, humanState=np.zeros(0), groundState=0, checkGroundState=False):
 		# Spara viktiga matriser och variabler
 		self.checkGroundState = checkGroundState
-		self.state = np.copy(compState)
-		self.humanState = np.copy(humanState)
+		self.state = np.copy(compState) 
+		self.humanState = np.copy(humanState) 
 		self.length = self.state.shape[0]
 		self.groundState = groundState
 		# Uppdatera platser där fel finns
@@ -40,17 +40,7 @@ class Env:
 	felens koordinater finns uppradade.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	def updateErrors(self):
-		# Skapa tillfällig matris
-		temp = np.zeros([self.length * self.length, 2], dtype=np.int8)
-		x = 0
-		#Kollar igenom tillståndet och sparar felen i en array
-		for i in range(self.length):
-			for j in range(self.length):
-				if self.state[i, j] == 1:
-					temp[x, 0:2] = [i, j]
-					x += 1
-		# Arrayen innehåller positionen för alla fel
-		self.errors = temp[0:x, 0:2]
+		self.errors = np.transpose(np.nonzero(self.state))
 
 	"""""""""""""""""""""""""""""""""""""""
 	Returnerar matris innehållande felen.
@@ -76,6 +66,8 @@ class Env:
 		firstPos = self.errors[errorIndex, :]
 		# Nya positionen för felet givet action och position
 		secondPos = self.getPos(action, firstPos)
+		
+		# Uppdatera humanState
 		if self.checkGroundState:
 			# Positionen för felet i humanState
 			firstHumPos=2*firstPos+1
@@ -93,6 +85,7 @@ class Env:
 				vertexPos = 1/2 * (firstHumPos + secondHumPos)
 				vertexPos = vertexPos.astype(int)
 			self.humanState[vertexPos[0], vertexPos[1]] *= -1
+		
 		#  Uppdatera den gamla positionen
 		self.state[firstPos[0], firstPos[1]] = 0
 		# Uppdatera den nya positionen
@@ -100,7 +93,7 @@ class Env:
 			self.state[secondPos[0], secondPos[1]] = 1
 		else:
 			self.state[secondPos[0],secondPos[1]] = 0
-		# Kolla igenom igen vart fel finns
+		# Kolla igenom igen var fel finns
 		self.updateErrors()
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
 		if self.checkGroundState:
@@ -130,6 +123,7 @@ class Env:
 		colmid=int(np.ceil(self.state.shape[1]/2))
 		state_=np.concatenate((state_[:,colmid:],state_[:,0:colmid]),1)
 		state_=np.concatenate((state_[rowmid:,:],state_[0:rowmid,:]),0)
+		
 		return state_
 	
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

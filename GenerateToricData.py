@@ -197,9 +197,8 @@ class Generate:
 if __name__ == '__main__':
 	size = 9 #Storlek på gittret
 	numFlips = 3 #Antalet spin som ska flippas
+	numGenerations = 1 #Antalet datapunkter som ska skapas
 	
-	
-	numGenerations = 100000 #Antalet datapunkter som ska skapas
 	
 	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
@@ -217,6 +216,5 @@ if __name__ == '__main__':
 		humanTest, computerTest = Generate.generateData(size,numFlips, False)
 		tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest[:,:,i] = computerTest
-	#print('human:\n', tmpHuman[:,:,0])
-	#print('computer:\n', tmpComputer[:,:,0])
+		
 	Generate.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)

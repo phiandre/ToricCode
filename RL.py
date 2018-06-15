@@ -69,6 +69,17 @@ class RLsys:
 		# returnera action och error
 		return action, error
 		
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Returns the predicted Q-value for each error in each direction
+		@param:
+			observation: the current state of the system, centered
+			around the errors. Dimensionality: NxNxE, where E is the
+			amount of errors we wish to evaluate actions for.
+		
+		@return:
+			predQ: 2D-vector with Q-values for each error in the
+			observation.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def predQ(self,observation):
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
@@ -93,7 +104,7 @@ class RLsys:
 		# Check if we are at terminal state
 		if observation_p != 'terminal':
 			# ska returnera z-dimensionen
-			predQ=self.predQ(observation_p)
+			predQ = self.predQ(observation_p)
 			# Update the approximation of Q
 			Q[action] = reward + self.gamma * predQ.max()
 		else:
