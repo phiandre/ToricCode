@@ -195,9 +195,9 @@ class Generate:
 
 			
 if __name__ == '__main__':
-	size = 9 #Storlek på gittret
-	numFlips = 3 #Antalet spin som ska flippas
-	numGenerations = 1 #Antalet datapunkter som ska skapas
+	size = 5 #Storlek på gittret
+	numFlips = 4 #Antalet spin som ska flippas
+	numGenerations = 1000000 #Antalet datapunkter som ska skapas
 	
 	
 	#Skapar träningsdata
