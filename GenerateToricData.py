@@ -22,25 +22,25 @@ class Generate:
 								ett fel i plaketten och nollor betyder att det inte finns 
 								något fel.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def generateData(size, numFlips, longDistance = True, moveErrorDistance = 5):
-		humanRepresentation, computerRepresentation = Generate.initialize(size)
+	def generateData(self, size, numFlips, longDistance = True, moveErrorDistance = 5):
+		humanRepresentation, computerRepresentation = self.initialize(size)
 		
 		for iteration in range(0,numFlips):
-			rowIndex, columnIndex = Generate.flipRandomIndex(2*size)
+			rowIndex, columnIndex = self.flipRandomIndex(2*size)
 			while (humanRepresentation[(rowIndex, columnIndex)]== -1):
-				rowIndex, columnIndex = Generate.flipRandomIndex(2*size)
+				rowIndex, columnIndex = self.flipRandomIndex(2*size)
 			
 			
 			humanRepresentation[(rowIndex, columnIndex)] = -1*humanRepresentation[(rowIndex, columnIndex)];
-			computerRepresentation = Generate.updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
+			computerRepresentation = self.updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
 			
 			#longDistance är en boolean, sätts till true om man vill flytta på felen. Anges som argument till denna metod.
 			if(longDistance):
 				#moveErrorDistance är en integer som avgör hur många steg ifrån som felet flyttas. Anges som argument till denna metod.
 				for j in range(moveErrorDistance):
-					rowIndex, columnIndex = Generate.adjacentIndex(size, rowIndex,columnIndex)
+					rowIndex, columnIndex = self.adjacentIndex(size, rowIndex,columnIndex)
 					humanRepresentation[(rowIndex, columnIndex)] = -1*humanRepresentation[(rowIndex, columnIndex)]
-					computerRepresentation = Generate.updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
+					computerRepresentation = self.updateComputerRepresentation(rowIndex, columnIndex, size, computerRepresentation)
 				
 		computerRepresentation = abs((computerRepresentation-1)/(2))
 		#print(computerRepresentation)
@@ -58,7 +58,7 @@ class Generate:
 			computerRepresentation: den enklaste formen av grundtillstånd
 								för computerRepresentation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def initialize(size):
+	def initialize(self, size):
 		humanRepresentation = np.zeros((2*size,2*size))
 		for i in range(0,2*size):
 			if i%2==0:
@@ -98,7 +98,7 @@ class Generate:
 	
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-	def updateComputerRepresentation(humanRowIndex, humanColumnIndex, size, rep):
+	def updateComputerRepresentation(self, humanRowIndex, humanColumnIndex, size, rep):
 		computerRepresentation = rep
 		rowIndex = int(np.floor(humanRowIndex / 2))
 		columnIndex = int(np.floor(humanColumnIndex / 2))
@@ -134,7 +134,7 @@ class Generate:
 			som ska flippas
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	
-	def flipRandomIndex(size):
+	def flipRandomIndex(self,size):
 		
 		rowIndex = random.randint(0,size-1)
 		columnIndex = random.randint(0,size-1)
@@ -146,7 +146,7 @@ class Generate:
 		return rowIndex , columnIndex
 	
 	
-	def adjacentIndex(size,rowIndex, columnIndex):
+	def adjacentIndex(self,size,rowIndex, columnIndex):
 		adjRow = random.randint(-1,1)
 		adjCol = random.randint(-1,1)
 		
@@ -187,7 +187,7 @@ class Generate:
 				f.write("\n")
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	
-	def saveToFile(human, computer, humanTest, computerTest):
+	def saveToFile(self, human, computer, humanTest, computerTest):
 		np.save('ToricCodeHuman',human)
 		np.save('ToricCodeComputer', computer)
 		np.save('ToricCodeHumanTest',humanTest)
@@ -197,14 +197,14 @@ class Generate:
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
 	numFlips = 4 #Antalet spin som ska flippas
-	numGenerations = 1000000 #Antalet datapunkter som ska skapas
+	numGenerations = 100 #Antalet datapunkter som ska skapas
 	
-	
+	generator = Generate()
 	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	tmpComputer = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
-		human, computer = Generate.generateData(size,numFlips)
+		human, computer = generator.generateData(size,numFlips)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
 	
@@ -213,8 +213,8 @@ if __name__ == '__main__':
 	tmpHumanTest = np.zeros((size*2,size*2,numGenerations))
 	tmpComputerTest = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
-		humanTest, computerTest = Generate.generateData(size,numFlips, False)
+		humanTest, computerTest = generator.generateData(size,numFlips, False)
 		tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest[:,:,i] = computerTest
 		
-	Generate.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
+	generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
