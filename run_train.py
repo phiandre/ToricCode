@@ -54,9 +54,9 @@ class MainClass:
 		for i in range(comRep.shape[2]):
 			for j in range(4):
 				state = comRep[:,:,i]
-				print("state ", state)
 				
 				state = np.rot90(state,j)
+				
 				env = Env(state)
 				numSteps = 0
 				rl.epsilon = (1+trainingIteration)**(self.alpha)
