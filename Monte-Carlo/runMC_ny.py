@@ -131,14 +131,21 @@ class MainClass:
 				# Uppdatera nätverket utifrån resultat #
 				########################################
 				
-				for k in range(numSteps):
+				rGS=rewardList.pop()
+				empiricalQ_GS = (self.gamma**(numSteps-1))*rGS
+				s = stateList.pop()
+				a = actionList.pop()
+				rl.learn(s, a, empiricalQ_GS)
+				
+				for k in range(numSteps-1):
 				# Skapa reward iterativt
 					empiricalQ = rewardList.pop() + self.gamma * empiricalQ
+					empiricalQ_GS = empiricalQ + (numSteps-k-2)*rGS
 				# Uppdatera nätverket
 					s = stateList.pop()
 					a = actionList.pop()
 				# Skicka till rl för uppdatering
-					rl.learn(s, a, empiricalQ)
+					rl.learn(s, a, empiricalQ_GS)
 				
 				
 				
