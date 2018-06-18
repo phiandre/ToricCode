@@ -94,16 +94,13 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self, stateArray, actionArray, empQ):
+	def learn(self, state, action, reward):
 		# Q is the more optimal Q
-		trueQ = np.zeros((empQ.shape[0],4))
-		for i in range(empQ.shape[0]):
-			Q = self.qnet.predictQ(stateArray[i,:,:])[0,:]
-			# Update the approximation of Q
-			Q[actionArray[i]] = empQ[i]
-			trueQ[i,:] = Q
-			# Update the neural network
-		self.qnet.improveQ(stateArray, trueQ)
+		Q = self.qnet.predictQ(state)[0,:]
+		# Update the approximation of Q
+		Q[action] = reward
+		# Update the neural network
+		self.qnet.improveQ(state, Q)
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Changes the epsilon in the epsilon-greedy policy.

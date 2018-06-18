@@ -61,5 +61,7 @@ class QNet:
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def improveQ(self, state, true_Q):
 		# Concatenate the state, action and true_Q data.
+		data = np.expand_dims(state, axis=0)
+		true_Q = np.expand_dims(true_Q, axis=0)
 		# Improve the approximation of Q.
-		self.network.fit(state, true_Q, epochs=1, batch_size=1, verbose=0)
+		self.network.fit(data, true_Q, epochs=1, batch_size=1, verbose=0)

@@ -82,7 +82,6 @@ class MainClass:
 			rl.qnet.network = importNetwork
 		
 		
-		
 
 		############################################
 		# Utför Monte-Carlo för varje träningsdata #
@@ -106,6 +105,7 @@ class MainClass:
 				stateList = deque()
 				rewardList = deque()
 				actionList = deque()
+				
 
 				######################################################
 				# Leta efter och ta bort fel tills alla fel är borta #
@@ -130,6 +130,19 @@ class MainClass:
 				########################################
 				# Uppdatera nätverket utifrån resultat #
 				########################################
+				
+				for k in range(numSteps):
+				# Skapa reward iterativt
+					empiricalQ = rewardList.pop() + self.gamma * empiricalQ
+				# Uppdatera nätverket
+					s = stateList.pop()
+					a = actionList.pop()
+				# Skicka till rl för uppdatering
+					rl.learn(s, a, empiricalQ)
+				
+				
+				
+				"""
 				empQ = np.zeros(numSteps)
 				
 				stateArray = np.asarray(stateList)
@@ -147,14 +160,15 @@ class MainClass:
 					# Skicka till rl för uppdatering
 
 				rl.learn(stateArray, actionArray, empQ)
-				
+				"""
 					
 				
 				if currReward == 10:
 					self.X += 1
-				self.n += 1
+				
 				# Uppdatera steps
-				steps[i] = numSteps
+				steps[self.n] = numSteps
+				self.n += 1
 				#####################
 				# Skriv ut resultat #
 				#####################
