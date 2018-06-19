@@ -105,6 +105,7 @@ class MainClass:
 				stateList = deque()
 				rewardList = deque()
 				actionList = deque()
+				memoryList = deque()
 				
 
 				######################################################
@@ -113,13 +114,16 @@ class MainClass:
 				while len(env.errors) > 0:
 					# Bestäm action, error och tillhörande reward
 					observation = env.getObservation()
-					action, error = rl.choose_action(observation)
+					observation2 = env.getObservation2()
+					action, error = rl.choose_action(observation,observation2)
 					# Ta ut tillstånd som flyttades
 					state = observation[:,:,error]
+					memory = observation2[:,:,error]
 					# Uppdatera rewards
 					currReward = env.moveError(action, error)
 					# Uppdatera listor för inlärning senare
 					stateList.append(state)
+					memoryList.append(memory)
 					rewardList.append(currReward)
 					actionList.append(action)
 					###########################
@@ -137,8 +141,9 @@ class MainClass:
 				# Uppdatera nätverket
 					s = stateList.pop()
 					a = actionList.pop()
+					mem= memoryList.pop()
 				# Skicka till rl för uppdatering
-					rl.learn(s, a, empiricalQ)
+					rl.learn(s, mem, a, empiricalQ)
 				
 				
 				

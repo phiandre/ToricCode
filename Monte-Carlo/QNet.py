@@ -8,8 +8,8 @@ and ouput the associated approximation Q(s,a).
 """""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Imports
-from keras.models import Sequential
-from keras.layers import Dense
+from keras.models import Sequential, Model
+from keras.layers import Dense, Input, concatenate
 from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import Conv2D
@@ -29,15 +29,35 @@ class QNet:
 		# Save the state and action sizes as well as the overall input size.
 		self.state_size = state_size
 		# Define a Neural Network based on these parameters
-		self.network = Sequential()
-		self.network.add(Dense(state_size*state_size, input_shape=[self.state_size, self.state_size], activation='relu'))
-		self.network.add(Dropout(0.2))
-		self.network.add(Dense(state_size, activation='relu'))
-		self.network.add(Dropout(0.2))
-		self.network.add(Flatten())
-		self.network.add(Dense(4))
+		
+		#BRANCH 1: STATE -->{2 DENSE LAYERS}\
+		#			MERGED					 = > {More layers and output}
+		#BRANCH 2: MEMORY-->{2 DENSE LAYERS}/
+		
+		#Branch 1
+		state_input=Input(shape=(self.state_size,self.state_size),name = 'state_input')
+		branch1 = Dense(state_size, activation = 'relu')(state_input)
+		branch1 = Dropout(0.2)(branch1)
+		branch1 = Dense(state_size, activation = 'relu')(branch1)
+		branch1 = Dropout(0.2)(branch1)
+		branch1 = Flatten()(branch1)
+		
+		#Branch 2
+		memory_input = Input(shape=(self.state_size*2,self.state_size*2),name = 'memory_input')
+		branch2 = Dense(state_size*2, activation = 'relu')(memory_input)
+		branch2 = Dropout(0.2)(branch2)
+		branch2 = Dense(state_size, activation = 'relu')(branch2)
+		branch2 = Dropout(0.2)(branch2)
+		branch2 = Flatten()(branch2)
+		
+		#Merged branch
+		mergeBranch = concatenate([branch1,branch2])
+		mergeBranch = Dense(state_size, activation = 'relu')(mergeBranch)
+		mergeBranch = Dropout(0.2)(mergeBranch)
+		Q_output = Dense(4, name = 'Q_output')(mergeBranch)
+		
+		self.network = Model(inputs = [state_input, memory_input], outputs=Q_output)
 		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which predicts the Q associated which state and action.
 		@param
@@ -46,11 +66,12 @@ class QNet:
 		@return
 			float: the value of the predicted Q.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def predictQ(self, state):
+	def predictQ(self, state, memory):
 		# Concatenate the state and action data.
-		data = np.expand_dims(state, axis=0)
+		data1 = np.expand_dims(state, axis=0)
+		data2 = np.expand_dims(memory, axis=0)
 		# Predict the value of Q
-		return self.network.predict(data)
+		return self.network.predict([data1,data2])
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which improves the value-approximation of Q.
@@ -59,9 +80,10 @@ class QNet:
 			action: the action to be explored.
 			true_Q: the better approximative value of Q.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def improveQ(self, state, true_Q):
+	def improveQ(self, state, memory, true_Q):
 		# Concatenate the state, action and true_Q data.
-		data = np.expand_dims(state, axis=0)
+		data1 = np.expand_dims(state, axis=0)
+		data2 = np.expand_dims(memory, axis=0)
 		true_Q = np.expand_dims(true_Q, axis=0)
 		# Improve the approximation of Q.
-		self.network.fit(data, true_Q, epochs=1, batch_size=1, verbose=0)
+		self.network.fit([data1, data2], true_Q, epochs=1, batch_size=1, verbose=0)

@@ -46,13 +46,15 @@ class RLsys:
 			int: the given action based on the state.
 			int: the associated error.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def choose_action(self, observation):
+	def choose_action(self, observation, observation2):
+
 		# ska returnera z-dimensionen
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
-		predQ = self.predQ(observation)
+		predQ = self.predQ(observation,observation2)
+
 		# Check the epsilon-greedy criterion
-		if np.random.uniform() < self.epsilon:
+		if np.random.uniform() > self.epsilon:
 			# Select the best action
 			index = np.unravel_index(predQ.argmax(), predQ.shape)			
 			# hämta det bästa action för ett visst error
@@ -63,6 +65,7 @@ class RLsys:
 			action = np.random.choice(self.actions)
 			error = np.random.choice(range(numErrors))
 			# slumpa error här
+		
 		# returnera action och error
 		return action, error
 
@@ -76,14 +79,15 @@ class RLsys:
 			numpy: the predicted Q for all states, AxE, where A
 			is the amount of possible actions.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""		
-	def predQ(self,observation):
+	def predQ(self,observation,observation2):
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
 		for x in range(numErrors):
 			state = observation[:,:,x]
-			predQ[:,x] = self.qnet.predictQ(state)
+			memory = observation2[:,:,x]
+			predQ[:,x] = self.qnet.predictQ(state, memory)
 		return predQ
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -94,13 +98,13 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self, state, action, reward):
+	def learn(self, state, memory, action, reward):
 		# Q is the more optimal Q
-		Q = self.qnet.predictQ(state)[0,:]
+		Q = self.qnet.predictQ(state,memory)[0,:]
 		# Update the approximation of Q
 		Q[action] = reward
 		# Update the neural network
-		self.qnet.improveQ(state, Q)
+		self.qnet.improveQ(state, memory, Q)
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Changes the epsilon in the epsilon-greedy policy.

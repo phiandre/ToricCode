@@ -32,6 +32,7 @@ class Env:
 		self.humanState = np.copy(humanState) 
 		self.length = self.state.shape[0]
 		self.groundState = groundState
+		self.memory = np.absolute(humanState)
 		# Uppdatera platser där fel finns
 		self.updateErrors()
 
@@ -85,6 +86,7 @@ class Env:
 				vertexPos = 1/2 * (firstHumPos + secondHumPos)
 				vertexPos = vertexPos.astype(int)
 			self.humanState[vertexPos[0], vertexPos[1]] *= -1
+			self.memory[vertexPos[0], vertexPos[1]] *= -1
 		
 		#  Uppdatera den gamla positionen
 		self.state[firstPos[0], firstPos[1]] = 0
@@ -125,6 +127,23 @@ class Env:
 		state_=np.concatenate((state_[rowmid:,:],state_[0:rowmid,:]),0)
 		
 		return state_
+	
+	def centralize2(self, error):
+		# state är matrisen som karaktäriserar tillståndet
+		# error är koordinaterna för felet
+		
+		
+		memz_=np.concatenate((self.memory[:,(2*error[1]):],self.memory[:,0:(2*error[1])]),1)
+		memz_=np.concatenate((memz_[(2*error[0]):,:],memz_[0:(2*error[0]),:]),0)
+		
+		rowmid=int(np.ceil(self.state.shape[0]/2))*2
+		colmid=int(np.ceil(self.state.shape[1]/2))*2
+		
+		memz_=np.concatenate((memz_[:,colmid:],memz_[:,0:colmid]),1)
+		memz_=np.concatenate((memz_[rowmid:,:],memz_[0:rowmid,:]),0)
+		
+		
+		return memz_
 	
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Returnerar positionen efter att ha rört sig i en viss riktning.
@@ -176,6 +195,16 @@ class Env:
 			observation=np.zeros((self.length,self.length,numerror))
 			for i in range(numerror):
 				observation[:,:,i]=self.centralize(self.errors[i,:])
+			return observation
+			
+	def getObservation2(self):
+		if len(self.errors)==0:
+			return'terminal'
+		else:
+			numerror=self.errors.shape[0]
+			observation=np.zeros((self.length*2,self.length*2,numerror))
+			for i in range(numerror):
+				observation[:,:,i]=self.centralize2(self.errors[i,:])
 			return observation
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
