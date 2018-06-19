@@ -6,6 +6,7 @@ from keras.models import load_model
 import time
 import os.path
 import pickle
+from collections import deque
 
 
 class MainClass:
@@ -61,13 +62,37 @@ class MainClass:
 				numSteps = 0
 				rl.epsilon = (1+trainingIteration)**(self.alpha)
 				
-				while len(env.getErrors()) > 0:
+				T = 1000000
+				n = 1
+				tau = 0
+				
+				rewardList = deque()
+				actionList = deque()
+				stateList = deque()
+								
+				while tau < (T-1):
+					if numSteps < T:
+						observation = env.getObservation()
+						a, e = rl.choose_action(observation)
+						r = env.moveError(a, e)
+						rewardList.append(r)
+						actionList.append(a)
+						stateList.append(observation[:,:,e])
+						new_observation = env.getObservation()
+						
+						if new_observation == 'terminal':
+							T = numSteps + 1
+					tau = numSteps - n + 1
+					
+					stateArray = np.asarray(stateList)
+					actionArray = np.asarray(actionList)
+					rewardArray = np.asarray(rewardList)
+					if tau >= 0:
+						rl.learn(stateArray, actionArray, rewardArray, tau, n, T, new_observation)
+							
+						
+						
 					numSteps = numSteps + 1
-					observation = env.getObservation()
-					a, e = rl.choose_action(observation)
-					r = env.moveError(a, e)
-					new_observation = env.getObservation()
-					rl.learn(observation[:,:,e], a, r, new_observation)
 
 				print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
 				steps[trainingIteration] = numSteps

@@ -98,13 +98,34 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self, state, action, reward, observation_p):
+	def learn(self, state, action, reward, tau, n, T, observation_p):
+		upperLim = np.minimum(tau+n, T)
+		lowerLim = tau + 1
+		G = 0
+		Q = self.qnet.predictQ(state[tau])[0,:]
+		
+		for i in range(lowerLim,upperLim):
+			G = G + self.gamma**(i-tau-1)*reward[i]
+		
+		if tau + n < T:
+			predQ = self.predQ(observation_p)
+			G += self.gamma**(n) *predQ.max()
+			Q[action] = G
+		else:
+			G = reward[-1]
+			Q[action] = G
+		
+		#print("state: ", state[tau].shape)
+		#print("Q: ", Q.shape)
+		self.qnet.improveQ(state[tau], Q)
+		
+		"""
 		# Q is the more optimal Q
 		Q = self.qnet.predictQ(state)[0,:]
 		# Check if we are at terminal state
 		if observation_p != 'terminal':
 			# ska returnera z-dimensionen
-			predQ = self.predQ(observation_p)
+			
 			# Update the approximation of Q
 			Q[action] = reward + self.gamma * predQ.max()
 		else:
@@ -113,7 +134,7 @@ class RLsys:
 
 		# Update the neural network
 		self.qnet.improveQ(state, Q)
-
+		"""
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Changes the epsilon in the epsilon-greedy policy.
 		@param
