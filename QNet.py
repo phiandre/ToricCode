@@ -30,9 +30,9 @@ class QNet:
 		self.state_size = state_size
 		# Define a Neural Network based on these parameters
 		
-		#BRANCH 1: STATE -->{2 DENSE LAYERS}\
-		#			MERGED					 = > {More layers and output}
-		#BRANCH 2: MEMORY-->{2 DENSE LAYERS}/
+		#BRANCH 1: STATE -->{LAYERS}\
+		#			MERGED			 = > {More layers and output}
+		#BRANCH 2: MEMORY-->{LAYERS}/
 		
 		#Branch 1
 		state_input=Input(shape=(self.state_size,self.state_size),name = 'state_input')
@@ -44,12 +44,11 @@ class QNet:
 		
 		#Merged branch
 		mergeBranch = concatenate([branch1,branch2])
+		mergeBranch = Dense(4*state_size**2, activation = 'relu')(mergeBranch)
+		#mergeBranch = Dropout(0.2)(mergeBranch)
 		mergeBranch = Dense(state_size**2, activation = 'relu')(mergeBranch)
-		mergeBranch = Dropout(0.2)(mergeBranch)
+		#mergeBranch = Dropout(0.2)(mergeBranch)
 		mergeBranch = Dense(state_size*2, activation = 'relu')(mergeBranch)
-		mergeBranch = Dropout(0.2)(mergeBranch)
-		mergeBranch = Dense(state_size, activation = 'relu')(mergeBranch)
-		mergeBranch = Dropout(0.2)(mergeBranch)
 		Q_output = Dense(4, name = 'Q_output')(mergeBranch)
 		
 		self.network = Model(inputs = [state_input, memory_input], outputs=Q_output)

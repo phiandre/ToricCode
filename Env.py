@@ -35,8 +35,7 @@ class Env:
 		self.memory = np.absolute(humanState)
 		# Uppdatera platser där fel finns
 		self.updateErrors()
-		self.X=0
-		self.n=0
+
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Hittar alla fel och uppdaterar matrisen errors där
@@ -103,11 +102,11 @@ class Env:
 		if self.checkGroundState:
 			if len(self.errors) == 0:
 				if (self.evaluateGroundState() == self.groundState):
-					return 10
+					return 5
 				else:
-					return -10
-		if amountErrors > len(self.errors):
-			return 10
+					return -3
+		#if amountErrors > len(self.errors):
+		#	return 10
 		return -1
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -23,7 +23,7 @@ class MainClass:
 		self.getFilename()
 		self.X=0
 		self.n=0
-		self.avgTol = 500
+		self.avgTol = 1000
 		
 		self.run()
 		
@@ -75,7 +75,6 @@ class MainClass:
 				env = Env(state, humanRep, checkGroundState=True)
 				numSteps = 0
 				rl.epsilon = (1+trainingIteration)**(self.alpha)
-				
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
@@ -88,11 +87,11 @@ class MainClass:
 					rl.learn(observation[:,:,e], observation2[:,:,e], a, r, new_observation, new_observation2)
 				self.n += 1
 				if (self.n) <= self.avgTol:
-					if r == 10:
+					if r == 5:
 						averager[trainingIteration] = 1
 					average = (np.sum(averager))/(self.n)
 				else:
-					if r == 10:
+					if r == 5:
 						avg1=averager[1:]
 						avg2=np.ones((1))
 						
@@ -111,7 +110,12 @@ class MainClass:
 				print(' ')
 				print('Episode ' + str(trainingIteration))
 				print("Steps taken: "+ str(numSteps))
-				print("Average correct GS during last 500 episodes: " + str(average))
+				if r ==5:
+					print("Groundstate is RIGHT!")
+				else:
+					print("Groundstate is WRONG!")
+				print("Average correct GS during last 500 episodes: " + str(100*average) + " %")
+
 				if(trainingIteration % self.saveRate == 0):
 					tmp = list('Networks/trainedNetwork1.h5')
 					tmp[23] = str(self.static_element)
