@@ -46,12 +46,12 @@ class RLsys:
 			int: the given action based on the state.
 			int: the associated error.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def choose_action(self, observation):
+	def choose_action(self, observation, observation2):
 
 		# ska returnera z-dimensionen
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
-		predQ = self.predQ(observation)
+		predQ = self.predQ(observation, observation2)
 
 		# Check the epsilon-greedy criterion
 		if np.random.uniform() > self.epsilon:
@@ -80,14 +80,15 @@ class RLsys:
 			predQ: 2D-vector with Q-values for each error in the
 			observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def predQ(self,observation):
+	def predQ(self,observation,observation2):
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
 		for x in range(numErrors):
 			state = observation[:,:,x]
-			predQ[:,x] = self.qnet.predictQ(state)
+			memz = observation2[:,:,x]
+			predQ[:,x] = self.qnet.predictQ(state, memz)
 		return predQ
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -98,13 +99,13 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self, state, action, reward, observation_p):
+	def learn(self, state, memz, action, reward, observation_p, observation2_p):
 		# Q is the more optimal Q
-		Q = self.qnet.predictQ(state)[0,:]
+		Q = self.qnet.predictQ(state, memz)[0,:]
 		# Check if we are at terminal state
 		if observation_p != 'terminal':
 			# ska returnera z-dimensionen
-			predQ = self.predQ(observation_p)
+			predQ = self.predQ(observation_p, observation2_p)
 			# Update the approximation of Q
 			Q[action] = reward + self.gamma * predQ.max()
 		else:
@@ -112,7 +113,7 @@ class RLsys:
 			Q[action] = reward
 
 		# Update the neural network
-		self.qnet.improveQ(state, Q)
+		self.qnet.improveQ(state, memz, Q)
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Changes the epsilon in the epsilon-greedy policy.

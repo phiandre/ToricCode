@@ -100,7 +100,7 @@ class RLsys:
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def learn(self, state, memory, action, reward):
 		# Q is the more optimal Q
-		Q = self.qnet.predictQ(state,memory)[0,:]
+		Q = self.qnet.predictQ(state, memory)[0,:]
 		# Update the approximation of Q
 		Q[action] = reward
 		# Update the neural network

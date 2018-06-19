@@ -21,8 +21,12 @@ class MainClass:
 
 		# creates a new filename for numSteps each time we run the code
 		self.getFilename()
+		self.X=0
+		self.n=0
+		self.avgTol = 500
 		
 		self.run()
+		
 
 
 	def getFilename(self):
@@ -35,11 +39,17 @@ class MainClass:
 			tmp[14] = str(self.static_element)
 			self.filename = "".join(tmp)
 
-
+	def rotateHumanRep(self,humanRep,j):
+		tmp = np.concatenate([humanRep, humanRep[:,0:1]],axis=1)
+		tmp1 = np.concatenate([tmp,tmp[0:1,:]])
+		humanRep = np.rot90(tmp1,j)
+		state = humanRep[0:(humanRep.shape[0]-1),0:(humanRep.shape[1]-1)]
+		return state
 
 	def run(self):
 		actions = 4
 		comRep = np.load('ToricCodeComputer.npy')
+		humRep = np.load('ToricCodeHuman.npy')
 		size = comRep.shape[0]
 		
 		rl = RLsys(actions, size)
@@ -48,6 +58,8 @@ class MainClass:
 			rl.qnet.network = importNetwork
 		
 		steps = np.zeros(comRep.shape[2]*4)
+		averager = np.zeros(self.avgTol)
+		
 		
 		trainingIteration = 0
 
@@ -57,21 +69,49 @@ class MainClass:
 				
 				state = np.rot90(state,j)
 				
-				env = Env(state)
+				humanRep = humRep[:,:,i]
+				humanRep = self.rotateHumanRep(humanRep,j)
+				
+				env = Env(state, humanRep, checkGroundState=True)
 				numSteps = 0
 				rl.epsilon = (1+trainingIteration)**(self.alpha)
 				
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
-					a, e = rl.choose_action(observation)
+					observation2 = env.getObservation2()
+					a, e = rl.choose_action(observation, observation2)
 					r = env.moveError(a, e)
 					new_observation = env.getObservation()
-					rl.learn(observation[:,:,e], a, r, new_observation)
-
-				print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
+					new_observation2 = env.getObservation2()
+					
+					rl.learn(observation[:,:,e], observation2[:,:,e], a, r, new_observation, new_observation2)
+				self.n += 1
+				if (self.n) <= self.avgTol:
+					if r == 10:
+						averager[trainingIteration] = 1
+					average = (np.sum(averager))/(self.n)
+				else:
+					if r == 10:
+						avg1=averager[1:]
+						avg2=np.ones((1))
+						
+						averager = np.concatenate((avg1, avg2))
+					else:
+						avg1 = averager[1:]
+						avg2 = np.zeros((1))
+						averager = np.concatenate((avg1, avg2))
+					average = (np.sum(averager))/self.avgTol
+				
 				steps[trainingIteration] = numSteps
-
+				
+				
+				
+				
+				print(' ')
+				print('Episode ' + str(trainingIteration))
+				print("Steps taken: "+ str(numSteps))
+				print("Average correct GS during last 500 episodes: " + str(average))
 				if(trainingIteration % self.saveRate == 0):
 					tmp = list('Networks/trainedNetwork1.h5')
 					tmp[23] = str(self.static_element)

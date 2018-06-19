@@ -35,6 +35,8 @@ class Env:
 		self.memory = np.absolute(humanState)
 		# Uppdatera platser där fel finns
 		self.updateErrors()
+		self.X=0
+		self.n=0
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Hittar alla fel och uppdaterar matrisen errors där
@@ -127,6 +129,7 @@ class Env:
 		state_=np.concatenate((state_[rowmid:,:],state_[0:rowmid,:]),0)
 		
 		return state_
+	
 	def centralize2(self, error):
 		# state är matrisen som karaktäriserar tillståndet
 		# error är koordinaterna för felet
@@ -195,7 +198,7 @@ class Env:
 			for i in range(numerror):
 				observation[:,:,i]=self.centralize(self.errors[i,:])
 			return observation
-	
+			
 	def getObservation2(self):
 		if len(self.errors)==0:
 			return'terminal'
