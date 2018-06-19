@@ -23,7 +23,7 @@ class MainClass:
 		# creates a new filename for numSteps each time we run the code
 		self.getFilename()
 		
-		self.run()
+		self.nsarsa()
 
 
 	def getFilename(self):
@@ -35,6 +35,67 @@ class MainClass:
 			self.static_element += 1
 			tmp[14] = str(self.static_element)
 			self.filename = "".join(tmp)
+			
+	
+	def nsarsa(self):
+		actions = 4
+		comRep = np.load('ToricCodeComputer.npy')
+		size = comRep.shape[0]
+		
+		
+		rl = RLsys(actions, size)
+		
+		steps = np.zeros(comRep.shape[2]*4)
+		
+		trainingIteration = 0
+		
+		
+		for i in range(comRep.shape[2]):
+			state = comRep[:,:,i]
+			env = Env(state)
+			rewardList = deque()
+			actionList = deque()
+			stateList = deque()
+			T = 1000000
+			n = 1
+			tau = 0
+			t = -1
+			numSteps = 0
+			
+			observation = env.getObservation()
+			a, e = rl.choose_action(observation)
+			
+			stateList.append(observation[:,:,e])
+			actionList.append(a)
+			
+			while tau < (T-1):
+				
+				if t<T:
+					t = t+1
+					r = env.moveError(a, e)
+					new_observation = env.getObservation()
+					rewardList.append(r)
+					if new_observation == 'terminal':
+						T = t+1
+						stateList.append(new_observation)
+					else:
+						a, e = rl.choose_action(new_observation)
+						stateList.append(new_observation[:,:,e])
+				tau = t-n+1
+				stateArray = np.asarray(stateList)
+				actionArray = np.asarray(actionList)
+				rewardArray = np.asarray(rewardList)
+				if tau >=0:
+					rl.learn(stateArray, actionArray, rewardArray, tau, n, T, new_observation)
+				numSteps = numSteps + 1	
+				
+			trainingIteration = trainingIteration + 1
+					
+
+			print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
+					
+			
+			
 
 
 

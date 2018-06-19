@@ -101,23 +101,17 @@ class RLsys:
 	def learn(self, state, action, reward, tau, n, T, observation_p):
 		upperLim = np.minimum(tau+n, T)
 		lowerLim = tau + 1
-		G = 0
-		Q = self.qnet.predictQ(state[tau])[0,:]
+		G = self.qnet.predictQ(state[tau])[0,:]
 		
 		for i in range(lowerLim,upperLim):
-			G = G + self.gamma**(i-tau-1)*reward[i]
+			G = G + self.gamma**(i-tau-1)*reward[i-1]
 		
 		if tau + n < T:
 			predQ = self.predQ(observation_p)
 			G += self.gamma**(n) *predQ.max()
-			Q[action] = G
-		else:
-			G = reward[-1]
-			Q[action] = G
 		
-		#print("state: ", state[tau].shape)
-		#print("Q: ", Q.shape)
-		self.qnet.improveQ(state[tau], Q)
+		
+		self.qnet.improveQ(state[tau], G)
 		
 		"""
 		# Q is the more optimal Q
