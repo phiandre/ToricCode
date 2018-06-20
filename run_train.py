@@ -57,7 +57,7 @@ class MainClass:
 			actionList = deque()
 			stateList = deque()
 			T = 1000000
-			n = 1
+			n = 2
 			tau = 0
 			t = -1
 			numSteps = 0
@@ -69,7 +69,9 @@ class MainClass:
 			actionList.append(a)
 			
 			while tau < (T-1):
+				t += 1
 				if t<T:
+					
 					r = env.moveError(a, e)
 					new_observation = env.getObservation()
 					rewardList.append(r)
@@ -85,9 +87,8 @@ class MainClass:
 				actionArray = np.asarray(actionList)
 				rewardArray = np.asarray(rewardList)
 				if tau >=0:
-					rl.learn(stateArray, actionArray, rewardArray, tau, n, T, new_observation)
+					rl.learn(stateArray, actionArray, rewardArray, tau, n, T)
 				numSteps = numSteps + 1	
-				t = t+1
 				
 			trainingIteration = trainingIteration + 1
 					

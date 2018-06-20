@@ -22,7 +22,7 @@ class Generate:
 								ett fel i plaketten och nollor betyder att det inte finns 
 								något fel.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def generateData(self, size, numFlips, longDistance = True, moveErrorDistance = 5):
+	def generateData(self, size, numFlips, longDistance = False, moveErrorDistance = 5):
 		humanRepresentation, computerRepresentation = self.initialize(size)
 		
 		for iteration in range(0,numFlips):
@@ -196,15 +196,15 @@ class Generate:
 			
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
-	numFlips = 4 #Antalet spin som ska flippas
-	numGenerations = 10000 #Antalet datapunkter som ska skapas
+	numFlips = 2 #Antalet spin som ska flippas
+	numGenerations = 1000 #Antalet datapunkter som ska skapas
 	
 	generator = Generate()
 	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	tmpComputer = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
-		human, computer = generator.generateData(size,numFlips)
+		human, computer = generator.generateData(size,numFlips, False)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
 	

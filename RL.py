@@ -17,6 +17,7 @@ import keras
 import math
 import numpy as np
 import pandas as pd
+from Env import Env
 
 # Class definition
 class RLsys:
@@ -98,21 +99,25 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self, state, action, reward, tau, n, T, observation_p):
+	def learn(self, state, action, reward, tau, n, T):
 		upperLim = np.minimum(tau+n, T)+1
 		lowerLim = tau + 1
 		G = self.qnet.predictQ(state[tau])[0,:]
 		Gg = 0
-		
 		for i in range(lowerLim,upperLim):
-			Gg = Gg + self.gamma**(i-tau-1)*reward[i-1]
-
+			Gg += self.gamma**(i-tau-1)*reward[i-1]
 		
-		if tau + n < T:
-			predQ = self.predQ(observation_p)
+		if (tau + n) < T:
+
+			# Vi vill att lastState ska vara körd genom "centralize", så vi får en centrerad representation för varje fel
+		
+			lastState=state[(upperLim-1),:,:]
+			env2=Env(lastState)
+			lastObservation=env2.getObservation()
+			predQ = self.predQ(lastObservation)
 			Gg += self.gamma**(n) *predQ.max()
 		a = action[tau]
-		G[a] = Gg
+		G[a]=Gg
 		
 		self.qnet.improveQ(state[tau], G)
 		
