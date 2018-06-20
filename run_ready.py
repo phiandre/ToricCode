@@ -19,7 +19,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'trainedNetwork15.h5'
+		self.networkName = 'Networks/trainedNetwork12.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
@@ -48,6 +48,20 @@ class MainClass:
 	def printState(self, env):
 		print(env.state)
 		print('')
+		
+	
+	def printQ(self, observation, rl):
+		predictedQ = rl.predQ(observation)
+		for i in range(observation.shape[2]):
+			print("state\n", observation[:,:,i])
+			print("\n")
+			print("upp: ", predictedQ[0,i])
+			print("ner: ", predictedQ[1,i])
+			print("vänster: ", predictedQ[2,i])
+			print("höger: ", predictedQ[3,i])
+			print("\n\n\n\n\n")
+			
+		
 
 	
         
@@ -76,6 +90,8 @@ class MainClass:
 					self.printState(env)
 				numIter = numIter + 1
 				observation = env.getObservation()
+				self.printQ(observation, rl)
+					
 				a, e = rl.choose_action(observation)
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()

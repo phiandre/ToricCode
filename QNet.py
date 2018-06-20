@@ -30,11 +30,14 @@ class QNet:
 		self.state_size = state_size
 		# Define a Neural Network based on these parameters
 		self.network = Sequential()
-		self.network.add(Dense(state_size*state_size, input_shape=[self.state_size, self.state_size], activation='relu'))
-		self.network.add(Dropout(0.2))
-		self.network.add(Dense(state_size, activation='relu'))
-		self.network.add(Dropout(0.2))
+		self.network.add(Dense(state_size, input_shape=[self.state_size, self.state_size], activation='relu'))
 		self.network.add(Flatten())
+		self.network.add(Dense(20, activation='relu'))
+		self.network.add(Dense(18, activation='relu'))
+		self.network.add(Dense(16, activation='relu'))
+		self.network.add(Dense(14, activation='relu'))
+		self.network.add(Dense(12, activation='relu'))
+		self.network.add(Dense(8, activation='relu'))
 		self.network.add(Dense(4))
 		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 
