@@ -14,8 +14,8 @@ class MainClass:
 		
 		self.alpha = -0.5 #epsilon decay
 		
-		self.loadNetwork = False #train an existing network
-		self.networkName = 'trainedNetwork42.h5' 
+		self.loadNetwork = True #train an existing network
+		self.networkName = 'Networks/BestNetwork47.h5' 
 		
 		self.saveRate = 99 #how often the network is saved
 
