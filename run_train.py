@@ -47,15 +47,15 @@ class MainClass:
 			importNetwork = load_model(self.networkName)
 			rl.qnet.network = importNetwork
 		
-		steps = np.zeros(comRep.shape[2]*4)
+		steps = np.zeros(comRep.shape[2]*500)
 		
 		trainingIteration = 0
 
-		for i in range(comRep.shape[2]):
-			for j in range(4):
+		for j in range(500):
+			for i in range(comRep.shape[2]):
 				state = comRep[:,:,i]
 				
-				state = np.rot90(state,j)
+				#state = np.rot90(state,j)
 				
 				env = Env(state)
 				numSteps = 0

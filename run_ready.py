@@ -19,7 +19,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork12.h5'
+		self.networkName = 'Networks/longTrainedNetwork12.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
