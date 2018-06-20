@@ -48,7 +48,10 @@ class QNet:
 		#mergeBranch = Dropout(0.2)(mergeBranch)
 		mergeBranch = Dense(state_size**2, activation = 'relu')(mergeBranch)
 		#mergeBranch = Dropout(0.2)(mergeBranch)
-		mergeBranch = Dense(state_size*2, activation = 'relu')(mergeBranch)
+		mergeBranch = Dense(int(max(np.ceil(0.8*state_size*2)),6), activation = 'relu')(mergeBranch)
+		mergeBranch = Dense(int(max(np.ceil(0.6*state_size*2),6)), activation = 'relu')(mergeBranch)
+		mergeBranch = Dense(int(max(np.ceil(0.4*state_size*2),6)), activation = 'relu')(mergeBranch)
+		mergeBranch = Dense(int(max(np.ceil(0.2*state_size*2),6)), activation = 'relu')(mergeBranch)
 		Q_output = Dense(4, name = 'Q_output')(mergeBranch)
 		
 		self.network = Model(inputs = [state_input, memory_input], outputs=Q_output)
