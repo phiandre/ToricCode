@@ -69,9 +69,7 @@ class MainClass:
 			actionList.append(a)
 			
 			while tau < (T-1):
-				
 				if t<T:
-					t = t+1
 					r = env.moveError(a, e)
 					new_observation = env.getObservation()
 					rewardList.append(r)
@@ -81,6 +79,7 @@ class MainClass:
 					else:
 						a, e = rl.choose_action(new_observation)
 						stateList.append(new_observation[:,:,e])
+						actionList.append(a)
 				tau = t-n+1
 				stateArray = np.asarray(stateList)
 				actionArray = np.asarray(actionList)
@@ -88,6 +87,7 @@ class MainClass:
 				if tau >=0:
 					rl.learn(stateArray, actionArray, rewardArray, tau, n, T, new_observation)
 				numSteps = numSteps + 1	
+				t = t+1
 				
 			trainingIteration = trainingIteration + 1
 					

@@ -99,17 +99,20 @@ class RLsys:
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def learn(self, state, action, reward, tau, n, T, observation_p):
-		upperLim = np.minimum(tau+n, T)
+		upperLim = np.minimum(tau+n, T)+1
 		lowerLim = tau + 1
 		G = self.qnet.predictQ(state[tau])[0,:]
+		Gg = 0
 		
 		for i in range(lowerLim,upperLim):
-			G = G + self.gamma**(i-tau-1)*reward[i-1]
+			Gg = Gg + self.gamma**(i-tau-1)*reward[i-1]
+
 		
 		if tau + n < T:
 			predQ = self.predQ(observation_p)
-			G += self.gamma**(n) *predQ.max()
-		
+			Gg += self.gamma**(n) *predQ.max()
+		a = action[tau]
+		G[a] = Gg
 		
 		self.qnet.improveQ(state[tau], G)
 		
