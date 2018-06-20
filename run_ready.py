@@ -35,7 +35,16 @@ class MainClass:
 			tmp[8] = str(self.static_element)
 			self.filename = "".join(tmp)
 
-
+	def printQ(self, observation, observation2, rl):
+		predictedQ = rl.predQ(observation, observation2)
+		for i in range(observation.shape[2]):
+			print("state\n", observation[:,:,i])
+			print("\n")
+			print("upp: ", predictedQ[0,i])
+			print("ner: ", predictedQ[1,i])
+			print("vänster: ", predictedQ[2,i])
+			print("höger: ", predictedQ[3,i])
+			print("\n\n\n\n\n")
 
 	def printState(self, env):
 		print(env.state)
@@ -78,12 +87,14 @@ class MainClass:
 				numIter = numIter + 1
 				observation = env.getObservation()
 				observation2 = env.getObservation2()
+				#self.printQ(observation, observation2, rl)
+				
 				a, e = rl.choose_action(observation, observation2)
 				r = env.moveError(a, e)
 
 			if numIter > 50:
 				largeNum = largeNum + 1
-			if r == 5:
+			if r == 6:
 				averager[n] = 1
 			n += 1
 			average=np.sum(averager)/n

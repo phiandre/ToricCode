@@ -25,6 +25,8 @@ class MainClass:
 		self.n=0
 		self.avgTol = 1000
 		
+		
+		
 		self.run()
 		
 
@@ -51,6 +53,7 @@ class MainClass:
 		comRep = np.load('ToricCodeComputer.npy')
 		humRep = np.load('ToricCodeHuman.npy')
 		size = comRep.shape[0]
+		GSr=5
 		
 		rl = RLsys(actions, size)
 		if self.loadNetwork:
@@ -87,11 +90,11 @@ class MainClass:
 					rl.learn(observation[:,:,e], observation2[:,:,e], a, r, new_observation, new_observation2)
 				self.n += 1
 				if (self.n) <= self.avgTol:
-					if r == 5:
+					if r == GSr:
 						averager[trainingIteration] = 1
 					average = (np.sum(averager))/(self.n)
 				else:
-					if r == 5:
+					if r == GSr:
 						avg1=averager[1:]
 						avg2=np.ones((1))
 						
@@ -110,7 +113,7 @@ class MainClass:
 				print(' ')
 				print('Episode ' + str(trainingIteration))
 				print("Steps taken: "+ str(numSteps))
-				if r ==5:
+				if r ==GSr:
 					print("Groundstate is RIGHT!")
 				else:
 					print("Groundstate is WRONG!")

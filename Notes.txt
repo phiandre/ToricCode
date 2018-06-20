@@ -1,0 +1,1 @@
+Tränas nätverket på 3 fel med belöningarna 5, resp. -7 för rätt, resp. fel grundtillstånd, så blir nätverket bättre än MWPM
