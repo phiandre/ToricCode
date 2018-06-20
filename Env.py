@@ -104,7 +104,7 @@ class Env:
 				if (self.evaluateGroundState() == self.groundState):
 					return 5
 				else:
-					return -3
+					return -7
 		#if amountErrors > len(self.errors):
 		#	return 10
 		return -1

@@ -18,8 +18,7 @@ class MainClass:
 	def __init__(self):
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
-		self.saveData = False
-		self.networkName = 'trainedNetwork15.h5'
+		self.networkName = 'Networks/trainedNetwork42.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
@@ -27,21 +26,14 @@ class MainClass:
 		self.run()
 
 	def getFilename(self):
-		if (self.saveData):
-			tmp = list('/Users/nikfor/Desktop/Kandidat/Saves/numSteps1.npy')
-			self.static_element = 1
-			while os.path.isfile("".join(tmp)):
-				self.static_element += 1
-				tmp[45] = str(self.static_element)
-			self.filename = "".join(tmp)
-		else:
-			tmp = list('numSteps1.npy')
-			self.static_element = 1
 
-			while os.path.isfile("".join(tmp)):
-				self.static_element += 1
-				tmp[8] = str(self.static_element)
-				self.filename = "".join(tmp)
+		tmp = list('numSteps1.npy')
+		self.static_element = 1
+
+		while os.path.isfile("".join(tmp)):
+			self.static_element += 1
+			tmp[8] = str(self.static_element)
+			self.filename = "".join(tmp)
 
 
 
@@ -52,23 +44,32 @@ class MainClass:
 	
         
 	def run(self):
-
+		humRep=np.load('ToricCodeHumanTest.npy')
+		comRep=np.load('ToricCodeComputerTest.npy')
+		
+		size = comRep.shape[0]
+		
 		importNetwork = load_model(self.networkName)
 
-		rl = RLsys(4, importNetwork.input_shape[2])
+		rl = RLsys(4, size)
 		rl.qnet.network = importNetwork
 		
 		largeNum = 0
 		rl.changeEpsilon(0)
 		humRep=np.load('ToricCodeHumanTest.npy')
 		comRep=np.load('ToricCodeComputerTest.npy')
+		
+		n=0
+		
+		averager = np.zeros(comRep.shape[2])
+		
 		print(comRep[:,:,3])
 		#np.random.shuffle(comRep)
 		iterations = np.zeros(comRep.shape[2])
 		for i in range(min(comRep.shape[2],self.maxNumberOfIterations)):
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
-			env = Env(state,human)
+			env = Env(state,human, checkGroundState=True)
 			numIter = 0
 			while len(env.getErrors()) > 0:
 				#print('Bana nummer ' + str(i))
@@ -76,15 +77,21 @@ class MainClass:
 					self.printState(env)
 				numIter = numIter + 1
 				observation = env.getObservation()
-				a, e = rl.choose_action(observation)
+				observation2 = env.getObservation2()
+				a, e = rl.choose_action(observation, observation2)
 				r = env.moveError(a, e)
-				new_observation = env.getObservation()
 
 			if numIter > 50:
 				largeNum = largeNum + 1
+			if r == 5:
+				averager[n] = 1
+			n += 1
+			average=np.sum(averager)/n
+			
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
-			iterations[i] = numIter
-			print("largeNum",largeNum)
+			print("Average Groundstate: " + str(average))
+			
+			
 
 
 
