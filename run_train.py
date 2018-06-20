@@ -15,7 +15,7 @@ class MainClass:
 		self.alpha = -0.5 #epsilon decay
 		
 		self.loadNetwork = True #train an existing network
-		self.networkName = 'Networks/BestNetwork47.h5' 
+		self.networkName = 'Networks/BestNetwork1step10.h5' 
 		
 		self.saveRate = 99 #how often the network is saved
 
@@ -63,9 +63,10 @@ class MainClass:
 		steps = np.zeros(comRep.shape[2]*4)
 		averager = np.zeros(self.avgTol)
 		
+		bait = 10
 		
 		trainingIteration = 0
-
+		k = bait
 		for i in range(comRep.shape[2]):
 			for j in range(4):
 				state = comRep[:,:,i]
@@ -77,7 +78,7 @@ class MainClass:
 				
 				env = Env(state, humanRep, checkGroundState=True)
 				numSteps = 0
-				rl.epsilon = (1+trainingIteration)**(self.alpha)
+				rl.epsilon = (10000+trainingIteration)**(self.alpha)
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
@@ -123,11 +124,33 @@ class MainClass:
 					tmp = list('Networks/trainedNetwork1.h5')
 					tmp[23] = str(self.static_element)
 					filename = "".join(tmp)
+					
+					filename = "".join(tmp)	
 
 					np.save(self.filename,steps[0:(trainingIteration+1)])
 
 					rl.qnet.network.save(filename)
 					
+				if(average > 0.87 ):
+					if k % bait == 0:
+						tmp = list('Networks/88trainedNetwork1.h5')
+						tmp[25] = str(self.static_element)
+						filename = "".join(tmp)	
+
+						np.save(self.filename,steps[0:(trainingIteration+1)])
+
+						rl.qnet.network.save(filename)
+						
+						tmp = list('Networks/89trainedNetwork1.h5')
+						tmp[25] = str(self.static_element)
+						filename = "".join(tmp)	
+					
+
+						rl.qnet.network.save(filename)
+					k += 1
+					
+				if(average < 0.87 ):
+					k = bait
 				trainingIteration = trainingIteration + 1
 
 

@@ -18,7 +18,7 @@ class MainClass:
 	def __init__(self):
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
-		self.networkName = 'Networks/BestNetwork47.h5'
+		self.networkName = 'Networks/BestNetwork3steps.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
@@ -72,8 +72,6 @@ class MainClass:
 		
 		averager = np.zeros(comRep.shape[2])
 		
-		print(comRep[:,:,3])
-		#np.random.shuffle(comRep)
 		iterations = np.zeros(comRep.shape[2])
 		for i in range(min(comRep.shape[2],self.maxNumberOfIterations)):
 			state=comRep[:,:,i]
@@ -94,13 +92,13 @@ class MainClass:
 
 			if numIter > 50:
 				largeNum = largeNum + 1
-			if r == 6:
+			if r == 5:
 				averager[n] = 1
 			n += 1
-			average=np.sum(averager)/n
+		average=np.sum(averager)/n
 			
-			print("Steps taken at iteration " +str(i) + ": ", numIter)
-			print("Average Groundstate: " + str(average))
+		print("Steps taken at iteration " +str(i) + ": ", numIter)
+		print("Average Groundstate: " + str(np.sum(averager)))
 			
 			
 

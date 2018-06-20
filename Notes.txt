@@ -1,1 +1,6 @@
 Tränas nätverket på 3 fel med belöningarna 5, resp. -7 för rätt, resp. fel grundtillstånd, så blir nätverket bättre än MWPM
+
+BestNetwork4steps kommer till rätt grundtillstånd för 8 854 av 10 000 fall av 5x5 grid med 4 flips (=8% fel) - Bättre än MWPM som jag tolkar det
+BestNetwork3steps kommer till rätt grundtillstånd för 9 826 av 10 000 fall av 5x5 grid med 4 flips (=6% fel) - Bättre än MWPM som jag tolkar det
+BestNetwork2steps kommer till rätt grundtillstånd för 10 000 av 10 000 fall av 5x5 grid med 2 flip (=4% fel) - Bättre än MWPM som jag tolkar det
+BestNetwork1step  kommer till rätt grundtillstånd för 10 000 av 10 000 fall av 5x5 grid med 1 flip (=2% fel) - Bättre än MWPM som jag tolkar det
