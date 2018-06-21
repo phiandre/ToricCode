@@ -29,8 +29,6 @@ class Generate:
 		humanRepresentation, computerRepresentation = self.initialize(size, errorProbability, comRep)
 		computerRepresentation = abs((computerRepresentation-1)/(2))
 		
-		print(humanRepresentation)
-		print(computerRepresentation)
 		
 		return humanRepresentation, computerRepresentation
 		
@@ -190,8 +188,8 @@ class Generate:
 			
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
-	errorProb = 0.1 #Antalet spin som ska flippas
-	numGenerations = 2 #Antalet datapunkter som ska skapas
+	errorProb = 0.08 #Antalet spin som ska flippas
+	numGenerations = 10000 #Antalet datapunkter som ska skapas
 	
 	generator = Generate()
 	#Skapar träningsdata
