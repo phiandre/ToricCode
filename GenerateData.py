@@ -206,9 +206,9 @@ if __name__ == '__main__':
 	#Skapar testdata
 	tmpHumanTest = np.zeros((size*2,size*2,numGenerations))
 	tmpComputerTest = np.zeros((size,size,numGenerations))
-	#for i in range(numGenerations):
-		#humanTest, computerTest = generator.generateData(size,errorProb, False)
-		#tmpHumanTest[:,:,i] = humanTest
-		#tmpComputerTest[:,:,i] = computerTest
+	for i in range(numGenerations):
+		humanTest, computerTest = generator.generateData(size,errorProb, False)
+		tmpHumanTest[:,:,i] = humanTest
+		tmpComputerTest[:,:,i] = computerTest
 		
-	#generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
+	generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
