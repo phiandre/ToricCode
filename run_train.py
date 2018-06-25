@@ -12,10 +12,10 @@ class MainClass:
 
 	def __init__(self):
 		
-		self.alpha = -0.5 #epsilon decay
+		self.alpha = -0.6 #epsilon decay
 		
 		self.loadNetwork = True #train an existing network
-		self.networkName = 'Networks/BestNetwork1step10.h5' 
+		self.networkName = 'Networks/89trainedNetwork47.h5' 
 		
 		self.saveRate = 99 #how often the network is saved
 
@@ -23,7 +23,17 @@ class MainClass:
 		self.getFilename()
 		self.X=0
 		self.n=0
-		self.avgTol = 1000
+		self.avgTol = 50
+		
+		self.GSr = 5
+		
+		self.veriComRep = np.load('ToricCodeComputerTest.npy')
+		self.veriHumRep = np.load('ToricCodeHumanTest.npy')
+		self.size = self.veriComRep.shape[0]
+		self.baiter = 20
+		self.avgHigh = 0.9
+		self.avgLow = 0.86
+		self.goal = 0.9
 		
 		
 		
@@ -47,15 +57,42 @@ class MainClass:
 		humanRep = np.rot90(tmp1,j)
 		state = humanRep[0:(humanRep.shape[0]-1),0:(humanRep.shape[1]-1)]
 		return state
+	
+	def verify(self,rl):
+		interval = 200
+		steps = np.zeros(interval)
+		averager = np.zeros(interval)
+		trainingIteration = 0
+		maxSteps = 300
+		
+		for i in range(interval):
+			state = self.veriComRep[:,:,i]
+			humanRep = self.veriHumRep[:,:,i]
+			env = Env(state, humanRep, checkGroundState=True)
+			
+			numSteps = 0
+			
+			
+			while len(env.getErrors()) > 0:
+					numSteps = numSteps + 1
+					observation = env.getObservation()
+					observation2 = env.getObservation2()
+					a, e = rl.choose_action(observation, observation2)
+					r = env.moveError(a, e)
+					if numSteps >= maxSteps:
+						break
+			if r == self.GSr:
+				averager[trainingIteration] = 1
+			trainingIteration += 1
+		average = (np.sum(averager))/(interval)
+		return average
 
 	def run(self):
 		actions = 4
 		comRep = np.load('ToricCodeComputer.npy')
 		humRep = np.load('ToricCodeHuman.npy')
-		size = comRep.shape[0]
-		GSr=5
 		
-		rl = RLsys(actions, size)
+		rl = RLsys(actions, self.size)
 		if self.loadNetwork:
 			importNetwork = load_model(self.networkName)
 			rl.qnet.network = importNetwork
@@ -63,7 +100,7 @@ class MainClass:
 		steps = np.zeros(comRep.shape[2]*4)
 		averager = np.zeros(self.avgTol)
 		
-		bait = 10
+		bait = 1
 		
 		trainingIteration = 0
 		k = bait
@@ -78,7 +115,10 @@ class MainClass:
 				
 				env = Env(state, humanRep, checkGroundState=True)
 				numSteps = 0
-				rl.epsilon = (10000+trainingIteration)**(self.alpha)
+				if self.loadNetwork:
+					rl.epsilon = (8000+1+trainingIteration)**(self.alpha)
+				else:
+					rl.epsilon = (1+trainingIteration)**(self.alpha)
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
@@ -91,11 +131,11 @@ class MainClass:
 					rl.learn(observation[:,:,e], observation2[:,:,e], a, r, new_observation, new_observation2)
 				self.n += 1
 				if (self.n) <= self.avgTol:
-					if r == GSr:
+					if r == self.GSr:
 						averager[trainingIteration] = 1
 					average = (np.sum(averager))/(self.n)
 				else:
-					if r == GSr:
+					if r == self.GSr:
 						avg1=averager[1:]
 						avg2=np.ones((1))
 						
@@ -114,11 +154,11 @@ class MainClass:
 				print(' ')
 				print('Episode ' + str(trainingIteration))
 				print("Steps taken: "+ str(numSteps))
-				if r ==GSr:
+				if r == self.GSr:
 					print("Groundstate is RIGHT!")
 				else:
 					print("Groundstate is WRONG!")
-				print("Average correct GS during last 500 episodes: " + str(100*average) + " %")
+				print("Probability of correct GS last " + str(min(self.avgTol,self.n))+ " episodes: " + str(100*average) + " %")
 
 				if(trainingIteration % self.saveRate == 0):
 					tmp = list('Networks/trainedNetwork1.h5')
@@ -130,27 +170,76 @@ class MainClass:
 					np.save(self.filename,steps[0:(trainingIteration+1)])
 
 					rl.qnet.network.save(filename)
-					
-				if(average > 0.87 ):
-					if k % bait == 0:
-						tmp = list('Networks/88trainedNetwork1.h5')
-						tmp[25] = str(self.static_element)
-						filename = "".join(tmp)	
+					print("Network saved")
+				
+				
+				if self.loadNetwork:
+					if(average > self.avgHigh ):
+						if k % bait == 0:
+							veriAv = self.verify(rl)
+							if veriAv < self.avgLow:
+								bait = self.baiter
+							else:
+								bait = 1
+							print("veriAv = " + str(veriAv))
+							if veriAv > self.avgHigh:
+								tmp = list('Networks/88trainedNetwork1.h5')
+								tmp[25] = str(self.static_element)
+								filename = "".join(tmp)	
 
-						np.save(self.filename,steps[0:(trainingIteration+1)])
+								np.save(self.filename,steps[0:(trainingIteration+1)])
 
-						rl.qnet.network.save(filename)
+								rl.qnet.network.save(filename)
+								
+								tmp = list('Networks/89trainedNetwork1.h5')
+								tmp[25] = str(self.static_element)
+								filename = "".join(tmp)	
+							
+
+								rl.qnet.network.save(filename)
+								print("Decent network - saving")
+								if veriAv > self.goal:
+									print("Goal rached!")
+									quit()
+						k += 1
 						
-						tmp = list('Networks/89trainedNetwork1.h5')
-						tmp[25] = str(self.static_element)
-						filename = "".join(tmp)	
-					
+					if(average < self.avgHigh ):
+						k = bait
+				else:
+					if self.n > self.avgTol:
+						if(average > self.avgHigh ):
+							
+							if k % bait == 0:
+								veriAv = self.verify(rl)
+								if veriAv < self.avgLow:
+									bait = self.baiter
+								else:
+									bait = 1
+								print("veriAv = " + str(veriAv))
+								if veriAv > self.avgHigh:
+									tmp = list('Networks/88trainedNetwork1.h5')
+									tmp[25] = str(self.static_element)
+									filename = "".join(tmp)	
 
-						rl.qnet.network.save(filename)
-					k += 1
-					
-				if(average < 0.87 ):
-					k = bait
+									np.save(self.filename,steps[0:(trainingIteration+1)])
+
+									rl.qnet.network.save(filename)
+									
+									tmp = list('Networks/89trainedNetwork1.h5')
+									tmp[25] = str(self.static_element)
+									filename = "".join(tmp)	
+									
+
+									rl.qnet.network.save(filename)
+									print("Decent network - saving")
+									if veriAv > self.goal:
+										print("Goal rached!")
+										quit()
+									
+							k += 1
+						if(average < self.avgHigh ):
+							k = bait
+
 				trainingIteration = trainingIteration + 1
 
 
