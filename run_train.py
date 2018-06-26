@@ -12,9 +12,7 @@ class MainClass:
 
 	def __init__(self):
 		
-		self.alpha = -0.5 # epsilon decay
-		self.rGS = 10      # Skriv in den belöning du ger för att komma till rätt grund tillstånd
-						  # påverkar ej belöning i env, men används till att räkna ut average Ground State
+		self.alpha = 0 # epsilon decay
 		
 		self.loadNetwork = False #train an existing network
 		self.networkName = 'trainedNetwork42.h5' 
@@ -74,7 +72,7 @@ class MainClass:
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
-				env = Env(state, humanRep, checkGroundState=True)
+				env = Env(state, humanRep)
 				numSteps = 0
 				rl.epsilon = (1+trainingIteration)**(self.alpha)
 				
@@ -86,10 +84,7 @@ class MainClass:
 					new_observation = env.getObservation()
 					rl.learn(observation[:,:,e], a, r, new_observation)
 				
-				if r == self.rGS:
-					averager[trainingIteration] = 1
-				
-				if r == self.rGS:
+				if r == env.cGS:
 					averager[n] = 1
 				n += 1
 				

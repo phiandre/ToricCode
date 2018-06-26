@@ -34,6 +34,10 @@ class Env:
 		self.groundState = groundState
 		# Uppdatera platser där fel finns
 		self.updateErrors()
+		
+		#Belöning för korrekt, respektive inkorrekt grundtillstånd
+		self.cGS =10
+		self.wGS = -1
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Hittar alla fel och uppdaterar matrisen errors där
@@ -99,11 +103,11 @@ class Env:
 		if self.checkGroundState:
 			if len(self.errors) == 0:
 				if (self.evaluateGroundState() == self.groundState):
-					return 10
+					return self.cGS
 				else:
-					return -10
-		if amountErrors > len(self.errors):
-			return 10
+					return self.wGS
+		#if amountErrors > len(self.errors):
+		#	return 10
 		return -1
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

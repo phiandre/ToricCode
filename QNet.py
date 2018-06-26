@@ -35,9 +35,7 @@ class QNet:
 		self.network.add(Dense(20, activation='relu'))
 		self.network.add(Dense(18, activation='relu'))
 		self.network.add(Dense(16, activation='relu'))
-		self.network.add(Dense(14, activation='relu'))
 		self.network.add(Dense(12, activation='relu'))
-		self.network.add(Dense(8, activation='relu'))
 		self.network.add(Dense(4))
 		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 

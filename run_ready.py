@@ -19,13 +19,19 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork12.h5'
+		self.networkName = 'Networks/trainedNetwork25.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
 		self.getFilename()
+		# Skriv in den belöning du ger för att komma till rätt grund tillstånd
+		# påverkar ej belöning i env, men används till att räkna ut average Ground State
+		
 		self.run()
+		
 
+		
+		
 	def getFilename(self):
 		if (self.saveData):
 			tmp = list('/Users/nikfor/Desktop/Kandidat/Saves/numSteps1.npy')
@@ -72,39 +78,47 @@ class MainClass:
 		rl = RLsys(4, importNetwork.input_shape[2])
 		rl.qnet.network = importNetwork
 		
-		largeNum = 0
 		rl.changeEpsilon(0)
 		humRep=np.load('ToricCodeHumanTest.npy')
 		comRep=np.load('ToricCodeComputerTest.npy')
+		
+		averager = np.zeros(comRep.shape[2]*4) # Används till att räkna ut hur sannolikt algoritmen återvänder till rätt grundtillstånd
+		
+		n = 0
+		
 		print(comRep[:,:,3])
 		#np.random.shuffle(comRep)
 		iterations = np.zeros(comRep.shape[2])
 		for i in range(min(comRep.shape[2],self.maxNumberOfIterations)):
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
-			env = Env(state,human)
-			numIter = 0
+			env = Env(state,human,checkGroundState=True)
+			steps = 0
 			while len(env.getErrors()) > 0:
 				#print('Bana nummer ' + str(i))
 				if self.graphix:
 					self.printState(env)
-				numIter = numIter + 1
+				steps = steps + 1
 				observation = env.getObservation()
-				self.printQ(observation, rl)
+				#self.printQ(observation, rl)
 					
 				a, e = rl.choose_action(observation)
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()
+				
+			if r == env.cGS:
+				averager[n] = 1
+			n += 1
+				
+			average = np.sum(averager)/n
+			
+			print("Steps taken at iteration " +str(i) + ": ", steps)
+			print("Probability of correct GS so far: " + str(average*100) + " %")
+			print(" ")
 
-			if numIter > 50:
-				largeNum = largeNum + 1
-			print("Steps taken at iteration " +str(i) + ": ", numIter)
-			iterations[i] = numIter
-			print("largeNum",largeNum)
-
-
-
-
+		print("Correct GS in " + str(sum(averager)) + " of " + str(n) + " cases")
+		print("That is " + str(average*100) + " %")
+		
 		print("Saving data in " + self.filename)
 		np.save(self.filename,iterations)
 
