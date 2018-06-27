@@ -12,19 +12,21 @@ class MainClass:
 
 	def __init__(self):
 		
-		self.alpha = -0.5 # epsilon decay
+		self.alpha = -1 # epsilon decay
 		self.rGS = 10      # Skriv in den belöning du ger för att komma till rätt grund tillstånd
 						  # påverkar ej belöning i env, men används till att räkna ut average Ground State
 		
 		self.loadNetwork = False #train an existing network
-		self.networkName = 'trainedNetwork42.h5' 
+		self.networkName = 'Networks/symmetricNetwork.h5' 
 		
-		self.saveRate = 99 #how often the network is saved
-
+		self.saveRate = 100 #how often the network is saved
+		
 		# creates a new filename for numSteps each time we run the code
 		self.getFilename()
 		
 		self.avgTol = 200 # Den mängd datapunkter som average tas över
+		
+		self.updateRate = 200
 		
 		self.run()
 
@@ -56,6 +58,7 @@ class MainClass:
 		if self.loadNetwork:
 			importNetwork = load_model(self.networkName)
 			rl.qnet.network = importNetwork
+		rlQ=rl
 		
 		steps = np.zeros(comRep.shape[2]*4)
 		
@@ -63,8 +66,11 @@ class MainClass:
 		
 		n=0
 		
+		k = 12000
+		
 		trainingIteration = 0
-
+		randomizer = True
+		
 		for i in range(comRep.shape[2]):
 			for j in range(4):
 				state = comRep[:,:,i]
@@ -74,17 +80,23 @@ class MainClass:
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
-				env = Env(state, humanRep, checkGroundState=True)
+				env = Env(state, humanRep)
 				numSteps = 0
-				rl.epsilon = (1+trainingIteration)**(self.alpha)
 				
+				if randomizer:
+					rl.epsilon = 1
+				else:
+					rl.epsilon = ((k+trainingIteration)/k)**(self.alpha)
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
 					a, e = rl.choose_action(observation)
 					r = env.moveError(a, e)
 					new_observation = env.getObservation()
-					rl.learn(observation[:,:,e], a, r, new_observation)
+					rlQ.learn(observation[:,:,e], a, r, new_observation)
+					if ((trainingIteration+1) % self.updateRate ==0):
+						rl = rlQ
+						randomizer = False
 				
 				if r == self.rGS:
 					averager[trainingIteration] = 1
@@ -103,7 +115,7 @@ class MainClass:
 				
 				
 
-				if(trainingIteration % self.saveRate == 0):
+				if((trainingIteration+1) % self.saveRate == 0):
 					tmp = list('Networks/trainedNetwork1.h5')
 					tmp[23] = str(self.static_element)
 					filename = "".join(tmp)
@@ -112,7 +124,7 @@ class MainClass:
 
 					rl.qnet.network.save(filename)
 					
-				trainingIteration = trainingIteration + 1
+				trainingIteration += 1
 
 
 		

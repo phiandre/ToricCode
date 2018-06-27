@@ -19,11 +19,12 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork12.h5'
+		self.networkName = 'Networks/trainedNetwork16.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
 		self.getFilename()
+		self.n = 0
 		self.run()
 
 	def getFilename(self):
@@ -68,7 +69,11 @@ class MainClass:
 	def run(self):
 
 		importNetwork = load_model(self.networkName)
-
+		for layer in importNetwork.layers:
+			print(layer.get_weights())
+		
+		quit()
+		
 		rl = RLsys(4, importNetwork.input_shape[2])
 		rl.qnet.network = importNetwork
 		
@@ -76,13 +81,15 @@ class MainClass:
 		rl.changeEpsilon(0)
 		humRep=np.load('ToricCodeHumanTest.npy')
 		comRep=np.load('ToricCodeComputerTest.npy')
+		averager = np.zeros(humRep.shape[2])
+		
 		print(comRep[:,:,3])
 		#np.random.shuffle(comRep)
 		iterations = np.zeros(comRep.shape[2])
 		for i in range(min(comRep.shape[2],self.maxNumberOfIterations)):
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
-			env = Env(state,human)
+			env = Env(state,human, checkGroundState = True)
 			numIter = 0
 			while len(env.getErrors()) > 0:
 				#print('Bana nummer ' + str(i))
@@ -91,16 +98,19 @@ class MainClass:
 				numIter = numIter + 1
 				observation = env.getObservation()
 				self.printQ(observation, rl)
-					
+				
 				a, e = rl.choose_action(observation)
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()
-
-			if numIter > 50:
-				largeNum = largeNum + 1
-			print("Steps taken at iteration " +str(i) + ": ", numIter)
+			if r == env.cGS:
+				averager[self.n] = 1
+			self.n += 1
+			average = np.sum(averager)/self.n
+			
+			print("Steps taken at iteration " +str(i+1) + ": ", numIter)
 			iterations[i] = numIter
-			print("largeNum",largeNum)
+			print("Probability of correct groundstate: " + str(average*100) + " %")
+			print(' ')
 
 
 
