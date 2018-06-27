@@ -18,7 +18,7 @@ class MainClass:
 	def __init__(self):
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
-		self.networkName = 'Networks/89trainedNetwork47.h5'
+		self.networkName = 'Networks/trainedNetwork55.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code

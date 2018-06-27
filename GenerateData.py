@@ -188,8 +188,8 @@ class Generate:
 			
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
-	errorProb = 0.06 # Sannolikhet för spinnflipp
-	numGenerations = 10000 #Antalet datapunkter som ska skapas
+	errorProb = 0.08 # Sannolikhet för spinnflipp
+	numGenerations = 100000 #Antalet datapunkter som ska skapas
 	
 	generator = Generate()
 	#Skapar träningsdata

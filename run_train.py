@@ -1,6 +1,7 @@
 import numpy as np
 from RL import RLsys
 from Env import Env
+from RL2 import RLsys as RLsys2
 from GenerateToricData import Generate
 from keras.models import load_model
 import time
@@ -12,10 +13,10 @@ class MainClass:
 
 	def __init__(self):
 		
-		self.alpha = -0.6 #epsilon decay
+		self.alpha = 0 #epsilon decay
 		
-		self.loadNetwork = True #train an existing network
-		self.networkName = 'Networks/89trainedNetwork47.h5' 
+		self.loadNetwork = False #train an existing network
+		self.networkName = 'Networks/89trainedNetwork47.h5'
 		
 		self.saveRate = 99 #how often the network is saved
 
@@ -25,7 +26,7 @@ class MainClass:
 		self.n=0
 		self.avgTol = 50
 		
-		self.GSr = 5
+		
 		
 		self.veriComRep = np.load('ToricCodeComputerTest.npy')
 		self.veriHumRep = np.load('ToricCodeHumanTest.npy')
@@ -81,7 +82,7 @@ class MainClass:
 					r = env.moveError(a, e)
 					if numSteps >= maxSteps:
 						break
-			if r == self.GSr:
+			if r == env.cGS:
 				averager[trainingIteration] = 1
 			trainingIteration += 1
 		average = (np.sum(averager))/(interval)
@@ -93,6 +94,8 @@ class MainClass:
 		humRep = np.load('ToricCodeHuman.npy')
 		
 		rl = RLsys(actions, self.size)
+		
+		
 		if self.loadNetwork:
 			importNetwork = load_model(self.networkName)
 			rl.qnet.network = importNetwork
@@ -116,9 +119,9 @@ class MainClass:
 				env = Env(state, humanRep, checkGroundState=True)
 				numSteps = 0
 				if self.loadNetwork:
-					rl.epsilon = (8000+1+trainingIteration)**(self.alpha)
+					rl.epsilon = 0.2 #(8000+1+trainingIteration)**(self.alpha)
 				else:
-					rl.epsilon = (1+trainingIteration)**(self.alpha)
+					rl.epsilon = 0.2 #(1+trainingIteration)**(self.alpha)
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
@@ -131,11 +134,11 @@ class MainClass:
 					rl.learn(observation[:,:,e], observation2[:,:,e], a, r, new_observation, new_observation2)
 				self.n += 1
 				if (self.n) <= self.avgTol:
-					if r == self.GSr:
+					if r == env.cGS:
 						averager[trainingIteration] = 1
 					average = (np.sum(averager))/(self.n)
 				else:
-					if r == self.GSr:
+					if r == env.cGS:
 						avg1=averager[1:]
 						avg2=np.ones((1))
 						
@@ -154,7 +157,7 @@ class MainClass:
 				print(' ')
 				print('Episode ' + str(trainingIteration))
 				print("Steps taken: "+ str(numSteps))
-				if r == self.GSr:
+				if r == env.cGS:
 					print("Groundstate is RIGHT!")
 				else:
 					print("Groundstate is WRONG!")
@@ -172,7 +175,7 @@ class MainClass:
 					rl.qnet.network.save(filename)
 					print("Network saved")
 				
-				
+				"""
 				if self.loadNetwork:
 					if(average > self.avgHigh ):
 						if k % bait == 0:
@@ -239,7 +242,7 @@ class MainClass:
 							k += 1
 						if(average < self.avgHigh ):
 							k = bait
-
+				"""
 				trainingIteration = trainingIteration + 1
 
 

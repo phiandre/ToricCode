@@ -45,7 +45,7 @@ class QNet:
 		
 		#Merged branch
 		mergeBranch = concatenate([branch1,branch2])
-		mergeBranch = Dense(4*state_size**2, activation = 'relu')(mergeBranch)
+		mergeBranch = Dense(20*state_size**2, activation = 'relu')(mergeBranch)
 		#mergeBranch = Dropout(0.2)(mergeBranch)
 		mergeBranch = Dense(state_size**2, activation = 'relu')(mergeBranch)
 		#mergeBranch = Dropout(0.2)(mergeBranch)
