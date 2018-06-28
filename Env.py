@@ -34,6 +34,11 @@ class Env:
 		self.groundState = groundState
 		# Uppdatera platser där fel finns
 		self.updateErrors()
+		
+		self.stepR = -1
+		self.correctGsR = 5
+		self.incorrectGsR = -1
+		self.elimminationR = -1
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Hittar alla fel och uppdaterar matrisen errors där
@@ -99,12 +104,12 @@ class Env:
 		if self.checkGroundState:
 			if len(self.errors) == 0:
 				if (self.evaluateGroundState() == self.groundState):
-					return 10
+					return self.correctGsR
 				else:
-					return -10
+					return self.incorrectGsR
 		if amountErrors > len(self.errors):
-			return 10
-		return -1
+			return self.elimminationR
+		return self.stepR
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Flyttar errors, och släcker ut som två errors möter varandra.
