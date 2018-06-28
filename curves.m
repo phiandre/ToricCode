@@ -1,16 +1,20 @@
+clear
+clc
+% Viktigt! För representativa kurvor, ange antal iterationer
+iterations = 200000;
+
 % 
 %       Epsilon Decay
 %
 
 subplot(2,2,1)
-clear
-clc
+
 
 
 
 alfa = -0.8; % "flyttar änden" på kurvan
 
-x = 1:200000;
+x = 1:iterations;
 
 k = 20000; % "flyttar mitten" på kurvan
 
@@ -22,7 +26,7 @@ grid on
 
 title('Esilon Decay')
 
-axis([x(1) x(length(x)) 0 1])
+axis([1 iterations 0 1])
 
 % 
 %       Error Rate Growth
@@ -32,10 +36,8 @@ subplot(2,2,2)
 
 
 
-clear
-clc
 a = 1;
-b = 200000;
+b = iterations;
 x = a:b;
 
 pa = 0.02;
@@ -52,10 +54,8 @@ title('Error rate')
 %
 
 subplot(2,2,3)
-clear
-clc
 aa=1;
-bb=200000;
+bb=iterations;
 
 finalReward = 5;
 
