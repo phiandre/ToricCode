@@ -19,7 +19,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork16.h5'
+		self.networkName = 'Networks/IMPORTANTNETWORK.h5'
 		self.maxNumberOfIterations = 10000
 
 		# creates a new filename each time we run the code
@@ -69,12 +69,14 @@ class MainClass:
 	def run(self):
 
 		importNetwork = load_model(self.networkName)
-		for layer in importNetwork.layers:
-			print(layer.get_weights())
 		
-		quit()
+		humRep=np.load('ToricCodeHumanTest.npy')
+		comRep=np.load('ToricCodeComputerTest.npy')
 		
-		rl = RLsys(4, importNetwork.input_shape[2])
+		size = humRep.shape[2]
+		
+		
+		rl = RLsys(4, size)
 		rl.qnet.network = importNetwork
 		
 		largeNum = 0
@@ -97,7 +99,7 @@ class MainClass:
 					self.printState(env)
 				numIter = numIter + 1
 				observation = env.getObservation()
-				self.printQ(observation, rl)
+				#self.printQ(observation, rl)
 				
 				a, e = rl.choose_action(observation)
 				r = env.moveError(a, e)

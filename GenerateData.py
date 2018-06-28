@@ -187,24 +187,34 @@ class Generate:
 
 			
 if __name__ == '__main__':
+	rotating = True
 	size = 5 #Storlek på gittret
-	errorProb = 0.08 #Antalet spin som ska flippas
-	numGenerations = 10000 #Antalet datapunkter som ska skapas
+	numGenerations = 50000 #Antalet datapunkter som ska skapas
+	testGenerations = 30000
+	
+	testProb = 0.08
+	
+	a = 1
+	b = numGenerations
+	pa = 0.02
+	pb = 0.1
 	
 	generator = Generate()
 	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	tmpComputer = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
+		errorProb = (pb-pa)/(b-a)*(1+i)+pa
 		human, computer = generator.generateData(size,errorProb, False)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
 	
+	errorProb = testProb
 	
 	#Skapar testdata
-	tmpHumanTest = np.zeros((size*2,size*2,numGenerations))
-	tmpComputerTest = np.zeros((size,size,numGenerations))
-	for i in range(numGenerations):
+	tmpHumanTest = np.zeros((size*2,size*2,testGenerations))
+	tmpComputerTest = np.zeros((size,size,testGenerations))
+	for i in range(testGenerations):
 		humanTest, computerTest = generator.generateData(size,errorProb, False)
 		tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest[:,:,i] = computerTest
