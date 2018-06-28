@@ -10,40 +10,46 @@ import math
 
 
 class MainClass:
+	
+		
+
 
 	def __init__(self):
+		# Alla booleans
+		self.loadNetwork = False #train an existing network
+		self.gsRGrowth = True
 		
-		 # epsilon decay
+		#Epsilon decay parameters
 		
 		self.alpha = -0.8 		# flyttar "änden" på epsilon-kurvan
 		self.k = 20000			# flyttar "mitten" på epsilon-kurvan
 		
 		
 		
-		self.loadNetwork = False #train an existing network
+		
 		self.networkName = 'trainedNetwork42.h5' 
 		
-		self.saveRate = 99 #how often the network is saved
+		self.saveRate = 100 #how often the network is saved
 
 		# creates a new filename for numSteps each time we run the code
 		self.getFilename()
 		
 		self.avgTol = 200 # Den mängd datapunkter som average tas över
-		
-		self.run()
-		
-		#Epsilon decay parameters
-		self.alpha = -0.5
-		self.
-		
-		
-		# Om man vill ha en tanh-kurveökning av Ground State Reward väljs parametrar här
-		self.gsRGrowth = True
-		
-		if gsRGrowth:
+		if self.gsRGrowth:
 			self.fR = 5 # asymptotic reward
 			self.w = math.pi/90000 #frequency (effects slope)
 			self.b = -78000 # Phase shift (negative coordinate for center of slope)
+		
+		self.run()
+		
+
+
+		
+		
+		# Om man vill ha en tanh-kurveökning av Ground State Reward väljs parametrar här
+
+		
+		
 
 	def getFilename(self):
 		tmp = list('Steps/numSteps1.npy')
@@ -96,7 +102,7 @@ class MainClass:
 				
 				env = Env(state, humanRep, checkGroundState=True)
 				numSteps = 0
-				rl.epsilon = ((self.k+trainingIteration)/k)**(self.alpha)
+				rl.epsilon = ((self.k+trainingIteration)/self.k)**(self.alpha)
 				if self.gsRGrowth:
 					env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
 					
@@ -109,7 +115,7 @@ class MainClass:
 					rl.learn(observation[:,:,e], a, r, new_observation)
 				
 				
-				if r == self.env.correctGsR:
+				if r == env.correctGsR:
 					averager[n] = 1
 				n += 1
 				
@@ -118,12 +124,15 @@ class MainClass:
 				else:
 					average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
 				print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
-				print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
+				if n<self.avgTol:
+					print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")
+				else:
+					print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
 				steps[trainingIteration] = numSteps
 				
 				
 
-				if(trainingIteration % self.saveRate == 0):
+				if((trainingIteration+1) % self.saveRate == 0):
 					tmp = list('Networks/trainedNetwork1.h5')
 					tmp[23] = str(self.static_element)
 					filename = "".join(tmp)
