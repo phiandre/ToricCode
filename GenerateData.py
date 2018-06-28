@@ -188,23 +188,40 @@ class Generate:
 			
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
-	errorProb = 0.08 #Antalet spin som ska flippas
-	numGenerations = 10000 #Antalet datapunkter som ska skapas
+	numGenerations = 50000 # Antalet träningsfall som ska skapas
+	testGenerations = 30000 # Antalet testfall som ska skapas
+	testProb = 0.08 # error rate för ***testdata***
+	linearProbabilityGrowth = True
+	
+	#
+	if linearProbabilityGrowth:
+		# Parametrar för sannolikhetsökning för fel
+		a = 1
+		b = numGenerations
+	
+		pa = 0.02 # Initial probability
+		pb = 0.10 # Final probability
+	else:
+		# Om konstant sannolikhet önskas, anges den här
+		errorProb = 0.08
+	
 	
 	generator = Generate()
 	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	tmpComputer = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
+		if linearProbabilityGrowth:
+			errorProb = ((pb-pa)/(b-a))*(i)+pa
 		human, computer = generator.generateData(size,errorProb, False)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
 	
-	
+	errorProb = testProb
 	#Skapar testdata
-	tmpHumanTest = np.zeros((size*2,size*2,numGenerations))
-	tmpComputerTest = np.zeros((size,size,numGenerations))
-	for i in range(numGenerations):
+	tmpHumanTest = np.zeros((size*2,size*2,testGenerations))
+	tmpComputerTest = np.zeros((size,size,testGenerations))
+	for i in range(testGenerations):
 		humanTest, computerTest = generator.generateData(size,errorProb, False)
 		tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest[:,:,i] = computerTest
