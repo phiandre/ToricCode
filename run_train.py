@@ -6,15 +6,19 @@ from keras.models import load_model
 import time
 import os.path
 import pickle
+import math
 
 
 class MainClass:
 
 	def __init__(self):
 		
-		self.alpha = -0.5 # epsilon decay
-		self.rGS = 10      # Skriv in den belöning du ger för att komma till rätt grund tillstånd
-						  # påverkar ej belöning i env, men används till att räkna ut average Ground State
+		 # epsilon decay
+		
+		self.alpha = -0.8 		# flyttar "änden" på epsilon-kurvan
+		self.k = 20000			# flyttar "mitten" på epsilon-kurvan
+		
+		
 		
 		self.loadNetwork = False #train an existing network
 		self.networkName = 'trainedNetwork42.h5' 
@@ -27,7 +31,19 @@ class MainClass:
 		self.avgTol = 200 # Den mängd datapunkter som average tas över
 		
 		self.run()
-
+		
+		#Epsilon decay parameters
+		self.alpha = -0.5
+		self.
+		
+		
+		# Om man vill ha en tanh-kurveökning av Ground State Reward väljs parametrar här
+		self.gsRGrowth = True
+		
+		if gsRGrowth:
+			self.fR = 5 # asymptotic reward
+			self.w = math.pi/90000 #frequency (effects slope)
+			self.b = -78000 # Phase shift (negative coordinate for center of slope)
 
 	def getFilename(self):
 		tmp = list('Steps/numSteps1.npy')
@@ -64,7 +80,11 @@ class MainClass:
 		n=0
 		
 		trainingIteration = 0
-
+		if self.gsRGrowth:
+			A = self.fR
+			B = A
+			w = self.w
+			b = self.b
 		for i in range(comRep.shape[2]):
 			for j in range(4):
 				state = comRep[:,:,i]
@@ -76,8 +96,10 @@ class MainClass:
 				
 				env = Env(state, humanRep, checkGroundState=True)
 				numSteps = 0
-				rl.epsilon = (1+trainingIteration)**(self.alpha)
-				
+				rl.epsilon = ((self.k+trainingIteration)/k)**(self.alpha)
+				if self.gsRGrowth:
+					env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
+					
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
@@ -86,10 +108,8 @@ class MainClass:
 					new_observation = env.getObservation()
 					rl.learn(observation[:,:,e], a, r, new_observation)
 				
-				if r == self.rGS:
-					averager[trainingIteration] = 1
 				
-				if r == self.rGS:
+				if r == self.env.correctGsR:
 					averager[n] = 1
 				n += 1
 				
