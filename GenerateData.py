@@ -219,5 +219,26 @@ if __name__ == '__main__':
 		humanTest, computerTest = generator.generateData(size,errorProb, False)
 		tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest[:,:,i] = computerTest
-		
+
+
+	"""
+	for i in range(numGenerations):
+		label = 1
+		labeltest = 1
+		for j in range(size):
+			for k in range(size):
+
+				if tmpComputer[:,:,i][j,k] == 1:
+					tmpComputer[:,:,i][j,k] = label
+					label +=1
+
+	for i in range(testGenerations):
+		labeltest = 1
+		for j in range(size):
+			for k in range(size):
+				if tmpComputerTest[:,:,i][j,k] == 1:
+					tmpComputerTest[:,:,i][j,k] = labeltest
+					labeltest += 1
+
+	"""
 	generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
