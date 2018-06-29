@@ -231,7 +231,6 @@ if __name__ == '__main__':
 				if tmpComputer[:,:,i][j,k] == 1:
 					tmpComputer[:,:,i][j,k] = label
 					label +=1
-		print(tmpComputer[:,:,i])
 
 	for i in range(testGenerations):
 		labeltest = 1
@@ -240,7 +239,5 @@ if __name__ == '__main__':
 				if tmpComputerTest[:,:,i][j,k] == 1:
 					tmpComputerTest[:,:,i][j,k] = labeltest
 					labeltest += 1
-		print(tmpComputerTest[:,:,i])
 
-	print(tmpComputer[:,:,i])
 	generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
