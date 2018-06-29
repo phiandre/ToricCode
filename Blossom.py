@@ -5,6 +5,11 @@ import os.path
 
 class Blossom:
 	
+	"""
+	The constructor creates a graph representation of an observation
+			@param
+				obs: an env.getObservation() of a state
+	"""
 	def __init__(self, obs):
 		self.inputFile = 'Blossom\\state_graph.txt'
 		self.outputFile = 'Blossom\\result.txt'
@@ -36,12 +41,33 @@ class Blossom:
 		self.computeMWPM()
 		self.readResult()
 	
+	"""
+	Returns the amount of errors present i.e. the amount of nodes in the graph.
+	This is required by the blossom implementation.
+		@param
+			state: a matrix representation of a state
+	"""
 	def getAmountOfErrors(self, state):
 		return len(self.getErrorIndices(state))
 		
+	"""
+	Returns indices of the errors in the state
+		@param
+			state: a matrix representation of a state
+	"""
 	def getErrorIndices(self, state):
 		return np.transpose(np.nonzero(state))
 	
+	"""
+	Calculates the distance between two errors, which corresponds to the weights
+	in the graph
+		@param
+			index1: index of error 1 
+			index2: index of error 2
+		
+		@return
+			int: distance between error 1 and error 2
+	"""
 	def getDistance(self, index1, index2):
 		x1 = index1[0]
 		y1 = index1[1]
@@ -52,8 +78,12 @@ class Blossom:
 		ydist = np.abs(y1-y2)
 		
 		return xdist + ydist
+		
 	"""
-		Save the graph representation of the state as a txt-file, suitable for the Blossom algorithm file.
+	Save the graph representation of the state as a txt-file, suitable for the Blossom algorithm file.
+		@param
+			edgeList: a list of all edges with corresponding weights, which are to be
+					added to the txt file
 	"""
 	def createGraphAsTxt(self, edgeList):
 		if os.path.isfile(self.inputFile):
@@ -70,10 +100,11 @@ class Blossom:
 		system("Blossom\\blossom5.exe -e " + str(self.inputFile) + " -w " + str(self.outputFile) +" -V")
 	
 	"""
-		The resulting txt-file is returned as a list of tuples where each tuple contains
-		the matched nodes and the distance between them
-		
-		(node1, node2, distance)
+	The resulting txt-file is returned as a list of tuples where each tuple contains
+	the matched nodes and the distance between them
+			
+		@return
+			tuple: The MWPM represented as a list of tuples [(node1, node2, distance)]
 	"""
 	def readResult(self):
 		l = list()

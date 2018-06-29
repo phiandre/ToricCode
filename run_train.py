@@ -99,8 +99,6 @@ class MainClass:
 				state = comRep[:,:,i]
 				state = np.rot90(state,j)
 				
-				
-				MWPM =  
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
