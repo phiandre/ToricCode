@@ -188,22 +188,18 @@ class Generate:
 			
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
-	numGenerations = 50000 # Antalet träningsfall som ska skapas
-	testGenerations = 30000 # Antalet testfall som ska skapas
-	testProb = 0.08 # error rate för ***testdata***
-	linearProbabilityGrowth = True
-	
-	#
-	if linearProbabilityGrowth:
-		# Parametrar för sannolikhetsökning för fel
-		a = 1
-		b = numGenerations
-	
-		pa = 0.02 # Initial probability
-		pb = 0.10 # Final probability
-	else:
-		# Om konstant sannolikhet önskas, anges den här
-		errorProb = 0.08
+	numGenerations = np.load("Tweaks/trainingIterations.npy") # Antalet träningsfall som ska skapas
+	testGenerations = np.load("Tweaks/testIterations.npy") # Antalet testfall som ska skapas
+	testProb = np.load("Tweaks/PeTest") # error rate för ***testdata***
+	Pe = np.load("Tweaks/Pe.npy")
+	errorProb = Pe
+	Pei = np.load("Tweaks/Pei.npy")
+	AE = np.load("Tweaks/AE.npy")
+	BE = np.load("Tweaks/BE.npy")
+	wE = np.load("Tweaks/wE.npy")
+	bE = np.load("Tweaks/bE.npy")
+	errorGrowth = np.load("Tweaks/errorGrowth.npy")
+		
 	
 	
 	generator = Generate()
@@ -211,8 +207,8 @@ if __name__ == '__main__':
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	tmpComputer = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
-		if linearProbabilityGrowth:
-			errorProb = ((pb-pa)/(b-a))*(i)+pa
+		if errorGrowth:
+			errorProb = AE * np.tanh(wE*(i+1+b))+BE
 		human, computer = generator.generateData(size,errorProb, False)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer

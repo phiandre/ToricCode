@@ -17,13 +17,14 @@ class MainClass:
 	def __init__(self):
 		# Alla booleans
 		self.loadNetwork = False #train an existing network
-		self.gsRGrowth = True
+		self.gsRGrowth = np.load("Tweaks/GSgrowth.npy")
 		
 		#Epsilon decay parameters
 		
-		self.alpha = -0.8 		# flyttar "änden" på epsilon-kurvan
-		self.k = 20000			# flyttar "mitten" på epsilon-kurvan
-		
+		self.epsilonDecay = np.load("Tweaks/epsilonDecay.npy")
+		if self.epsilonDecay:
+			self.alpha = np.load("Tweaks/alpha.npy") 		# flyttar "änden" på epsilon-kurvan
+			self.k = np.load("Tweaks/k.npy")			# flyttar "mitten" på epsilon-kurvan
 		
 		
 		
@@ -34,11 +35,8 @@ class MainClass:
 		# creates a new filename for numSteps each time we run the code
 		self.getFilename()
 		
-		self.avgTol = 200 # Den mängd datapunkter som average tas över
-		if self.gsRGrowth:
-			self.fR = 5 # asymptotic reward
-			self.w = math.pi/90000 #frequency (effects slope)
-			self.b = -78000 # Phase shift (negative coordinate for center of slope)
+		self.avgTol = 1000 # Den mängd datapunkter som average tas över
+		self.fR = np.load("Tweaks/correctGsR.npy") # asymptotic Ground State reward
 		
 		self.run()
 		
@@ -85,12 +83,14 @@ class MainClass:
 		
 		n=0
 		
+		rl.epsilon = np.load("Tweaks/epsilon.npy")
+		
 		trainingIteration = 0
 		if self.gsRGrowth:
-			A = self.fR
-			B = A
-			w = self.w
-			b = self.b
+			A = np.load("Tweaks/AGS.npy")
+			B = np.load("Tweaks/BGS.npy")
+			w = np.load("Tweaks/wGS.npy")
+			b = np.load("Tweaks/bGS.npy")
 		for i in range(comRep.shape[2]):
 			for j in range(4):
 				state = comRep[:,:,i]
@@ -100,12 +100,16 @@ class MainClass:
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
-				env = Env(state, humanRep, checkGroundState=True)
+				env = Env(state, humanRep, checkGroundState=np.load("Tweaks/checkGS.npy"))
+				env.incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
+				env.stepR = np.load("Tweaks/stepR.npy")
 				numSteps = 0
-				rl.epsilon = ((self.k+trainingIteration)/self.k)**(self.alpha)
+				if self.epsilonDecay:
+					rl.epsilon = ((self.k+trainingIteration)/self.k)**(self.alpha)
 				if self.gsRGrowth:
 					env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
-					
+				else:
+					env.correctGsR = self.fR
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
