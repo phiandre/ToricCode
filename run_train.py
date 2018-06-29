@@ -7,6 +7,7 @@ import time
 import os.path
 import pickle
 import math
+import Blossom
 
 
 class MainClass:
@@ -96,9 +97,10 @@ class MainClass:
 		for i in range(comRep.shape[2]):
 			for j in range(4):
 				state = comRep[:,:,i]
-				
 				state = np.rot90(state,j)
 				
+				
+				MWPM =  
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
