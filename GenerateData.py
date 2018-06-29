@@ -190,7 +190,7 @@ if __name__ == '__main__':
 	size = 5 #Storlek på gittret
 	numGenerations = np.load("Tweaks/trainingIterations.npy") # Antalet träningsfall som ska skapas
 	testGenerations = np.load("Tweaks/testIterations.npy") # Antalet testfall som ska skapas
-	testProb = np.load("Tweaks/PeTest") # error rate för ***testdata***
+	testProb = np.load("Tweaks/PeTest.npy") # error rate för ***testdata***
 	Pe = np.load("Tweaks/Pe.npy")
 	errorProb = Pe
 	Pei = np.load("Tweaks/Pei.npy")
@@ -208,7 +208,7 @@ if __name__ == '__main__':
 	tmpComputer = np.zeros((size,size,numGenerations))
 	for i in range(numGenerations):
 		if errorGrowth:
-			errorProb = AE * np.tanh(wE*(i+1+b))+BE
+			errorProb = AE * np.tanh(wE*(i+1+bE))+BE
 		human, computer = generator.generateData(size,errorProb, False)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
