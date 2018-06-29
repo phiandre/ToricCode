@@ -7,7 +7,7 @@ import time
 import os.path
 import pickle
 import math
-import Blossom
+from Blossom import Blossom 
 
 
 class MainClass:
@@ -68,7 +68,18 @@ class MainClass:
 		humanRep = np.rot90(tmp1,j)
 		state = humanRep[0:(humanRep.shape[0]-1),0:(humanRep.shape[1]-1)]
 		return state
-
+		
+	
+	def labelState(self, s, size):
+		state = s
+		label = 1
+		for j in range(size):
+			for k in range(size):
+				if state[j,k] == 1:
+					state[j,k] = label
+					label +=1
+		return state
+		
 	def run(self):
 		actions = 4
 		comRep = np.load('ToricCodeComputer.npy')
@@ -94,10 +105,12 @@ class MainClass:
 			B = np.load("Tweaks/BGS.npy")
 			w = np.load("Tweaks/wGS.npy")
 			b = np.load("Tweaks/bGS.npy")
+		
 		for i in range(comRep.shape[2]):
 			for j in range(4):
-				state = comRep[:,:,i]
+				state = np.copy(comRep[:,:,i])
 				state = np.rot90(state,j)
+				state = self.labelState(state, size)
 				
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
@@ -106,6 +119,7 @@ class MainClass:
 				env.incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
 				env.stepR = np.load("Tweaks/stepR.npy")
 				numSteps = 0
+				
 				if self.epsilonDecay:
 					rl.epsilon = ((self.k+trainingIteration)/self.k)**(self.alpha)
 				if self.gsRGrowth:
@@ -113,6 +127,13 @@ class MainClass:
 				else:
 					env.correctGsR = self.fR
 				r = 0
+				
+				
+				if(len(env.getErrors()) > 0):
+					BlossomObject = Blossom(env.getObservation())
+					MWPM = BlossomObject.readResult()
+					
+				
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()

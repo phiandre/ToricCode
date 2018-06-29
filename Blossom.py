@@ -39,7 +39,6 @@ class Blossom:
 					
 		self.createGraphAsTxt(edgeList)
 		self.computeMWPM()
-		self.readResult()
 	
 	"""
 	Returns the amount of errors present i.e. the amount of nodes in the graph.
