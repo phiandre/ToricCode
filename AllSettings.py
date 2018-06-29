@@ -96,8 +96,8 @@ class Tweaker:
 		self.BE = 0.5 * self.Pe + 0.5 * self.Pei
 		
 		if self.errorShape:
-			self.wE = math.pi / (0.125*self.testIterations)
-			self.bE = -0.13 * self.testIterations
+			self.wE = math.pi / (0.125*self.trainingIterations)
+			self.bE = -0.13 * self.trainingIterations
 		else:
 			self.wE = math.pi/25000
 			self.bE = -26000
@@ -131,7 +131,7 @@ if __name__ == '__main__':
 	np.save("Tweaks/Pei.npy",tweak.Pei)
 	np.save("Tweaks/PeTest.npy",tweak.PeTest)
 	np.save("Tweaks/AE.npy",tweak.AE)
-	np.save("Tweaks/BE.npy",tweak.BE)
+	np.save("Tweaks/BEcap.npy",tweak.BE)
 	np.save("Tweaks/wE.npy",tweak.wE)
 	np.save("Tweaks/bE.npy",tweak.bE)
 	np.save("Tweaks/trainingIterations.npy",tweak.trainingIterations)

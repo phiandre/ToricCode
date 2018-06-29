@@ -19,6 +19,8 @@ class MainClass:
 		self.loadNetwork = False #train an existing network
 		self.gsRGrowth = np.load("Tweaks/GSgrowth.npy")
 		
+		self.checkGS = np.load("Tweaks/checkGS.npy")
+		
 		#Epsilon decay parameters
 		
 		self.epsilonDecay = np.load("Tweaks/epsilonDecay.npy")
@@ -100,7 +102,7 @@ class MainClass:
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
-				env = Env(state, humanRep, checkGroundState=np.load("Tweaks/checkGS.npy"))
+				env = Env(state, humanRep, checkGroundState=self.checkGS)
 				env.incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
 				env.stepR = np.load("Tweaks/stepR.npy")
 				numSteps = 0
@@ -118,22 +120,23 @@ class MainClass:
 					r = env.moveError(a, e)
 					new_observation = env.getObservation()
 					rl.learn(observation[:,:,e], a, r, new_observation)
-				
-				if r != 0:
-					if r == env.correctGsR:
-						averager[n] = 1
-					n += 1
-				
-				if n < self.avgTol:
-					average = np.sum(averager)/n
-				else:
-					average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
+				if self.checkGS:
+					if r != 0:
+						if r == env.correctGsR:
+							averager[n] = 1
+						n += 1
+					
+					if n < self.avgTol:
+						average = np.sum(averager)/n
+					else:
+						average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
 				print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
-				if n<self.avgTol:
-					print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")
-				else:
-					print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
-				steps[trainingIteration] = numSteps
+				if self.checkGS:
+					if n<self.avgTol:
+						print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")
+					else:
+						print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
+					steps[trainingIteration] = numSteps
 				
 				
 

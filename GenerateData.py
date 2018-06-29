@@ -195,13 +195,11 @@ if __name__ == '__main__':
 	errorProb = Pe
 	Pei = np.load("Tweaks/Pei.npy")
 	AE = np.load("Tweaks/AE.npy")
-	BE = np.load("Tweaks/BE.npy")
+	BE = np.load("Tweaks/BEcap.npy")
 	wE = np.load("Tweaks/wE.npy")
 	bE = np.load("Tweaks/bE.npy")
 	errorGrowth = np.load("Tweaks/errorGrowth.npy")
-		
-	
-	
+
 	generator = Generate()
 	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
@@ -209,6 +207,7 @@ if __name__ == '__main__':
 	for i in range(numGenerations):
 		if errorGrowth:
 			errorProb = AE * np.tanh(wE*(i+1+bE))+BE
+			print(errorProb)
 		human, computer = generator.generateData(size,errorProb, False)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
