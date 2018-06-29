@@ -110,6 +110,7 @@ class MainClass:
 					env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
 				else:
 					env.correctGsR = self.fR
+				r = 0
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
@@ -118,10 +119,10 @@ class MainClass:
 					new_observation = env.getObservation()
 					rl.learn(observation[:,:,e], a, r, new_observation)
 				
-				
-				if r == env.correctGsR:
-					averager[n] = 1
-				n += 1
+				if r != 0:
+					if r == env.correctGsR:
+						averager[n] = 1
+					n += 1
 				
 				if n < self.avgTol:
 					average = np.sum(averager)/n
