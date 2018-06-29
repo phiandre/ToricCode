@@ -46,6 +46,7 @@ class Generate:
 	def initialize(self, size, errorProbability, computerRep):
 		humanRepresentation = np.zeros((2*size,2*size))
 		comRep = computerRep
+
 		for i in range(0,2*size):
 			if i%2==0:
 				for j in range(0,2*size):
@@ -189,7 +190,7 @@ class Generate:
 if __name__ == '__main__':
 	size = 5 #Storlek på gittret
 	errorProb = 0.08 #Antalet spin som ska flippas
-	numGenerations = 10000 #Antalet datapunkter som ska skapas
+	numGenerations = 100000 #Antalet datapunkter som ska skapas
 	
 	generator = Generate()
 	#Skapar träningsdata
@@ -208,5 +209,25 @@ if __name__ == '__main__':
 		humanTest, computerTest = generator.generateData(size,errorProb, False)
 		tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest[:,:,i] = computerTest
-		
+
+	for i in range(numGenerations):
+		label = 1
+		labeltest = 1
+		for j in range(size):
+			for k in range(size):
+
+				if tmpComputer[:,:,i][j,k] == 1:
+					tmpComputer[:,:,i][j,k] = label
+					label +=1
+
+				if tmpComputerTest[:,:,i][j,k] == 1:
+					tmpComputerTest[:,:,i][j,k] = labeltest
+					labeltest += 1
+
+		#print(tmpComputerTest[:,:,i])
+		#print(tmpComputer[:,:,i])
+
+
+
+
 	generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
