@@ -207,7 +207,6 @@ if __name__ == '__main__':
 	for i in range(numGenerations):
 		if errorGrowth:
 			errorProb = AE * np.tanh(wE*(i+1+bE))+BE
-			print(errorProb)
 		human, computer = generator.generateData(size,errorProb, False)
 		tmpHuman[:,:,i] = human
 		tmpComputer[:,:,i] = computer
