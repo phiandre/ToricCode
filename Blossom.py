@@ -10,36 +10,103 @@ class Blossom:
 			@param
 				obs: an env.getObservation() of a state
 	"""
-	def __init__(self, obs):
+	def __init__(self, state):
+		self.state = np.copy(state)
 		self.inputFile = 'Blossom\\state_graph.txt'
 		self.outputFile = 'Blossom\\result.txt'
 		
+		
 		self.distances = dict()
-		edgeList = list()
+		self.edgeList = list()
+		self.errorIndex = dict()
 		
+		self.createEuclidianGraph(state)
+		
+		
+	def createEuclidianGraph(self, state):
+		state = self.labelState(state, state.shape[0])
+		obs = Env(state).getObservation()
+		originalErrorIndex = self.getErrorIndices(state)
 		amountOfErrors = self.getAmountOfErrors(obs[:,:,0])
-		amountOfEdges = np.sum(i for i in range(0,amountOfErrors))
-		edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
+		amountOfEdges = 2*(np.sum(i for i in range(0,amountOfErrors)))
+		self.edgeList.clear()
+		self.distances.clear()
+		self.edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
 		
+	
 		for i in range(obs.shape[2]):
 			state = obs[:,:,i]
-			#print(state)
+			#print("state:\n", state)
+			self.errorIndex[i+1] = originalErrorIndex[i]
 			errors = self.getErrorIndices(state)
+			
 			currentError = np.array((int(np.floor(obs.shape[0]/2)), int(np.floor(obs.shape[0]/2)))) #index of center position
+			
 			for error in errors:
 				errorNumber = int(state[error[0],error[1]])
-				if errorNumber <= (i+1):
+				centerNumber = int(state[currentError[0],currentError[1]])
+				if errorNumber == centerNumber:
 					continue
-				else:
-					dist = self.getDistance(currentError, error)
-					self.distances[str(i) +", " +str(errorNumber-1)] = dist
-					edgeList.append(str(i) + " " + str(errorNumber-1) + " " + str(dist))
-					
-		
-					
-		self.createGraphAsTxt(edgeList)
+				dist = self.getEuclidianDistance(currentError, error)
+				
+				#print("centerNumber-1: ", centerNumber-1)
+				#print("errorNumber-1: ", errorNumber-1)
+				#print("dist: ", dist)
+				self.distances[str(centerNumber-1) +", " +str(errorNumber-1)] = dist
+				self.edgeList.append(str(centerNumber-1) + " " + str(errorNumber-1) + " " + str(dist))
+		self.createGraphAsTxt(self.edgeList)
 		self.computeMWPM()
+			
+			
+		
 	
+	def createGraph(self, state):
+		obs = Env(state).getObservation()
+		amountOfErrors = self.getAmountOfErrors(obs[:,:,0])
+		amountOfEdges = 2*(np.sum(i for i in range(0,amountOfErrors)))
+		
+		
+		for i in range(obs.shape[2]):
+			s = obs[:,:,i]
+			state = self.labelState(s,obs.shape[0])
+			print("labeled state:\n", state)
+			self.edgeList.clear()
+			self.distances.clear()
+			self.edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
+			
+			env = Env(state)
+			observation = env.getObservation()
+			for j in range(observation.shape[2]):
+				newState = observation[:,:,j]
+				errors = self.getErrorIndices(newState)
+				currentError = np.array((int(np.floor(obs.shape[0]/2)), int(np.floor(obs.shape[0]/2)))) #index of center position
+				for error in errors:
+					errorNumber = int(newState[error[0],error[1]])
+					centerNumber = int(newState[currentError[0],currentError[1]])
+					if errorNumber == centerNumber:
+						continue
+					dist = self.getDistance(currentError, error)
+					
+					#print("centerNumber-1: ", centerNumber-1)
+					#print("errorNumber-1: ", errorNumber-1)
+					#print("dist: ", dist)
+					self.distances[str(centerNumber-1) +", " +str(errorNumber-1)] = dist
+					self.edgeList.append(str(centerNumber-1) + " " + str(errorNumber-1) + " " + str(dist))
+					
+					"""
+					if errorNumber <= (i+1):
+						continue
+					else:
+						dist = self.getDistance(currentError, error)
+						self.distances[str(i) +", " +str(errorNumber-1)] = dist
+						edgeList.append(str(i) + " " + str(errorNumber-1) + " " + str(dist))
+					"""
+			self.createGraphAsTxt(self.edgeList)
+			self.computeMWPM()
+			self.readResult()
+		
+	
+		
 	"""
 	Returns the amount of errors present i.e. the amount of nodes in the graph.
 	This is required by the blossom implementation.
@@ -77,6 +144,17 @@ class Blossom:
 		ydist = np.abs(y1-y2)
 		
 		return xdist + ydist
+	
+	def getEuclidianDistance(self, index1, index2):
+		x1 = index1[0]
+		y1 = index1[1]
+		x2 = index2[0]
+		y2 = index2[1]
+		
+		xdist = np.abs(x1-x2)
+		ydist = np.abs(y1-y2)
+		
+		return xdist**2 + ydist**2
 		
 	"""
 	Save the graph representation of the state as a txt-file, suitable for the Blossom algorithm file.
@@ -91,6 +169,7 @@ class Blossom:
 		with open(self.inputFile, 'a') as f:
 			for l in edgeList:
 				f.write(l+"\n")
+	
 		
 	"""
 		Execute C++ implementation of the Blossom algorithm to compute a MWPM 
@@ -112,20 +191,35 @@ class Blossom:
 			for line in f:
 				first_node = line.split(' ')[0]
 				second_node = line.split(' ')[1].strip('\n')
-					
-					
-				l.append((int(first_node)+1, int(second_node)+1, int(self.distances[first_node+ ", "+  second_node])))
+				matching_node_1 = self.errorIndex[int(first_node)+1]
+				matching_node_2 = self.errorIndex[int(second_node)+1]
+				
+				l.append((matching_node_1, matching_node_2, int(self.distances[first_node+ ", "+  second_node])))
+
 		
 		return l
+		
 				
+	def labelState(self, s, size):
+		state = s
+		label = 1
+		for j in range(size):
+			for k in range(size):
+				if state[j,k] == 1:
+					state[j,k] = label
+					label +=1
+		return state
+		
+	
 			
 if __name__ == '__main__':
 	A = np.zeros((5,5))
-	A[0,1] = 1
-	A[0,3] = 2
-	A[2,1] = 3
-	A[3,4] = 4
+	A[1,1] = 1
+	A[1,3] = 1
+	A[2,2] = 1
+	A[2,4] = 1
+	A[3,1] = 1
+	A[4,2] = 1
 	
-	env = Env(A)
-	obs = env.getObservation()
-	Blossom(obs)
+	
+	Blossom(A)
