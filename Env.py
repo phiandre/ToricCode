@@ -221,4 +221,6 @@ class Env:
 		copyEnv = Env(copyState, copyHuman, self.groundState, self.checkGroundState)
 		# Returnera kopia
 		return copyEnv
+		
+	
 
