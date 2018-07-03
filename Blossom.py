@@ -20,7 +20,7 @@ class Blossom:
 		self.edgeList = list()
 		self.errorIndex = dict()
 		
-		self.createEuclidianGraph(state)
+		self.createGraph(state)
 		
 		
 	def createEuclidianGraph(self, state):
