@@ -3,7 +3,7 @@ from Env import Env
 import numpy as np
 import os.path
 
-class Blossom:
+class EBlossom:
 	
 	"""
 	The constructor creates a graph representation of an observation
@@ -20,7 +20,7 @@ class Blossom:
 		self.edgeList = list()
 		self.errorIndex = dict()
 		
-		self.createGraph(state)
+		self.createEuclidianGraph(state)
 		
 		
 	def createEuclidianGraph(self, state):
@@ -242,5 +242,5 @@ if __name__ == '__main__':
 	A[4,2] = 6
 	
 	
-	B = Blossom(A)
+	B = EBlossom(A)
 	print(B.readResult())

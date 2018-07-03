@@ -1,5 +1,6 @@
 import numpy as np
 from Blossom import Blossom
+from EBlossom import EBlossom
 from BlossomEnv import Env
 
 class runBlossom:
@@ -29,14 +30,23 @@ class runBlossom:
 			humanRep = humRep[:,:,i]
 			
 			state = self.labelState(state,state.shape[0])
-			
 			env = Env(state, humanRep, checkGroundState = True)
 			
 			if np.count_nonzero(state) > 0:
-				BlossomClass = Blossom(state)
-				MWPM = BlossomClass.readResult()
-				#print("MWPM: ",MWPM)
+				EuclidianBlossom = EBlossom(state)
+				ManhattanBlossom = Blossom(state)
 				
+				
+				EuclidianMWPM = EuclidianBlossom.readResult()
+				ManhattanMWPM = ManhattanBlossom.readResult()
+				
+				if(EuclidianMWPM != ManhattanMWPM):
+					print("Current state:\n",state)
+					print("MWPM Euclidian: ", EuclidianMWPM)
+					print("MWPM Manhattan: ", ManhattanMWPM)
+					break
+				
+				"""
 				for element in MWPM:
 					error1 = element[0]
 					error1_coords = element[1]
@@ -52,7 +62,7 @@ class runBlossom:
 				self.n += 1
 				
 				#print("Correct GS: ", self.X / self.n)
-					
+				"""
 			
 			
 

@@ -20,7 +20,7 @@ class Blossom:
 		self.edgeList = list()
 		self.errorIndex = dict()
 		
-		self.createGraph(state)
+		#self.createGraph(state)
 		
 		
 	def createEuclidianGraph(self, state):
@@ -235,12 +235,11 @@ class Blossom:
 if __name__ == '__main__':
 	A = np.zeros((5,5))
 	A[1,1] = 1
-	A[1,3] = 2
-	A[2,2] = 3
-	A[2,4] = 4
-	A[3,1] = 5
-	A[4,2] = 6
+	A[1,3] = 1
+	A[2,2] = 1
+	A[2,4] = 1
+	A[3,1] = 1
+	A[4,2] = 1
 	
 	
-	B = Blossom(A)
-	print(B.readResult())
+	Blossom(A)

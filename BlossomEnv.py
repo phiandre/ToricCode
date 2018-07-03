@@ -230,7 +230,7 @@ class Env:
 		return copyEnv
 		
 	
-	def blossomCancel(self, error1, error2, error1_coords, error2_coords):
+	def blossomCancel(self, error1, error2):
 		
 		state_ = self.centralize(error1_coords)
 		error1_x, error1_y = np.where(state_ == error1)
@@ -239,7 +239,7 @@ class Env:
 		xdist = error2_y - error1_y
 		ydist = error2_x - error1_x
 		
-		errorIndex = error1_coords
+		errorIndex = np.array((np.where(self.state == error1)))
 		
 		if len(xdist)==0 or len(ydist) ==0:
 			return
