@@ -23,6 +23,21 @@ class runBlossom:
 					state[j,k] = label
 					label +=1
 		return state
+		
+	def initialize(self, size):
+		humanRepresentation = np.zeros((2*size,2*size))
+		for i in range(0,2*size):
+			if i%2==0:
+				for j in range(0,2*size):
+					if j%2==1:
+						humanRepresentation[i,j] = 1
+					
+			else:
+				for j in range(0,2*size):
+					if j%2==0:
+						humanRepresentation[i,j] = 1
+		
+		return humanRepresentation
 	
 	def run(self):
 		comRep = np.load('ToricCodeComputerTest.npy')
@@ -33,9 +48,27 @@ class runBlossom:
 			state = np.copy(comRep[:,:,i])
 			humanRep = humRep[:,:,i]
 			
+			
 			state = self.labelState(state,state.shape[0])
 			
+			"""
+			state = np.zeros((size,size))
+			state[1,3] = 1
+			state[2,3] = 2
+			state[3,1] = 3
+			state[3,2] = 4
+			state[3,3] = 5
+			state[4,2] = 6
+			state[4,3] = 7
+			state[4,4] = 8
 			
+			humanRep = self.initialize(size)
+			humanRep[4,7] = -1
+			humanRep[7,4] = -1
+			humanRep[7,8] = -1
+			humanRep[8,9] = -1
+			humanRep[9,6] = -1
+			"""
 			Eenv = Env(state, humanRep, checkGroundState = True)
 			Menv = Env(state, humanRep, checkGroundState = True)
 			
@@ -45,20 +78,19 @@ class runBlossom:
 				EuclidianMWPM = EuclidianBlossom.readResult()
 				ManhattanMWPM = ManhattanBlossom.readResult()
 				
+				
 				if EuclidianMWPM != ManhattanMWPM:
 					for element in EuclidianMWPM:
 						error1 = element[0]
 						error2 = element[1]
 						EuclidianReward = Eenv.blossomCancel(error1, error2)
 					
+					
 					for element in ManhattanMWPM:
 						error1 = element[0]
 						error2 = element[1]
 						ManhattanReward = Menv.blossomCancel(error1, error2)
 					
-					
-					#print("State:\n", state)
-					#print("HumanState:\n", humanRep)
 					
 					if EuclidianReward == Eenv.correctGsR:
 						self.X_euclidian += 1
@@ -78,7 +110,8 @@ class runBlossom:
 					print("Euclidian GS: ", self.X_euclidian / self.n_euclidian)
 					print("Manhattan GS: ", self.X_manhattan / self.n_manhattan)
 					
-				"""
+			print("Iteration: ", i)
+			"""
 				#if(EuclidianMWPM != ManhattanMWPM):
 					#print("Current state:\n",state)
 					#print("MWPM Euclidian: ", EuclidianMWPM)
@@ -104,7 +137,7 @@ class runBlossom:
 				self.n += 1
 				
 				#print("Correct GS: ", self.X / self.n)
-				"""
+			"""
 			
 
 if __name__ == '__main__':

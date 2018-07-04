@@ -64,7 +64,7 @@ class Env:
 		@return
 			int: reward, 10 för att ta bort, -1 för ingen skillnad.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def moveError(self, action, errorIndex, errorLabel):
+	def moveError(self, action, errorIndex, errorLabel, targetError):
 		
 		# Kolla antal errors innan
 		amountErrors = len(self.errors)
@@ -97,12 +97,21 @@ class Env:
 			self.humanState[vertexPos[0], vertexPos[1]] *= -1
 		
 		#  Uppdatera den gamla positionen
-		self.state[firstPos[0], firstPos[1]] = 0
+		
+		increased = False
+		
+		if self.state[firstPos[0], firstPos[1]] == errorLabel:
+			self.state[firstPos[0], firstPos[1]] = 0
+		else:
+			self.state[firstPos[0], firstPos[1]] -= errorLabel
 		# Uppdatera den nya positionen
 		if self.state[secondPos[0], secondPos[1]] == 0:
 			self.state[secondPos[0], secondPos[1]] = errorLabel
+		elif self.state[secondPos[0], secondPos[1]] == targetError:
+			self.state[secondPos[0], secondPos[1]] = 0
 		else:
-			self.state[secondPos[0],secondPos[1]] = 0
+			self.state[secondPos[0],secondPos[1]] += errorLabel
+			increased = True
 		# Kolla igenom igen var fel finns
 		self.updateErrors()
 		
@@ -111,12 +120,14 @@ class Env:
 		if self.checkGroundState:
 			if np.count_nonzero(self.state) == 0:
 				if (self.evaluateGroundState() == self.groundState):
-					return self.correctGsR
+					return self.correctGsR, increased
 				else:
-					return self.incorrectGsR
+					return self.incorrectGsR, increased
+		
 		if amountErrors > len(self.errors):
-			return self.elimminationR
-		return self.stepR
+			return self.elimminationR, increased
+		
+		return self.stepR, increased
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Flyttar errors, och släcker ut som två errors möter varandra.
@@ -236,6 +247,7 @@ class Env:
 			return
 		errorIndex = np.array((i[0],j[0]))
 		state_ = self.centralize(errorIndex)
+		
 		error1_x, error1_y = np.where(state_ == error1)
 		error2_x, error2_y = np.where(state_ == error2)
 		
@@ -243,25 +255,37 @@ class Env:
 		ydist = error2_x - error1_x
 		
 		
-		
 		if len(xdist)==0 or len(ydist) ==0:
 			return
 		errorIndex = np.array((np.where(self.state == error1)))
+		
 		for i in range(np.abs(xdist[0])):
 			if xdist < 0:
-				r = self.moveError(2,errorIndex, error1)
-				errorIndex = np.array((np.where(self.state == error1)))
+				r, increased = self.moveError(2,errorIndex, error1, error2)
+				if increased:
+					errorIndex[1] -= -1
+				else:
+					errorIndex = np.array((np.where(self.state == error1)))
 			else:
-				r = self.moveError(3,errorIndex, error1)
-				errorIndex = np.array((np.where(self.state == error1)))
+				r, increased = self.moveError(3,errorIndex, error1, error2)
+				if increased:
+					errorIndex[1] += 1
+				else:
+					errorIndex = np.array((np.where(self.state == error1)))
 				
 		for i in range(np.abs(ydist[0])):
 			if ydist < 0:
-				r = self.moveError(0,errorIndex, error1)
-				errorIndex = np.array((np.where(self.state == error1)))
+				r, increased = self.moveError(0,errorIndex, error1, error2)
+				if increased:
+					errorIndex[0] -= 1
+				else:
+					errorIndex = np.array((np.where(self.state == error1)))
 			else:
-				r= self.moveError(1,errorIndex, error1)
-				errorIndex = np.array((np.where(self.state == error1)))
+				r, increased = self.moveError(1,errorIndex, error1, error2)
+				if increased:
+					errorIndex[0] += 1
+				else:
+					errorIndex = np.array((np.where(self.state == error1)))
 		
 		return r
  
