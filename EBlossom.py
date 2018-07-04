@@ -12,8 +12,8 @@ class EBlossom:
 	"""
 	def __init__(self, state):
 		self.state = np.copy(state)
-		self.inputFile = 'Blossom\\state_graph.txt'
-		self.outputFile = 'Blossom\\result.txt'
+		self.inputFile = 'Blossom\\euclidian_state_graph.txt'
+		self.outputFile = 'Blossom\\euclidian_result.txt'
 		
 		
 		self.distances = dict()
@@ -24,6 +24,7 @@ class EBlossom:
 		
 		
 	def createEuclidianGraph(self, state):
+		
 		obs = Env(state).getObservation()
 		originalErrorIndex = self.getErrorIndices(state)
 		amountOfErrors = self.getAmountOfErrors(obs[:,:,0])

@@ -1,13 +1,17 @@
 import numpy as np
 from Blossom import Blossom
 from EBlossom import EBlossom
+
 from BlossomEnv import Env
 
 class runBlossom:
 	
 	def __init__(self):
-		self.X = 0
-		self.n = 0
+		self.X_euclidian = 0
+		self.n_euclidian = 0
+		
+		self.n_manhattan = 0
+		self.X_manhattan = 0
 		self.run()
 		
 	def labelState(self, s, size):
@@ -30,23 +34,50 @@ class runBlossom:
 			humanRep = humRep[:,:,i]
 			
 			state = self.labelState(state,state.shape[0])
-			env = Env(state, humanRep, checkGroundState = True)
+			
+			
+			Eenv = Env(state, humanRep, checkGroundState = True)
+			Menv = Env(state, humanRep, checkGroundState = True)
 			
 			if np.count_nonzero(state) > 0:
-				EuclidianBlossom = EBlossom(state)
 				ManhattanBlossom = Blossom(state)
-				
-				
+				EuclidianBlossom = EBlossom(state)
 				EuclidianMWPM = EuclidianBlossom.readResult()
 				ManhattanMWPM = ManhattanBlossom.readResult()
 				
-				if(EuclidianMWPM != ManhattanMWPM):
-					print("Current state:\n",state)
-					print("MWPM Euclidian: ", EuclidianMWPM)
-					print("MWPM Manhattan: ", ManhattanMWPM)
-					break
-				
+				if EuclidianMWPM != ManhattanMWPM:
+					for element in EuclidianMWPM:
+						error1 = element[0]
+						error2 = element[1]
+						EuclidianReward = Eenv.blossomCancel(error1, error2)
+					
+					for element in ManhattanMWPM:
+						error1 = element[0]
+						error2 = element[1]
+						ManhattanReward = Menv.blossomCancel(error1, error2)
+					
+					
+					if EuclidianReward == Eenv.correctGsR:
+						self.X_euclidian += 1
+					self.n_euclidian += 1
+					
+					if ManhattanReward == Menv.correctGsR:
+						self.X_manhattan += 1
+					self.n_manhattan += 1
+					
+					print("Euclidian GS: ", self.X_euclidian / self.n_euclidian)
+					print("Manhattan GS: ", self.X_manhattan / self.n_manhattan)
 				"""
+				#if(EuclidianMWPM != ManhattanMWPM):
+					#print("Current state:\n",state)
+					#print("MWPM Euclidian: ", EuclidianMWPM)
+					#print("MWPM Manhattan: ", ManhattanMWPM)
+					self.X += 1
+				self.n += 1
+				
+				if self.n%100 == 0:
+					print("Opportunity: ", self.X / self.n)
+				
 				for element in MWPM:
 					error1 = element[0]
 					error1_coords = element[1]
@@ -63,7 +94,6 @@ class runBlossom:
 				
 				#print("Correct GS: ", self.X / self.n)
 				"""
-			
 			
 
 if __name__ == '__main__':

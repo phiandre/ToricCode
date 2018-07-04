@@ -231,15 +231,18 @@ class Env:
 		
 	
 	def blossomCancel(self, error1, error2):
-		
-		state_ = self.centralize(error1_coords)
+		i, j = np.where(self.state == error1)
+		if len(i) == 0 or len(j) == 0:
+			return
+		errorIndex = np.array((i[0],j[0]))
+		state_ = self.centralize(errorIndex)
 		error1_x, error1_y = np.where(state_ == error1)
 		error2_x, error2_y = np.where(state_ == error2)
 		
 		xdist = error2_y - error1_y
 		ydist = error2_x - error1_x
 		
-		errorIndex = np.array((np.where(self.state == error1)))
+		
 		
 		if len(xdist)==0 or len(ydist) ==0:
 			return

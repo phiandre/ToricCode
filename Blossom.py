@@ -40,7 +40,6 @@ class Blossom:
 			errors = self.getErrorIndices(state)
 			
 			currentError = np.array((int(np.floor(obs.shape[0]/2)), int(np.floor(obs.shape[0]/2)))) #index of center position
-			
 			for error in errors:
 				errorNumber = int(state[error[0],error[1]])
 				centerNumber = int(state[currentError[0],currentError[1]])
@@ -74,9 +73,7 @@ class Blossom:
 			#print("state:\n", state)
 			self.errorIndex[i+1] = originalErrorIndex[i]
 			errors = self.getErrorIndices(state)
-			
 			currentError = np.array((int(np.floor(obs.shape[0]/2)), int(np.floor(obs.shape[0]/2)))) #index of center position
-			
 			for error in errors:
 				errorNumber = int(state[error[0],error[1]])
 				centerNumber = int(state[currentError[0],currentError[1]])
