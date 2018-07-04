@@ -57,16 +57,27 @@ class runBlossom:
 						ManhattanReward = Menv.blossomCancel(error1, error2)
 					
 					
+					#print("State:\n", state)
+					#print("HumanState:\n", humanRep)
+					
 					if EuclidianReward == Eenv.correctGsR:
 						self.X_euclidian += 1
+						#print("Euclidian decoder correct:\n", Eenv.humanState)
+					#else:
+						#print("Euclidian NOT CORRECT:\n", Eenv.humanState)
 					self.n_euclidian += 1
 					
 					if ManhattanReward == Menv.correctGsR:
 						self.X_manhattan += 1
+						#print("Manhattan decoder correct:\n", Menv.humanState)
+					#else:
+						#print("Manhattan NOT CORRECT:\n", Menv.humanState)
 					self.n_manhattan += 1
 					
+					print("Occurrence of different matching: ", self.n_euclidian / (i+1) ) 
 					print("Euclidian GS: ", self.X_euclidian / self.n_euclidian)
 					print("Manhattan GS: ", self.X_manhattan / self.n_manhattan)
+					
 				"""
 				#if(EuclidianMWPM != ManhattanMWPM):
 					#print("Current state:\n",state)
