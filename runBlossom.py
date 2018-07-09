@@ -1,12 +1,16 @@
 import numpy as np
 from Blossom import Blossom
 from EBlossom import EBlossom
-
 from BlossomEnv import Env
+
+from MCGraph import MCGraph
 
 class runBlossom:
 	
 	def __init__(self):
+		self.X = 0
+		self.n = 0
+		
 		self.X_euclidian = 0
 		self.n_euclidian = 0
 		
@@ -51,23 +55,31 @@ class runBlossom:
 			
 			state = self.labelState(state,state.shape[0])
 			
-			"""
-			state = np.zeros((size,size))
-			state[1,3] = 1
-			state[2,3] = 2
-			state[3,1] = 3
-			state[3,2] = 4
-			state[3,3] = 5
-			state[4,2] = 6
-			state[4,3] = 7
-			state[4,4] = 8
 			
-			humanRep = self.initialize(size)
-			humanRep[4,7] = -1
-			humanRep[7,4] = -1
-			humanRep[7,8] = -1
-			humanRep[8,9] = -1
-			humanRep[9,6] = -1
+			env = Env(state, humanRep, checkGroundState = True)
+			r = 0
+			if np.count_nonzero(state) > 0:
+				G = MCGraph(state)
+				MWPM = G.getMWPM()
+				bestMatch = []
+				old_max = 0
+				for match in MWPM:
+					tot = env.chooseMatch(match)
+					if tot > old_max:
+						bestMatch = match
+						old_max = tot
+				
+				for element in bestMatch:
+					error1 = element[0] + 1 
+					error2 = element[1] + 1
+					r = env.blossomCancel(error1, error2)
+				
+				if r == env.correctGsR:
+					self.X += 1
+				self.n += 1
+				print("Correct GS: ", self.X / self.n)
+				
+				
 			"""
 			Eenv = Env(state, humanRep, checkGroundState = True)
 			Menv = Env(state, humanRep, checkGroundState = True)
@@ -77,12 +89,22 @@ class runBlossom:
 				EuclidianBlossom = EBlossom(state)
 				EuclidianMWPM = EuclidianBlossom.readResult()
 				ManhattanMWPM = ManhattanBlossom.readResult()
-				
+				#print("state:\n", state)
+				#print("Eucl: ", EuclidianMWPM)
+				#print("Manh: ", ManhattanMWPM)
+				if len(EuclidianMWPM) != len(ManhattanMWPM):
+					print("state:\n", state)
+					print("Eucl: ", EuclidianMWPM)
+					print("Manh: ", ManhattanMWPM)
 				
 				if EuclidianMWPM != ManhattanMWPM:
+					print("Eucl: ", EuclidianMWPM)
+					print("Manh: ", ManhattanMWPM)
 					for element in EuclidianMWPM:
 						error1 = element[0]
+						print("error1: ", error1)
 						error2 = element[1]
+						print("error2: ", error2)
 						EuclidianReward = Eenv.blossomCancel(error1, error2)
 					
 					
@@ -110,33 +132,9 @@ class runBlossom:
 					print("Euclidian GS: ", self.X_euclidian / self.n_euclidian)
 					print("Manhattan GS: ", self.X_manhattan / self.n_manhattan)
 					
-			print("Iteration: ", i)
-			"""
-				#if(EuclidianMWPM != ManhattanMWPM):
-					#print("Current state:\n",state)
-					#print("MWPM Euclidian: ", EuclidianMWPM)
-					#print("MWPM Manhattan: ", ManhattanMWPM)
-					self.X += 1
-				self.n += 1
-				
-				if self.n%100 == 0:
-					print("Opportunity: ", self.X / self.n)
-				
-				for element in MWPM:
-					error1 = element[0]
-					error1_coords = element[1]
-					error2 = element[2]
-					error2_coords = element[3]
-					r = env.blossomCancel(error1, error2, error1_coords, error2_coords)
-				print("r: ", r)
-				
-				if r==5:
-					self.X += 1
-				else:
-					print("state:\n", state)
-				self.n += 1
-				
-				#print("Correct GS: ", self.X / self.n)
+					if self.n_manhattan == 10000:
+						break
+					print("Matching: ", self.n_manhattan)
 			"""
 			
 

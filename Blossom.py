@@ -19,8 +19,11 @@ class Blossom:
 		self.distances = dict()
 		self.edgeList = list()
 		self.errorIndex = dict()
+		self.cost = 0
 		
 		self.createGraph(state)
+		self.readResult()
+		
 		
 		
 	def createEuclidianGraph(self, state):
@@ -224,19 +227,23 @@ class Blossom:
 				#matching_node_1 = self.errorIndex[int(first_node)+1]
 				#matching_node_2 = self.errorIndex[int(second_node)+1]
 				#dist = int(self.distances[first_node+ ", "+  second_node])
+				self.cost += int(self.distances[first_node+ ", "+  second_node])
 				l.append( (int(first_node)+1, int(second_node)+1, ))
 
 		
 		return l		
 		
+	def getCost(self):
+		return self.cost
+		
 if __name__ == '__main__':
 	A = np.zeros((5,5))
-	A[1,1] = 1
-	A[1,3] = 2
-	A[2,2] = 3
-	A[2,4] = 4
-	A[3,1] = 5
-	A[4,2] = 6
+	A[0,2] = 1
+	A[0,3] = 2
+	A[1,0] = 3
+	A[1,1] = 4
+	A[1,4] = 5
+	A[4,1] = 6
 	
 	
 	B = Blossom(A)

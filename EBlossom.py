@@ -182,7 +182,7 @@ class EBlossom:
 		xdist = np.abs(x1-x2)
 		ydist = np.abs(y1-y2)
 		
-		return xdist**2 + ydist**2
+		return np.sqrt(xdist**2 + ydist**2)*100000
 		
 	"""
 	Save the graph representation of the state as a txt-file, suitable for the Blossom algorithm file.
@@ -235,13 +235,15 @@ class EBlossom:
 		
 if __name__ == '__main__':
 	A = np.zeros((5,5))
-	A[1,1] = 1
+	A[0,2] = 1
 	A[1,3] = 2
-	A[2,2] = 3
-	A[2,4] = 4
+	A[2,1] = 3
+	A[2,3] = 4
 	A[3,1] = 5
-	A[4,2] = 6
-	
+	A[3,3] = 6
+	A[4,0] = 7
+	A[4,3] = 8
+	print(A)
 	
 	B = EBlossom(A)
 	print(B.readResult())
