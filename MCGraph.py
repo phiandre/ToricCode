@@ -3,6 +3,7 @@ from Env import Env
 from itertools import groupby
 import collections
 from Blossom import Blossom
+import time
 
 class MCGraph:
 	
@@ -12,30 +13,44 @@ class MCGraph:
 		self.edgeList = list()
 		self.errorIndex = dict()
 		
+		numMatchings = self.doublefactorial(self.getAmountOfErrors(self.state)-1)
+		
 		self.matchings = list()
 		self.allMWPM = list()
 		self.createGraph(self.state)
 		
-			
-		for i in range(1000):
+		
+		
+		
+		while len(self.matchings) < numMatchings:
 			self.createInitialMatching()
+			
 		
 		matches = [k for k,v in groupby(sorted(self.matchings))]
 		
 		#print(matches)
 		
 		B = Blossom(state)
+		B.readResult()
 		minSteps = B.getCost()
-		
+		#print("minSteps: ", minSteps)
 		for l in matches:
 			tot = -sum(i for i in range(0,self.getAmountOfErrors(self.state)))
 			for tup in l:
 				tot += sum(tup)
 			if tot == minSteps:
 				self.allMWPM.append(l)
-		
 				
-			
+		
+		"""
+		for i in range(30):
+			B = Blossom(state)
+			self.allMWPM.append(B.readResult())
+		
+		
+		MWPM = [k for k,v in groupby(sorted(self.allMWPM))]
+		"""
+		
 		
 		
 	
@@ -232,18 +247,30 @@ class MCGraph:
 	def getMWPM(self):
 		return self.allMWPM
 		
+	def doublefactorial(self, n):
+		if n <= 0:
+			return 1
+		else:
+			return n * self.doublefactorial(n-2)
+		
 if __name__ == '__main__':
 	A = np.zeros((5,5))
-	A[0,3] = 1
-	A[1,3] = 2
-	A[2,1] = 3
-	A[2,4] = 4
-	A[3,0] = 5
-	A[3,2] = 6
-	A[4,1] = 7
-	A[4,4] = 8
+	A[0,0] = 1
+	A[0,1] = 2
+	A[0,4] = 3
+	A[1,1] = 4
+	A[1,2] = 5
+	A[2,0] = 6
+	A[3,3] = 7
+	A[3,4] = 8
+	A[4,1] = 9
+	A[4,2] = 10
 	print(A)
+	
+	start = time.time()
 	G = MCGraph(A)
+	end = time.time()
+	print("Elapsed time: ", end-start)
 	#for key in G.distances.keys():
 		#print("Key: ", key, " Value: ", G.distances[key])
 	

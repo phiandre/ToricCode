@@ -13,10 +13,10 @@ class Tweaker:
 			
 	
 		# Antal iterationer som ska tränas
-		self.trainingIterations = 200000
+		self.trainingIterations = 10
 		
 		# Antal iterationer som ska testas
-		self.testIterations = 30000
+		self.testIterations = 40000
 		
 		
 		""" Belöningsparametrar"""
@@ -86,7 +86,7 @@ class Tweaker:
 		self.Pei = 0.04
 		
 		# Felfrekvens för testdata
-		self.PeTest = 0.08
+		self.PeTest = 0.12
 		# Växande sannolikhet enligt formeln
 		# P_e = A * tanh(w(x+b))+ B 
 		

@@ -2,6 +2,8 @@ from os import system
 from Env import Env
 import numpy as np
 import os.path
+from random import shuffle
+from itertools import groupby
 
 class Blossom:
 	
@@ -22,7 +24,7 @@ class Blossom:
 		self.cost = 0
 		
 		self.createGraph(state)
-		self.readResult()
+		#self.readResult()
 		
 		
 		
@@ -68,7 +70,7 @@ class Blossom:
 		amountOfEdges = 2*(np.sum(i for i in range(0,amountOfErrors)))
 		self.edgeList.clear()
 		self.distances.clear()
-		self.edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
+		#self.edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
 		
 	
 		for i in range(obs.shape[2]):
@@ -89,6 +91,11 @@ class Blossom:
 				#print("dist: ", dist)
 				self.distances[str(centerNumber-1) +", " +str(errorNumber-1)] = dist
 				self.edgeList.append(str(centerNumber-1) + " " + str(errorNumber-1) + " " + str(dist))
+				
+		shuffle(self.edgeList)
+		self.edgeList.insert(0, str(amountOfErrors) + " " + str(amountOfEdges))
+		
+		#print(self.edgeList)
 		self.createGraphAsTxt(self.edgeList)
 		self.computeMWPM()
 		
@@ -226,9 +233,9 @@ class Blossom:
 				
 				#matching_node_1 = self.errorIndex[int(first_node)+1]
 				#matching_node_2 = self.errorIndex[int(second_node)+1]
-				#dist = int(self.distances[first_node+ ", "+  second_node])
+				dist = int(self.distances[first_node+ ", "+  second_node])
 				self.cost += int(self.distances[first_node+ ", "+  second_node])
-				l.append( (int(first_node)+1, int(second_node)+1, ))
+				l.append( (int(first_node), int(second_node), dist ))
 
 		
 		return l		
@@ -238,13 +245,19 @@ class Blossom:
 		
 if __name__ == '__main__':
 	A = np.zeros((5,5))
-	A[0,2] = 1
-	A[0,3] = 2
-	A[1,0] = 3
-	A[1,1] = 4
-	A[1,4] = 5
-	A[4,1] = 6
+	A[0,3] = 1
+	A[1,3] = 2
+	A[2,1] = 3
+	A[2,4] = 4
+	A[3,0] = 5
+	A[3,2] = 6
+	A[4,1] = 7
+	A[4,4] = 8
 	
+	matchings = list()
+	for i in range(25):
+		B = Blossom(A)
+		matchings.append(B.readResult())
 	
-	B = Blossom(A)
-	print(B.readResult())
+	matches = [k for k,v in groupby(sorted(matchings))]
+	print(matches)

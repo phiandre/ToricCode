@@ -128,11 +128,7 @@ class MainClass:
 					env.correctGsR = self.fR
 				r = 0
 				
-				
-				if(len(env.getErrors()) > 0):
-					BlossomObject = Blossom(env.getObservation())
-					MWPM = BlossomObject.readResult()
-					
+						
 				
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1

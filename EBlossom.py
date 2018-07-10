@@ -2,6 +2,7 @@ from os import system
 from Env import Env
 import numpy as np
 import os.path
+from random import shuffle
 
 class EBlossom:
 	
@@ -20,6 +21,7 @@ class EBlossom:
 		self.edgeList = list()
 		self.errorIndex = dict()
 		
+		self.cost = 0
 		self.createEuclidianGraph(state)
 		
 		
@@ -31,7 +33,7 @@ class EBlossom:
 		amountOfEdges = 2*(np.sum(i for i in range(0,amountOfErrors)))
 		self.edgeList.clear()
 		self.distances.clear()
-		self.edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
+		#self.edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
 		
 	
 		for i in range(obs.shape[2]):
@@ -54,6 +56,9 @@ class EBlossom:
 				#print("dist: ", dist)
 				self.distances[str(centerNumber-1) +", " +str(errorNumber-1)] = dist
 				self.edgeList.append(str(centerNumber-1) + " " + str(errorNumber-1) + " " + str(dist))
+				
+		shuffle(self.edgeList)
+		self.edgeList.insert(0, str(amountOfErrors) + " " + str(amountOfEdges))
 		self.createGraphAsTxt(self.edgeList)
 		self.computeMWPM()
 			
@@ -227,11 +232,16 @@ class EBlossom:
 				
 				#matching_node_1 = self.errorIndex[int(first_node)+1]
 				#matching_node_2 = self.errorIndex[int(second_node)+1]
-				#dist = int(self.distances[first_node+ ", "+  second_node])
-				l.append( (int(first_node)+1, int(second_node)+1, ))
+				dist = int(self.distances[first_node+ ", "+  second_node]/100000)
+				
+				self.cost += int(self.distances[first_node+ ", "+  second_node])
+				l.append( (int(first_node), int(second_node), dist ))
 
 		
-		return l		
+		return l	
+		
+	def getCost(self):
+		return self.cost	
 		
 if __name__ == '__main__':
 	A = np.zeros((5,5))

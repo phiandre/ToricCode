@@ -2,8 +2,8 @@ import numpy as np
 from Blossom import Blossom
 from EBlossom import EBlossom
 from BlossomEnv import Env
-
 from MCGraph import MCGraph
+from itertools import groupby
 
 class runBlossom:
 	
@@ -56,28 +56,74 @@ class runBlossom:
 			state = self.labelState(state,state.shape[0])
 			
 			
+			
 			env = Env(state, humanRep, checkGroundState = True)
 			r = 0
 			if np.count_nonzero(state) > 0:
-				G = MCGraph(state)
-				MWPM = G.getMWPM()
+				i += 1
+				print("Iteration ",  i)
+				#print("state:\n", state)
+				amountOfErrors = env.getAmountOfErrors()
+				#numIters = 2*np.sum(i for i in range(0,env.getAmountOfErrors() ))
+				#numIters = 5*env.getAmountOfErrors()
+				#print("numIters: ", numIters)
+				MWPM = list()
+				if amountOfErrors >= 10:
+					for index in range(10):
+						G = Blossom(state)
+						MWPM.append(G.readResult())
+				else:
+					MWPM = MCGraph(state).getMWPM()
+					
+				MWPM = [k for k,v in groupby(sorted(MWPM))]
+				#print("All MWPM: ", MWPM)
 				bestMatch = []
 				old_max = 0
+				#print("length of MWPM: ", len(MWPM))
 				for match in MWPM:
-					tot = env.chooseMatch(match)
+					#print("match: ", match)
+					tot, dist = env.chooseMatch(match)
 					if tot > old_max:
 						bestMatch = match
 						old_max = tot
 				
-				for element in bestMatch:
-					error1 = element[0] + 1 
-					error2 = element[1] + 1
-					r = env.blossomCancel(error1, error2)
+				#print("Best match: ", bestMatch, " comb: ", old_max)
+				MWM = Blossom(state).readResult()
+				MWM_area, MWM_dist = env.chooseMatch(MWM)
+				#print("MWPM: ", MWM, " comb: ", MWM_area, " dist: ", MWM_dist)
 				
-				if r == env.correctGsR:
-					self.X += 1
-				self.n += 1
-				print("Correct GS: ", self.X / self.n)
+				MWM_euclid = EBlossom(state).readResult()
+				MWM_euclid_area, MWM_euclid_dist = env.chooseMatch(MWM_euclid)
+				#print("MWPM Euclidean: ", MWM_euclid, " comb: ", MWM_euclid_area, " dist: ", MWM_euclid_dist)
+				
+				if MWM_area != old_max:
+					#print("Same area: ", MWM_area == old_max)
+					for element in bestMatch:
+						error1 = element[0]+1
+						error2 = element[1]+1
+						
+						#print("error1: ", error1)
+						#print("error2: ", error2)
+						r = env.blossomCancel(error1, error2)
+					
+					env2 = Env(state, humanRep, checkGroundState = True)
+					for element in MWM:
+						error1 = element[0]+1
+						error2 = element[1]+1
+						
+						r1 = env2.blossomCancel(error1, error2)
+					
+					if r == env.correctGsR:
+						self.X += 1
+						#print("CORRECT GROUND STATE")
+					#else:
+						#print("WRONG GROUND STATE")
+					#if r1== env2.correctGsR:
+						#print("Vanilla Correct")
+					#else:
+						#print("Vanilla wrong")
+					self.n += 1
+					#print("Correct GS: ", self.X / self.n)
 				
 				
 			"""
@@ -98,13 +144,13 @@ class runBlossom:
 					print("Manh: ", ManhattanMWPM)
 				
 				if EuclidianMWPM != ManhattanMWPM:
-					print("Eucl: ", EuclidianMWPM)
-					print("Manh: ", ManhattanMWPM)
+					#print("Eucl: ", EuclidianMWPM)
+					#print("Manh: ", ManhattanMWPM)
 					for element in EuclidianMWPM:
 						error1 = element[0]
-						print("error1: ", error1)
+						#print("error1: ", error1)
 						error2 = element[1]
-						print("error2: ", error2)
+						#print("error2: ", error2)
 						EuclidianReward = Eenv.blossomCancel(error1, error2)
 					
 					
@@ -135,8 +181,8 @@ class runBlossom:
 					if self.n_manhattan == 10000:
 						break
 					print("Matching: ", self.n_manhattan)
-			"""
 			
+			"""
 
 if __name__ == '__main__':
 	runBlossom()

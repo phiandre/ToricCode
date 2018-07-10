@@ -11,6 +11,7 @@
 ##########
 import math
 import numpy as np
+from scipy.special import comb
 
 ###############
 # Klassen Env #
@@ -55,6 +56,8 @@ class Env:
 	def getErrors(self):					
 		return self.errors
 
+	def getAmountOfErrors(self):
+		return len(self.errors)
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Flyttar errors, och släcker ut som två errors möter varandra.
 	Actions följer: [u = 0, d = 1, l = 2, r = 3]
@@ -94,7 +97,16 @@ class Env:
 			else:
 				vertexPos = 1/2 * (firstHumPos + secondHumPos)
 				vertexPos = vertexPos.astype(int)
-			self.humanState[vertexPos[0], vertexPos[1]] *= -1
+			try:
+				self.humanState[vertexPos[0], vertexPos[1]] *= -1
+			except Exception as e:
+				print("state:\n", self.state)
+				print("error1: ", errorLabel)
+				print("error2: ", targetError)
+				print("firstPos: ", firstPos)
+				print("secondPos: ", secondPos)
+				print("action: ", action)
+				print("vertexPos: ", vertexPos)
 		
 		#  Uppdatera den gamla positionen
 		
@@ -242,50 +254,109 @@ class Env:
 		
 	
 	def blossomCancel(self, error1, error2):
+		#print("state:\n", self.state)
+		#print("humanState\n", self.humanState)
+		#print("error1: ", error1)
+		#print("error2: ", error2)
 		i, j = np.where(self.state == error1)
 		if len(i) == 0 or len(j) == 0:
 			return
 		errorIndex = np.array((i[0],j[0]))
+		#print("errrorIndex1:\n", errorIndex)
+		
 		state_ = self.centralize(errorIndex)
 		
+		#print("state_\n", state_)
 		error1_x, error1_y = np.where(state_ == error1)
 		error2_x, error2_y = np.where(state_ == error2)
 		
 		xdist = error2_y - error1_y
 		ydist = error2_x - error1_x
 		
+		#print("error1_x: ", error1_x)
+		#print("error1_y: ", error1_y)
+		#print("error2_x: ", error2_x)
+		#print("error2_y: ", error2_y)
+		
+		#print("xdist: ", xdist)
+		#print("ydist: ", ydist)
 		
 		if len(xdist)==0 or len(ydist) ==0:
 			return
-		errorIndex = np.array((np.where(self.state == error1)))
+			
+		i, j = np.where(self.state == error1)
+		errorIndex = np.array((i[0],j[0]))
+		
+		#print("errorIndex2:\n", errorIndex)
 		
 		for i in range(np.abs(xdist[0])):
-			if xdist < 0:
+			if xdist[0] < 0:
 				r, increased = self.moveError(2,errorIndex, error1, error2)
 				if increased:
-					errorIndex[1] -= -1
+					
+					if (errorIndex[1] - 1) < 0:
+						errorIndex[1] = self.length -1
+					else:
+						errorIndex[1] -= 1
 				else:
 					errorIndex = np.array((np.where(self.state == error1)))
 			else:
 				r, increased = self.moveError(3,errorIndex, error1, error2)
 				if increased:
-					errorIndex[1] += 1
+					if (errorIndex[1]+1) >= self.length:
+						errorIndex[1] = 0
+					else:
+						errorIndex[1] += 1
 				else:
 					errorIndex = np.array((np.where(self.state == error1)))
 				
 		for i in range(np.abs(ydist[0])):
-			if ydist < 0:
+			if ydist[0] < 0:
 				r, increased = self.moveError(0,errorIndex, error1, error2)
 				if increased:
-					errorIndex[0] -= 1
+					if (errorIndex[0]-1) < 0:
+						errorIndex[0] = self.length-1
+					else: 
+						errorIndex[0] -= 1
 				else:
 					errorIndex = np.array((np.where(self.state == error1)))
 			else:
 				r, increased = self.moveError(1,errorIndex, error1, error2)
 				if increased:
-					errorIndex[0] += 1
+					if (errorIndex[0] + 1) >= self.length:
+						errorIndex[0] = 0
+					else:
+						errorIndex[0] += 1
 				else:
 					errorIndex = np.array((np.where(self.state == error1)))
 		
 		return r
+		
+	def chooseMatch(self, match):
+		combinations = 1
+		totdist = 0
+		for tup in match:
+			error1 = tup[0]+1
+			error2 = tup[1]+1
+			
+			i, j = np.where(self.state == error1)
+			if len(i) == 0 or len(j) == 0:
+				return
+			errorIndex = np.array((i[0],j[0]))
+			
+			state_ = self.centralize(errorIndex)
+			
+			error1_x, error1_y = np.where(state_ == error1)
+			error2_x, error2_y = np.where(state_ == error2)
+			
+			xdist = np.abs(error2_y - error1_y)+1
+			ydist = np.abs(error2_x - error1_x)+1
+			
+			totdist += xdist-1
+			totdist += ydist-1		
+			
+			combinations *= comb(xdist+ydist-2, ydist-1) 
+		
+		return combinations, totdist
+		
  
