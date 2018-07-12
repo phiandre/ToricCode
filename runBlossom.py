@@ -48,6 +48,11 @@ class runBlossom:
 		humRep=np.load('ToricCodeHumanTest.npy')
 		size = comRep.shape[0]
 		
+		plaqCount = 0
+		
+		plaq = np.zeros(12)
+		plaqGS = np.zeros(12)
+		
 		for i in range(comRep.shape[2]):
 			state = np.copy(comRep[:,:,i])
 			humanRep = humRep[:,:,i]
@@ -61,12 +66,21 @@ class runBlossom:
 			r = 0
 			if np.count_nonzero(state) > 0:
 				i += 1
+				
+				x, y = np.where(humanRep == -1)
+				flips = len(x)
 				print("Iteration ",  i)
 				#print("state:\n", state)
 				amountOfErrors = env.getAmountOfErrors()
+				plaqCount += amountOfErrors
+				
+				plaq[int(amountOfErrors/2)-1] += 1
+				
+				
 				#numIters = 2*np.sum(i for i in range(0,env.getAmountOfErrors() ))
 				#numIters = 5*env.getAmountOfErrors()
 				#print("numIters: ", numIters)
+				"""
 				MWPM = list()
 				if amountOfErrors >= 10:
 					for index in range(10):
@@ -87,6 +101,7 @@ class runBlossom:
 						bestMatch = match
 						old_max = tot
 				
+				"""
 				#print("Best match: ", bestMatch, " comb: ", old_max)
 				MWM = Blossom(state).readResult()
 				MWM_area, MWM_dist = env.chooseMatch(MWM)
@@ -96,6 +111,21 @@ class runBlossom:
 				MWM_euclid_area, MWM_euclid_dist = env.chooseMatch(MWM_euclid)
 				#print("MWPM Euclidean: ", MWM_euclid, " comb: ", MWM_euclid_area, " dist: ", MWM_euclid_dist)
 				
+				env2 = Env(state, humanRep, checkGroundState = True)
+				for element in MWM:
+					error1 = element[0]+1
+					error2 = element[1]+1
+					
+					r1 = env2.blossomCancel(error1, error2)
+				if r1 == env2.correctGsR:
+					plaqGS[int(amountOfErrors/2)-1] +=1
+					
+				print("Average number of error plaquettes: ", plaqCount/i)
+				for kk in range(12):
+					if plaq[kk]>1:
+						print("Average GS for " + str((kk+1)*2) + " plaquettes: " + str((plaqGS[kk]/plaq[kk])*100) + " % (" + str(plaq[kk]) + " cases)")
+				
+				"""
 				if MWM_area != old_max:
 					#print("Same area: ", MWM_area == old_max)
 					for element in bestMatch:
@@ -124,7 +154,7 @@ class runBlossom:
 						#print("Vanilla wrong")
 					self.n += 1
 					#print("Correct GS: ", self.X / self.n)
-				
+				"""
 				
 			"""
 			Eenv = Env(state, humanRep, checkGroundState = True)
