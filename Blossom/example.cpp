@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
 			printf("check optimality: res=%d (%s)\n", res, (res==0) ? "ok" : ((res==1) ? "error" : "fatal error"));
 		}
 		double cost = ComputePerfectMatchingCost(node_num, edge_num, edges, weights, pm);
-		printf("cost = %.1f\n", cost);
+		//printf("cost = %.1f\n", cost);
 		if (save_filename) SaveMatching(node_num, pm, save_filename);
 		delete pm;
 	}

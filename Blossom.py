@@ -233,6 +233,7 @@ class Blossom:
 				
 				#matching_node_1 = self.errorIndex[int(first_node)+1]
 				#matching_node_2 = self.errorIndex[int(second_node)+1]
+				#print("self.distances:\n", self.distances)
 				dist = int(self.distances[first_node+ ", "+  second_node])
 				self.cost += int(self.distances[first_node+ ", "+  second_node])
 				l.append( (int(first_node), int(second_node), dist ))

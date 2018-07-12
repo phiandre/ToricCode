@@ -13,10 +13,10 @@ class Tweaker:
 			
 	
 		# Antal iterationer som ska tränas
-		self.trainingIterations = 10
+		self.trainingIterations = 500
 		
 		# Antal iterationer som ska testas
-		self.testIterations = 40000
+		self.testIterations = 500
 		
 		
 		""" Belöningsparametrar"""
@@ -74,7 +74,7 @@ class Tweaker:
 		""" Error rate """
 		
 		# Använd växande felfrekvens
-		self.errorGrowth = True
+		self.errorGrowth = False
 		
 		# Felfrekvenskurvans form oberoende av antal iterationer
 		self.errorShape = False

@@ -131,10 +131,13 @@ class Env:
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
 		if self.checkGroundState:
 			if np.count_nonzero(self.state) == 0:
+				return self.evaluateGroundState(), increased
+				"""
 				if (self.evaluateGroundState() == self.groundState):
 					return self.correctGsR, increased
 				else:
 					return self.incorrectGsR, increased
+				"""
 		
 		if amountErrors > len(self.errors):
 			return self.elimminationR, increased
@@ -269,6 +272,8 @@ class Env:
 		#print("state_\n", state_)
 		error1_x, error1_y = np.where(state_ == error1)
 		error2_x, error2_y = np.where(state_ == error2)
+		
+		
 		
 		xdist = error2_y - error1_y
 		ydist = error2_x - error1_x
