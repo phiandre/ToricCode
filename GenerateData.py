@@ -216,9 +216,21 @@ if __name__ == '__main__':
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
 	#tmpComputer = np.zeros((size,size,numGenerations))
 	tmpComputer = list()
+
+	counter0 = 0
+	counter1 = 0
+	counter2 = 0
+	counter3 = 0
+
+	counter0lim = np.ceil(numGenerations/4)
+	counter1lim = np.ceil((numGenerations-counter0lim)/3)
+	counter2lim = np.ceil((numGenerations-counter0lim-counter1lim)/2)
+	counter3lim = numGenerations-counter0lim-counter1lim-counter2lim
 	
 	label = list()
-	for i in range(numGenerations):
+
+	while len(label) < numGenerations:
+		i = len(label)+1
 		if errorGrowth:
 			errorProb = AE * np.tanh(wE*(i+1+bE))+BE
 		
@@ -229,7 +241,7 @@ if __name__ == '__main__':
 			
 		env = Env(computer, human, checkGroundState = True)
 		obs = env.getObservation()
-		
+
 		
 		state = generator.labelState(computer, size)
 		cancelEnv = Env(state, human, checkGroundState = True)
@@ -243,16 +255,32 @@ if __name__ == '__main__':
 			#print("Error1: ", error1)
 			#print("Error2: ", error2)
 			groundState = cancelEnv.blossomCancel(error1, error2)
-		
-		label_tmp = np.zeros(4)
-		label_tmp[groundState] = 1
-		label.append(label_tmp)
-		
-		#print(label[:,i])
-		#tmpHuman[:,:,i] = human
-		tmpComputer.append(obs[:,:,0])
-		#tmpComputer[:,:,i] = obs[:,:,0]
-		#print(tmpComputer[:,:,i])
+
+		if ((groundState == 0) and (counter0 < counter0lim)) or ((groundState == 1) and (counter1 < counter1lim)) or ((groundState == 2) and (counter2 < counter2lim)) or ((groundState == 3) and (counter3 < counter3lim)):
+			if groundState == 0:
+				counter0 += 1
+			if groundState == 1:
+				counter1 += 1
+			if groundState == 2:
+				counter2 += 1
+			if groundState == 3:
+				counter3 += 1
+			label_tmp = np.zeros(4)
+			label_tmp[groundState] = 1
+			label.append(label_tmp)
+
+			if i%100 == 0:
+				print("Training ", i)
+				print("counter0: ",counter0)
+				print("counter1: ", counter1)
+				print("counter2: ", counter2)
+				print("counter3: ", counter3)
+				print(" ")
+			#print(label[:,i])
+			#tmpHuman[:,:,i] = human
+			tmpComputer.append(obs[:,:,0])
+			#tmpComputer[:,:,i] = obs[:,:,0]
+			#print(tmpComputer[:,:,i])
 		
 	label = np.asarray(label)
 	tmpComputer = np.asarray(tmpComputer)
@@ -287,12 +315,16 @@ if __name__ == '__main__':
 		testLabel_ = np.zeros(4)
 		testLabel_[groundState] = 1
 		testLabel.append(testLabel_)
+
+		if i % 100 == 0:
+			print("Test ", i)
 		
 		#tmpHumanTest[:,:,i] = humanTest
 		tmpComputerTest.append(obs[:,:,0])
 	
 	tmpComputerTest = np.asarray(tmpComputerTest)
 	testLabel = np.asarray(testLabel)
+
 
 
 	"""

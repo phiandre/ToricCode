@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="be32841c-dedb-4cf0-a2df-d990fb56997a" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Label.npy" afterPath="$PROJECT_DIR$/Label.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LabelTest.npy" afterPath="$PROJECT_DIR$/LabelTest.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/AE.npy" afterPath="$PROJECT_DIR$/Tweaks/AE.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/AGS.npy" afterPath="$PROJECT_DIR$/Tweaks/AGS.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/BEcap.npy" afterPath="$PROJECT_DIR$/Tweaks/BEcap.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/BGS.npy" afterPath="$PROJECT_DIR$/Tweaks/BGS.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/GSgrowth.npy" afterPath="$PROJECT_DIR$/Tweaks/GSgrowth.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/Pe.npy" afterPath="$PROJECT_DIR$/Tweaks/Pe.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/PeTest.npy" afterPath="$PROJECT_DIR$/Tweaks/PeTest.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/Pei.npy" afterPath="$PROJECT_DIR$/Tweaks/Pei.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/alpha.npy" afterPath="$PROJECT_DIR$/Tweaks/alpha.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/bE.npy" afterPath="$PROJECT_DIR$/Tweaks/bE.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/checkGS.npy" afterPath="$PROJECT_DIR$/Tweaks/checkGS.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/correctGsR.npy" afterPath="$PROJECT_DIR$/Tweaks/correctGsR.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/epsilon.npy" afterPath="$PROJECT_DIR$/Tweaks/epsilon.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/epsilonDecay.npy" afterPath="$PROJECT_DIR$/Tweaks/epsilonDecay.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/epsilonShape.npy" afterPath="$PROJECT_DIR$/Tweaks/epsilonShape.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/errorGrowth.npy" afterPath="$PROJECT_DIR$/Tweaks/errorGrowth.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/errorShape.npy" afterPath="$PROJECT_DIR$/Tweaks/errorShape.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/groundStateShape.npy" afterPath="$PROJECT_DIR$/Tweaks/groundStateShape.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/incorrectGsR.npy" afterPath="$PROJECT_DIR$/Tweaks/incorrectGsR.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/k.npy" afterPath="$PROJECT_DIR$/Tweaks/k.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/stepR.npy" afterPath="$PROJECT_DIR$/Tweaks/stepR.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/testIterations.npy" afterPath="$PROJECT_DIR$/Tweaks/testIterations.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/trainingIterations.npy" afterPath="$PROJECT_DIR$/Tweaks/trainingIterations.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/wE.npy" afterPath="$PROJECT_DIR$/Tweaks/wE.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tweaks/wGS.npy" afterPath="$PROJECT_DIR$/Tweaks/wGS.npy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AllSettings.py" afterPath="$PROJECT_DIR$/AllSettings.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Blossom.py" afterPath="$PROJECT_DIR$/Blossom.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GenerateData.py" afterPath="$PROJECT_DIR$/GenerateData.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MAC_blossom/result.txt" afterPath="$PROJECT_DIR$/MAC_blossom/result.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MAC_blossom/state_graph.txt" afterPath="$PROJECT_DIR$/MAC_blossom/state_graph.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/QNet.py" afterPath="$PROJECT_DIR$/QNet.py" />
+    </list>
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="AllSettings.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/AllSettings.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="87">
+              <caret line="77" column="8" lean-forward="false" selection-start-line="77" selection-start-column="8" selection-end-line="77" selection-end-column="8" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlossomEnv.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/BlossomEnv.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Blossom.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Blossom.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="32" lean-forward="false" selection-start-line="17" selection-start-column="32" selection-end-line="17" selection-end-column="32" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="GenerateData.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/GenerateData.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="132">
+              <caret line="255" column="33" lean-forward="false" selection-start-line="255" selection-start-column="33" selection-end-line="255" selection-end-column="33" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="QNet.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/QNet.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="384">
+              <caret line="49" column="42" lean-forward="false" selection-start-line="49" selection-start-column="42" selection-end-line="49" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/run_ready.py" />
+        <option value="$PROJECT_DIR$/MAC_blossom/example.cpp" />
+        <option value="$PROJECT_DIR$/EBlossom.py" />
+        <option value="$PROJECT_DIR$/runBlossom.py" />
+        <option value="$PROJECT_DIR$/Blossom.py" />
+        <option value="$PROJECT_DIR$/QNet.py" />
+        <option value="$PROJECT_DIR$/AllSettings.py" />
+        <option value="$PROJECT_DIR$/GenerateData.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="296" />
+    <option name="y" value="51" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ToricCode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ToricCode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ToricCode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ToricCode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Monte-Carlo" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
+    </panes>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.GenerateData">
+    <configuration default="false" name="AllSettings" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/AllSettings.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="GenerateData" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/GenerateData.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="run_train" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_train.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="runBlossom" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/runBlossom.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="QNet" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/QNet.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ToricCode" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python.AllSettings" />
+      <item index="1" class="java.lang.String" itemvalue="Python.GenerateData" />
+      <item index="2" class="java.lang.String" itemvalue="Python.run_train" />
+      <item index="3" class="java.lang.String" itemvalue="Python.runBlossom" />
+      <item index="4" class="java.lang.String" itemvalue="Python.QNet" />
+    </list>
+    <recent_temporary>
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.GenerateData" />
+        <item index="1" class="java.lang.String" itemvalue="Python.AllSettings" />
+        <item index="2" class="java.lang.String" itemvalue="Python.QNet" />
+        <item index="3" class="java.lang.String" itemvalue="Python.runBlossom" />
+        <item index="4" class="java.lang.String" itemvalue="Python.run_train" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="296" y="51" width="1400" height="1000" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32975295" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32975295" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Monte-Carlo/RLMC.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1529475896000" expanded="true" signature="503:3775" ph="..." />
+            <marker date="1529475896000" expanded="true" signature="3491:3708" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1529475896000" expanded="true" signature="3750:3775" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Monte-Carlo/.idea/GenerateToricData.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="201" column="26" lean-forward="true" selection-start-line="201" selection-start-column="26" selection-end-line="201" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Monte-Carlo/GenerateToricData.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="347">
+          <caret line="211" column="20" lean-forward="true" selection-start-line="211" selection-start-column="20" selection-end-line="211" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Monte-Carlo/runMC_ny.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="80" column="56" lean-forward="true" selection-start-line="80" selection-start-column="56" selection-end-line="82" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Monte-Carlo/QNet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="62">
+          <caret line="38" column="59" lean-forward="false" selection-start-line="38" selection-start-column="59" selection-end-line="38" selection-end-column="59" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Monte-Carlo/Env.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RL.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Env.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1530694012000" expanded="true" signature="951:1238" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="3852:4206" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1530694012000" expanded="true" signature="4238:4717" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="4241:4328" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="4721:5080" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1530694012000" expanded="true" signature="5117:5713" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="5261:5346" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="5366:5451" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="5469:5554" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="5572:5657" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="5716:6054" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1530694012000" expanded="true" signature="6081:6337" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="6136:6337" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="6340:6803" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1530694012000" expanded="true" signature="6835:7099" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="6908:6998" ph="..." />
+            <marker date="1530694012000" expanded="true" signature="7102:7282" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/GenerateToricData.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="204" column="54" lean-forward="false" selection-start-line="204" selection-start-column="54" selection-end-line="204" selection-end-column="54" />
+          <folding>
+            <element signature="e#0#18#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/run_ready.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="28" column="26" lean-forward="false" selection-start-line="28" selection-start-column="26" selection-end-line="28" selection-end-column="26" />
+          <folding>
+            <marker date="1531387413000" expanded="true" signature="2857:2940" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="339:615" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="640:1102" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="662:896" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="796:864" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="904:1102" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="1002:1102" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="1133:1164" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="1205:1506" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="1282:1506" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="2857:2940" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="1959:2548" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="2081:2380" ph="..." />
+            <marker date="1531387413000" expanded="true" signature="2967:3099" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/run_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="194">
+          <caret line="21" column="41" lean-forward="false" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MAC_blossom/example.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="238" column="10" lean-forward="false" selection-start-line="238" selection-start-column="10" selection-end-line="238" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/QNet_mem.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EBlossom.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="292">
+          <caret line="210" column="36" lean-forward="false" selection-start-line="210" selection-start-column="36" selection-end-line="210" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/runBlossom.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1537">
+          <caret line="167" column="41" lean-forward="false" selection-start-line="167" selection-start-column="41" selection-end-line="167" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/QNet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="49" column="42" lean-forward="false" selection-start-line="49" selection-start-column="42" selection-end-line="49" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Blossom.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="32" lean-forward="false" selection-start-line="17" selection-start-column="32" selection-end-line="17" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BlossomEnv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AllSettings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="87">
+          <caret line="77" column="8" lean-forward="false" selection-start-line="77" selection-start-column="8" selection-end-line="77" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/GenerateData.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="255" column="33" lean-forward="false" selection-start-line="255" selection-start-column="33" selection-end-line="255" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

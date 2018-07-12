@@ -32,10 +32,13 @@ class QNet:
 		self.network = Sequential()
 		self.network.add(Dense(10, input_shape=[self.state_size, self.state_size], activation='relu'))
 		self.network.add(Flatten())
+		self.network.add(Dropout(0.3))
 		self.network.add(Dense(100, activation='relu'))
+		self.network.add(Dropout(0.3))
 		self.network.add(Dense(100, activation='relu'))
+		self.network.add(Dropout(0.3))
 		self.network.add(Dense(100, activation='relu'))
-		self.network.add(Dense(4, activation='softmax'))
+		self.network.add(Dense(4, activation='sigmoid'))
 		self.network.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 		
 		trainingData = np.load('ToricCodeComputer.npy')
@@ -44,7 +47,7 @@ class QNet:
 		testData = np.load('ToricCodeComputerTest.npy')
 		testLabel = np.load('LabelTest.npy')
 		
-		self.network.fit(trainingData, trainingLabel, epochs = 10, batch_size = 10)
+		self.network.fit(trainingData, trainingLabel, epochs = 1000, batch_size = 10000)
 		
 		
 		correctGS = 0
