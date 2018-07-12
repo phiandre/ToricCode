@@ -5,7 +5,7 @@
 
     Copyright 2008-2009 UCL Business PLC, Author Vladimir Kolmogorov (vnk@ist.ac.at)
 
-    This software can be used for evaluation and non-commercial research purposes only. Commercial use is prohibited.
+    This software can be used for evaluation and non-commercial researchpurposes only. Commercial use is prohibited.
     Public redistribution of the code or its derivatives is prohibited.
     If you use this software for research purposes, you should cite the following paper in any resulting publication:
 
@@ -37,7 +37,7 @@
 
 
 // if defined, edge costs are of type 'double', otherwise 'int'
-//#define PERFECT_MATCHING_DOUBLE
+#define PERFECT_MATCHING_DOUBLE
 
 // Note: with floating point numbers polynomial complexity is not guaranteed;
 // the code may even get stuck due to rounding errors. If the code terminates,

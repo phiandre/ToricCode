@@ -162,7 +162,7 @@ double ComputePerfectMatchingCost(int node_num, int edge_num, int* edges, int* w
 	{
 		if (nodes[i] != 1)
 		{
-			printf("ComputeCost(): degree = %d!\n", nodes[i]);
+			//printf("ComputeCost(): degree = %d!\n", nodes[i]);
 			exit(1);
 		}
 	}

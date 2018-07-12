@@ -1,7 +1,7 @@
 /*
     GPMkdtree.h - kd-tree data structure for pricing in complete geometric instances
 
-    Copyright 2008 Vladimir Kolmogorov (vnk@adastral.ucl.ac.uk)
+    Copyright 2008 Vladimir Kolmogorov (vnk@adastral.ucl.co.uk)
 
     This software can be used for research purposes only. Commercial use is prohibited.
     Public redistribution of the code or its derivatives is prohibited.
