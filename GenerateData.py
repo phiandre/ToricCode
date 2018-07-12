@@ -1,7 +1,8 @@
 import numpy as np
 import random
 import pickle
-
+from BlossomEnv import Env
+from Blossom import Blossom
 
 class Generate:
 	
@@ -180,10 +181,20 @@ class Generate:
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	
 	def saveToFile(self, human, computer, humanTest, computerTest):
-		np.save('ToricCodeHuman',human)
+		np.save('Label',human)
 		np.save('ToricCodeComputer', computer)
-		np.save('ToricCodeHumanTest',humanTest)
+		np.save('LabelTest',humanTest)
 		np.save('ToricCodeComputerTest', computerTest)
+		
+	def labelState(self, s, size):
+		state = s
+		label = 1
+		for j in range(size):
+			for k in range(size):
+				if state[j,k] == 1:
+					state[j,k] = label
+					label +=1
+		return state
 
 			
 if __name__ == '__main__':
@@ -203,22 +214,85 @@ if __name__ == '__main__':
 	generator = Generate()
 	#Skapar träningsdata
 	tmpHuman = np.zeros((size*2,size*2,numGenerations))
-	tmpComputer = np.zeros((size,size,numGenerations))
+	#tmpComputer = np.zeros((size,size,numGenerations))
+	tmpComputer = list()
+	
+	label = list()
 	for i in range(numGenerations):
 		if errorGrowth:
 			errorProb = AE * np.tanh(wE*(i+1+bE))+BE
+		
+		
 		human, computer = generator.generateData(size,errorProb, False)
-		tmpHuman[:,:,i] = human
-		tmpComputer[:,:,i] = computer
+		if np.count_nonzero(computer) == 0:
+			continue
+			
+		env = Env(computer, human, checkGroundState = True)
+		obs = env.getObservation()
+		
+		
+		state = generator.labelState(computer, size)
+		cancelEnv = Env(state, human, checkGroundState = True)
+		blossom = Blossom(state)
+		
+		MWPM = blossom.readResult()
+		
+		for element in MWPM:
+			error1 = element[0]+1
+			error2 = element[1]+1
+			#print("Error1: ", error1)
+			#print("Error2: ", error2)
+			groundState = cancelEnv.blossomCancel(error1, error2)
+		
+		label_tmp = np.zeros(4)
+		label_tmp[groundState] = 1
+		label.append(label_tmp)
+		
+		#print(label[:,i])
+		#tmpHuman[:,:,i] = human
+		tmpComputer.append(obs[:,:,0])
+		#tmpComputer[:,:,i] = obs[:,:,0]
+		#print(tmpComputer[:,:,i])
+		
+	label = np.asarray(label)
+	tmpComputer = np.asarray(tmpComputer)
 	
 	errorProb = testProb
 	#Skapar testdata
-	tmpHumanTest = np.zeros((size*2,size*2,testGenerations))
-	tmpComputerTest = np.zeros((size,size,testGenerations))
+	
+	
+	#tmpHumanTest = np.zeros((size*2,size*2,testGenerations))
+	tmpComputerTest = list()
+	testLabel = list()
 	for i in range(testGenerations):
+		
 		humanTest, computerTest = generator.generateData(size,errorProb, False)
-		tmpHumanTest[:,:,i] = humanTest
-		tmpComputerTest[:,:,i] = computerTest
+		if np.count_nonzero(computerTest) == 0:
+			continue
+		
+		env = Env(computerTest, humanTest, checkGroundState = True)
+		obs = env.getObservation()
+		
+		stateTest = generator.labelState(computerTest, size)
+		cancelEnv = Env(stateTest, humanTest, checkGroundState = True)
+		blossomTest = Blossom(stateTest)
+		
+		MWPM = blossomTest.readResult()
+		
+		for element in MWPM:
+			error1 = element[0]+1
+			error2 = element[1]+1
+			groundState = cancelEnv.blossomCancel(error1, error2)
+		
+		testLabel_ = np.zeros(4)
+		testLabel_[groundState] = 1
+		testLabel.append(testLabel_)
+		
+		#tmpHumanTest[:,:,i] = humanTest
+		tmpComputerTest.append(obs[:,:,0])
+	
+	tmpComputerTest = np.asarray(tmpComputerTest)
+	testLabel = np.asarray(testLabel)
 
 
 	"""
@@ -241,4 +315,4 @@ if __name__ == '__main__':
 					labeltest += 1
 
 	"""
-	generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
+	generator.saveToFile(label, tmpComputer, testLabel, tmpComputerTest)
