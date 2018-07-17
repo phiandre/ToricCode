@@ -136,7 +136,10 @@ class MainClass:
 					a, e = rl.choose_action(observation)
 					r = env.moveError(a, e)
 					new_observation = env.getObservation()
-					rl.learn(observation[:,:,e], a, r, new_observation)
+					
+					rl.storeTransition(observation[:,:,e], a, r, new_observation)
+					rl.learn()
+					
 				if self.checkGS:
 					if r != 0:
 						if r == env.correctGsR:

@@ -62,7 +62,7 @@ class Tweaker:
 		self.epsilon = 0.1
 		
 		# Epsilonkurvans form oberoende av antal iterationer
-		self.epsilonShape = False
+		self.epsilonShape = True
 		
 		self.alpha = -0.7
 		

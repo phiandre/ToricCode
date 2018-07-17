@@ -12,11 +12,13 @@ epsilon-greedy policy.
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
+from keras.models import clone_model
 from QNet import QNet
 import keras
 import math
 import numpy as np
 import pandas as pd
+
 
 # Class definition
 class RLsys:
@@ -27,7 +29,7 @@ class RLsys:
 			actions: the possible actions of the system.
 			state_size: the size of the state matrix.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, actions, state_size, reward_decay=0.9, e_greedy=0.9):
+	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 300, reward_decay=0.9, e_greedy=0.9):
 		# Save parameters for later use
 		self.state_size = state_size
 		self.actions = actions
@@ -35,7 +37,21 @@ class RLsys:
 		self.epsilon = e_greedy
 		# Produce neural network
 		self.qnet = QNet(self.state_size)
-		
+		self.targetNet = QNet(self.state_size)
+		self.targetNet.network = clone_model(self.qnet.network)
+		self.memorySize = memorySize
+		self.memory = list()
+		self.TNRate = TNRate
+		self.count = 0
+		self.miniBatchSize = miniBatchSize
+	
+	def storeTransition(self, oldState, action, reward, newState):
+		if len(self.memory) >= self.memorySize:
+			i = np.random.randint(0,self.memorySize)
+			self.memory[i] = (oldState, action, reward, newState)
+		else:
+			self.memory.append((oldState, action, reward, newState))
+	
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which returns the action based on specified state and error.
 		@param
@@ -98,8 +114,43 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self, state, action, reward, observation_p):
+	def learn(self):
 		# Q is the more optimal Q
+		B = list()
+		for i in range(self.miniBatchSize):
+			j = np.random.randint(0,len(self.memory))
+			B.append(self.memory[j])
+		
+		state = np.zeros((self.miniBatchSize,self.state_size,self.state_size))
+		Q = np.zeros((self.miniBatchSize,4))
+		
+		for i in range(self.miniBatchSize):
+			
+			transition = B[i]
+			
+			state_ = transition[0]
+			action = transition[1]
+			reward = transition[2]
+			observation_p = transition[3]
+			
+			state[i,:,:] = state_
+			
+			Q_ = self.targetNet.predictQ(state_)[0,:]
+			if observation_p != 'terminal':
+				
+				predQ = self.predQ(observation_p)
+				Q_[action] = reward + self.gamma * predQ.max()
+			else:
+				Q_[action] = reward
+			
+			Q[i,:] = Q_
+		self.qnet.improveQ(state, Q)
+		self.count += 1
+		if self.count % self.TNRate == 0:
+			self.targetNet.network = clone_model(self.qnet.network)
+			
+			
+		"""
 		Q = self.qnet.predictQ(state)[0,:]
 		# Check if we are at terminal state
 		if observation_p != 'terminal':
@@ -113,6 +164,7 @@ class RLsys:
 
 		# Update the neural network
 		self.qnet.improveQ(state, Q)
+		"""
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Changes the epsilon in the epsilon-greedy policy.
