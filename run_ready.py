@@ -20,7 +20,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork13.h5'
+		self.networkName = 'Networks/trainedNetwork23.h5'
 		self.maxNumberOfIterations = 10000
 		
 		self.X = 0
@@ -86,16 +86,9 @@ class MainClass:
 			dist = 0
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
-			if np.count_nonzero(state) > 0:
-				BlossomObject = Blossom(state)
-				MWPM = BlossomObject.readResult()
-				for el in MWPM:
-					dist += el[2]
-			else:
-				continue
-					
-				
-			env = Env(state,human)
+
+
+			env = Env(state,human,checkGroundState=True)
 			numIter = 0
 			while len(env.getErrors()) > 0:
 				#print('Bana nummer ' + str(i))
@@ -109,10 +102,13 @@ class MainClass:
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()
 
-			
-			if dist == numIter:
+			if r == env.correctGsR:
 				self.X += 1
+
+
+
 			self.n += 1
+			print("CORRECT GROUNDSTATE:", self.X/self.n)
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 			if self.n%100 == 0:
 				print("Amount shortest distance: ", self.X / self.n)

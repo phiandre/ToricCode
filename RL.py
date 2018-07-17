@@ -96,6 +96,16 @@ class RLsys:
 			predQ: 2D-vector with Q-values for each error in the
 			observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def predTargetQ(self,observation):
+		numErrors = observation.shape[2]
+		# de olika Q för alla errors
+		predQ = np.zeros([4, numErrors])
+		# evaluera Q för de olika errors
+		for x in range(numErrors):
+			state = observation[:,:,x]
+			predQ[:,x] = self.targetNet.predictQ(state)
+		return predQ
+
 	def predQ(self,observation):
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
@@ -105,7 +115,6 @@ class RLsys:
 			state = observation[:,:,x]
 			predQ[:,x] = self.qnet.predictQ(state)
 		return predQ
-
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Trains the neural network given the outcome of the action.
 		@param
@@ -135,10 +144,10 @@ class RLsys:
 			
 			state[i,:,:] = state_
 			
-			Q_ = self.targetNet.predictQ(state_)[0,:]
+			Q_ = self.qnet.predictQ(state_)[0,:]
 			if observation_p != 'terminal':
 				
-				predQ = self.predQ(observation_p)
+				predQ = self.predTargetQ(observation_p)
 				Q_[action] = reward + self.gamma * predQ.max()
 			else:
 				Q_[action] = reward
@@ -147,7 +156,9 @@ class RLsys:
 		self.qnet.improveQ(state, Q)
 		self.count += 1
 		if self.count % self.TNRate == 0:
-			self.targetNet.network = clone_model(self.qnet.network)
+			self.targetNet.network.set_weights(self.qnet.network.get_weights())
+			#print("targetNet: ", self.targetNet.network.get_weights())
+			#print("qnet: ", self.qnet.network.get_weights())
 			
 			
 		"""
