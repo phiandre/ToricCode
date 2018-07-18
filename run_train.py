@@ -8,7 +8,7 @@ import os.path
 import pickle
 import math
 from Blossom import Blossom 
-
+import time
 
 class MainClass:
 	
@@ -105,41 +105,43 @@ class MainClass:
 			B = np.load("Tweaks/BGS.npy")
 			w = np.load("Tweaks/wGS.npy")
 			b = np.load("Tweaks/bGS.npy")
-		
+
+		incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
+		stepR = np.load("Tweaks/stepR.npy")
 		for i in range(comRep.shape[2]):
 			for j in range(4):
 				state = np.copy(comRep[:,:,i])
 				state = np.rot90(state,j)
-				state = self.labelState(state, size)
 				
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
 				env = Env(state, humanRep, checkGroundState=self.checkGS)
-				env.incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
-				env.stepR = np.load("Tweaks/stepR.npy")
+				env.incorrectGsR = incorrectGsR
+				env.stepR = stepR
 				numSteps = 0
 				
 				if self.epsilonDecay:
-					rl.epsilon = ((self.k+trainingIteration)/self.k)**(self.alpha)
+					rl.epsilon = ((self.k+trainingIteration+12000)/self.k)**(self.alpha)
 				if self.gsRGrowth:
 					env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
 				else:
 					env.correctGsR = self.fR
 				r = 0
-				
-						
-				
+
+
 				while len(env.getErrors()) > 0:
 					numSteps = numSteps + 1
 					observation = env.getObservation()
 					a, e = rl.choose_action(observation)
 					r = env.moveError(a, e)
 					new_observation = env.getObservation()
-					
+
+
 					rl.storeTransition(observation[:,:,e], a, r, new_observation)
 					rl.learn()
-					
+
+
 				if self.checkGS:
 					if r != 0:
 						if r == env.correctGsR:

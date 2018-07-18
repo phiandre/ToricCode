@@ -14,8 +14,8 @@ class Blossom:
 	"""
 	def __init__(self, state):
 		self.state = np.copy(state)
-		self.inputFile = 'Blossom\\state_graph.txt'
-		self.outputFile = 'Blossom\\result.txt'
+		self.inputFile = 'MAC_blossom/state_graph.txt'
+		self.outputFile = 'MAC_blossom/result.txt'
 		
 		
 		self.distances = dict()
@@ -24,7 +24,7 @@ class Blossom:
 		self.cost = 0
 		
 		self.createGraph(state)
-		#self.readResult()
+		self.readResult()
 		
 		
 		
@@ -92,10 +92,9 @@ class Blossom:
 				self.distances[str(centerNumber-1) +", " +str(errorNumber-1)] = dist
 				self.edgeList.append(str(centerNumber-1) + " " + str(errorNumber-1) + " " + str(dist))
 				
-		shuffle(self.edgeList)
+		#shuffle(self.edgeList)
 		self.edgeList.insert(0, str(amountOfErrors) + " " + str(amountOfEdges))
-		
-		#print(self.edgeList)
+
 		self.createGraphAsTxt(self.edgeList)
 		self.computeMWPM()
 		
@@ -209,7 +208,7 @@ class Blossom:
 		Execute C++ implementation of the Blossom algorithm to compute a MWPM 
 	"""
 	def computeMWPM(self):
-		system("Blossom\\blossom5.exe -e " + str(self.inputFile) + " -w " + str(self.outputFile) +" -V")
+		system("MAC_blossom/blossom5 -e " + str(self.inputFile) + " -w " + str(self.outputFile) +" -V")
 	
 	"""
 	The resulting txt-file is returned as a list of tuples where each tuple contains

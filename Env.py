@@ -12,6 +12,7 @@
 import math
 import numpy as np
 
+
 ###############
 # Klassen Env #
 ###############
@@ -202,6 +203,7 @@ class Env:
 		for i in range(self.length):
 			yProd = yProd * self.humanState[2*i+1, 0]
 			xProd = xProd * self.humanState[0, 2*i+1]
+
 		if (yProd == -1):
 			groundState += 1
 		if (xProd == -1):

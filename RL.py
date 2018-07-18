@@ -29,7 +29,7 @@ class RLsys:
 			actions: the possible actions of the system.
 			state_size: the size of the state matrix.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 300, reward_decay=0.9, e_greedy=0.9):
+	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 10000, reward_decay=0.9, e_greedy=0.9):
 		# Save parameters for later use
 		self.state_size = state_size
 		self.actions = actions
@@ -96,16 +96,25 @@ class RLsys:
 			predQ: 2D-vector with Q-values for each error in the
 			observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def predTargetQ(self,observation):
+		numErrors = observation.shape[2]
+		# de olika Q för alla errors
+		predQ = np.zeros([4, numErrors])
+		# evaluera Q för de olika errors
+		for x in range(numErrors):
+			state = observation[:,:,x, np.newaxis]
+			predQ[:,x] = self.targetNet.predictQ(state)
+		return predQ
+
 	def predQ(self,observation):
 		numErrors = observation.shape[2]
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
 		for x in range(numErrors):
-			state = observation[:,:,x]
+			state = observation[:,:,x, np.newaxis]
 			predQ[:,x] = self.qnet.predictQ(state)
 		return predQ
-
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Trains the neural network given the outcome of the action.
 		@param
@@ -121,7 +130,7 @@ class RLsys:
 			j = np.random.randint(0,len(self.memory))
 			B.append(self.memory[j])
 		
-		state = np.zeros((self.miniBatchSize,self.state_size,self.state_size))
+		state = np.zeros((self.miniBatchSize,self.state_size,self.state_size,1))
 		Q = np.zeros((self.miniBatchSize,4))
 		
 		for i in range(self.miniBatchSize):
@@ -132,13 +141,25 @@ class RLsys:
 			action = transition[1]
 			reward = transition[2]
 			observation_p = transition[3]
-			
-			state[i,:,:] = state_
-			
-			Q_ = self.targetNet.predictQ(state_)[0,:]
+
+			state_ = state_[:,:,np.newaxis]
+
+			state[i,:,:,:] = state_
+
+			Q_ = self.qnet.predictQ(state_)[0,:]
 			if observation_p != 'terminal':
 				
-				predQ = self.predQ(observation_p)
+				predQ = self.predTargetQ(observation_p)
+
+				#predQ = self.predQ(observation_p)
+				#index = np.unravel_index(predQ.argmax(), predQ.shape)
+				# hämta det bästa action för ett visst error
+				#action = index[0]
+				#error = index[1]
+
+				#targetQVector = self.targetNet.predictQ[observation_p[:,:,error]]
+				#targetQ = targetQVector[action]
+
 				Q_[action] = reward + self.gamma * predQ.max()
 			else:
 				Q_[action] = reward
@@ -147,7 +168,9 @@ class RLsys:
 		self.qnet.improveQ(state, Q)
 		self.count += 1
 		if self.count % self.TNRate == 0:
-			self.targetNet.network = clone_model(self.qnet.network)
+			self.targetNet.network.set_weights(self.qnet.network.get_weights())
+			#print("targetNet: ", self.targetNet.network.get_weights())
+			#print("qnet: ", self.qnet.network.get_weights())
 			
 			
 		"""
