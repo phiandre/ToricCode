@@ -15,6 +15,7 @@ from keras.layers import Dropout
 from keras.layers import Conv2D
 from keras import optimizers
 import numpy as np
+from keras import backend as K
 
 # Class definition
 class QNet:
@@ -26,23 +27,25 @@ class QNet:
 			action_size: the size of the action part of the input.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def __init__(self, state_size):
+
+		K.set_image_dim_ordering('tf')
 		# Save the state and action sizes as well as the overall input size.
 		self.state_size = state_size
 		# Define a Neural Network based on these parameters
 		self.network = Sequential()
-		self.network.add(Dense(5, input_shape=[self.state_size, self.state_size], activation='relu'))
+		self.network.add(Conv2D(512, (3,3), strides=(2,2), data_format = "channels_last" ,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
+		#self.network.add(Dense(10,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
+		self.network.add(Conv2D(256, (2, 2), strides=(2, 2), data_format = "channels_last" ,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
 		self.network.add(Flatten())
 		self.network.add(Dense(64, activation='relu'))
 		self.network.add(Dense(32, activation='relu'))
 		self.network.add(Dense(32, activation='relu'))
-		self.network.add(Dense(16, activation='relu'))
-		self.network.add(Dense(16, activation='relu'))
-		self.network.add(Dense(8, activation='relu'))
-		self.network.add(Dense(8, activation='relu'))
+
+		self.network.add(Dense(32, activation='relu'))
 
 		self.network.add(Dense(4))
 		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-
+		print(self.network.summary())
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which predicts the Q associated which state and action.
 		@param

@@ -113,7 +113,7 @@ class MainClass:
 				state = np.copy(comRep[:,:,i])
 				state = np.rot90(state,j)
 				
-				humanRep = humRep
+				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 				
 				env = Env(state, humanRep, checkGroundState=self.checkGS)

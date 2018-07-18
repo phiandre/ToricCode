@@ -4,6 +4,7 @@
 import numpy as np
 from RL import RLsys
 from Env import Env
+from BlossomEnv import Env as BEnv
 from Blossom import Blossom
 from GenerateToricData import Generate
 from keras.models import load_model
@@ -20,7 +21,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork23.h5'
+		self.networkName = 'Networks/trainedNetwork32.h5'
 		self.maxNumberOfIterations = 10000
 		
 		self.X = 0
@@ -64,17 +65,26 @@ class MainClass:
 			print("höger: ", predictedQ[3,i])
 			print("\n\n\n\n\n")
 			
-		
+
+	def labelState(self, s, size):
+		state = s
+		label = 1
+		for j in range(size):
+			for k in range(size):
+				if state[j,k] == 1:
+					state[j,k] = label
+					label +=1
+		return state
 
 	
         
 	def run(self):
-
+		size = 5
 		importNetwork = load_model(self.networkName)
 
 		rl = RLsys(4, importNetwork.input_shape[2])
 		rl.qnet.network = importNetwork
-		
+		bCorr = 0
 		largeNum = 0
 		rl.changeEpsilon(0)
 		humRep=np.load('ToricCodeHumanTest.npy')
@@ -87,6 +97,16 @@ class MainClass:
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
 
+			if np.count_nonzero(state) > 0:
+				state_ =np.copy(state)
+				state_ = self.labelState(state_,size)
+				BlossomObject = Blossom(state_)
+				MWPM = BlossomObject.readResult()
+				Benv = BEnv(state_, human, checkGroundState = True)
+				for element in MWPM:
+					error1 = element[0]+1
+					error2 = element[1]+1
+					blossomReward = Benv.blossomCancel(error1, error2)
 
 			env = Env(state,human,checkGroundState=True)
 			numIter = 0
@@ -97,21 +117,25 @@ class MainClass:
 				numIter = numIter + 1
 				observation = env.getObservation()
 				#self.printQ(observation, rl)
-					
+				#print(env.state)
 				a, e = rl.choose_action(observation)
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()
+				if numIter > 50:
+					print(env.state)
 
 			if r == env.correctGsR:
 				self.X += 1
 
+			if blossomReward == Benv.correctGsR:
+				bCorr += 1
 
 
 			self.n += 1
 			print("CORRECT GROUNDSTATE:", self.X/self.n)
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
-			if self.n%100 == 0:
-				print("Amount shortest distance: ", self.X / self.n)
+
+			print("MWPM correct ", bCorr / self.n)
 			iterations[i] = numIter
 
 

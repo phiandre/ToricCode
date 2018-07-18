@@ -29,7 +29,7 @@ class RLsys:
 			actions: the possible actions of the system.
 			state_size: the size of the state matrix.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 300, reward_decay=0.9, e_greedy=0.9):
+	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 10000, reward_decay=0.9, e_greedy=0.9):
 		# Save parameters for later use
 		self.state_size = state_size
 		self.actions = actions
@@ -102,7 +102,7 @@ class RLsys:
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
 		for x in range(numErrors):
-			state = observation[:,:,x]
+			state = observation[:,:,x, np.newaxis]
 			predQ[:,x] = self.targetNet.predictQ(state)
 		return predQ
 
@@ -112,7 +112,7 @@ class RLsys:
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
 		for x in range(numErrors):
-			state = observation[:,:,x]
+			state = observation[:,:,x, np.newaxis]
 			predQ[:,x] = self.qnet.predictQ(state)
 		return predQ
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -130,7 +130,7 @@ class RLsys:
 			j = np.random.randint(0,len(self.memory))
 			B.append(self.memory[j])
 		
-		state = np.zeros((self.miniBatchSize,self.state_size,self.state_size))
+		state = np.zeros((self.miniBatchSize,self.state_size,self.state_size,1))
 		Q = np.zeros((self.miniBatchSize,4))
 		
 		for i in range(self.miniBatchSize):
@@ -141,13 +141,25 @@ class RLsys:
 			action = transition[1]
 			reward = transition[2]
 			observation_p = transition[3]
-			
-			state[i,:,:] = state_
-			
+
+			state_ = state_[:,:,np.newaxis]
+
+			state[i,:,:,:] = state_
+
 			Q_ = self.qnet.predictQ(state_)[0,:]
 			if observation_p != 'terminal':
 				
 				predQ = self.predTargetQ(observation_p)
+
+				#predQ = self.predQ(observation_p)
+				#index = np.unravel_index(predQ.argmax(), predQ.shape)
+				# hämta det bästa action för ett visst error
+				#action = index[0]
+				#error = index[1]
+
+				#targetQVector = self.targetNet.predictQ[observation_p[:,:,error]]
+				#targetQ = targetQVector[action]
+
 				Q_[action] = reward + self.gamma * predQ.max()
 			else:
 				Q_[action] = reward
