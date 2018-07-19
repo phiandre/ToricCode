@@ -101,6 +101,7 @@ class MainClass:
 			env = Env(state,human,checkGroundState=True)
 			numIter = 0
 			while len(env.getErrors()) > 0:
+				invalid = False
 				#print('Bana nummer ' + str(i))
 				if self.graphix:
 					self.printState(env)
@@ -110,26 +111,38 @@ class MainClass:
 				observation = env.getObservation()
 				move = True
 				while move:
-					self.cls()
+					
 					staty = np.copy(env.state)
 					state_l = self.labelState(staty,size)
-					print("Stage " + str(self.n+1) + ":\n", state_l)
+					
 					err = True
 					while err:
+						self.cls()
+						
+						print("Stage " + str(self.n+1) + ":\n", state_l)
+						if invalid:
+							print("Invalid response!")
 						e = input("Which of the " + str(len(env.getErrors())) + " errors do you want to move?\n")
 						if e.isdigit():
 							e = int(e)
 							if e >= 1 and e <= len(env.getErrors()):
 								err = False
 							else:
-								print("Invalid response")
+								invalid = True
+						elif e == 'exit':
+							self.cls()
+							exit()
 						else:
-							print("Invalid response")
-					self.cls()
-					print("Perspective of error " + str(e)+":\n",observation[:,:,(e-1)])
+							invalid = True
+					
+					invalid = False
 					e -= 1
 					move_ = True
 					while move_:
+						self.cls()
+						print("Perspective of error " + str(e)+":\n",observation[:,:,(e-1)])
+						if invalid:
+							print("Invalid response!")
 						act = input("up/down/left/right/back; w/a/s/d/b \n")
 						if (act == 'up') or (act == 'w'):
 							a = 0
@@ -154,8 +167,11 @@ class MainClass:
 						elif (act == 'back') or (act == 'b'):
 							
 							move_ = False
+						elif (act == 'exit'):
+							self.cls()
+							exit()
 						else:
-							print("Invalid response")
+							invalid = True
 				
 			
 			self.cls()
