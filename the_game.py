@@ -140,7 +140,7 @@ class MainClass:
 					move_ = True
 					while move_:
 						self.cls()
-						print("Perspective of error " + str(e)+":\n",observation[:,:,(e-1)])
+						print("Perspective of error " + str(e)+":\n",observation[:,:,(e)])
 						if invalid:
 							print("Invalid response!")
 						act = input("up/down/left/right/back; w/a/s/d/b \n")
