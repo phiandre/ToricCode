@@ -37,7 +37,6 @@ class RLsys:
 		self.epsilon = e_greedy
 		# Produce neural network
 		self.qnet = QNet(self.state_size)
-		self.targetNet.network = clone_model(self.qnet.network)
 		self.memorySize = memorySize
 		self.memory = list()
 		self.TNRate = TNRate
@@ -116,7 +115,7 @@ class RLsys:
 	
 			
 			
-		"""
+	"""
 		Q = self.qnet.predictQ(state)[0,:]
 		# Check if we are at terminal state
 		if observation_p != 'terminal':
@@ -130,7 +129,7 @@ class RLsys:
 
 		# Update the neural network
 		self.qnet.improveQ(state, Q)
-		"""
+	"""
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Changes the epsilon in the epsilon-greedy policy.

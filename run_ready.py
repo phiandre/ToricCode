@@ -5,7 +5,7 @@ import numpy as np
 from RL import RLsys
 from Env import Env
 from BlossomEnv import Env as BEnv
-from Blossom import Blossom
+#from Blossom import Blossom
 from GenerateToricData import Generate
 from keras.models import load_model
 import time
@@ -21,7 +21,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork32.h5'
+		self.networkName = 'GSBigNerdwork.h5'
 		self.maxNumberOfIterations = 10000
 		
 		self.X = 0
@@ -100,13 +100,13 @@ class MainClass:
 			if np.count_nonzero(state) > 0:
 				state_ =np.copy(state)
 				state_ = self.labelState(state_,size)
-				BlossomObject = Blossom(state_)
-				MWPM = BlossomObject.readResult()
-				Benv = BEnv(state_, human, checkGroundState = True)
-				for element in MWPM:
-					error1 = element[0]+1
-					error2 = element[1]+1
-					blossomReward = Benv.blossomCancel(error1, error2)
+				#BlossomObject = Blossom(state_)
+				#MWPM = BlossomObject.readResult()
+				#Benv = BEnv(state_, human, checkGroundState = True)
+				#for element in MWPM:
+				#	error1 = element[0]+1
+				#	error2 = element[1]+1
+				#	blossomReward = Benv.blossomCancel(error1, error2)
 
 			env = Env(state,human,checkGroundState=True)
 			numIter = 0
@@ -127,15 +127,15 @@ class MainClass:
 			if r == env.correctGsR:
 				self.X += 1
 
-			if blossomReward == Benv.correctGsR:
-				bCorr += 1
+			#if blossomReward == Benv.correctGsR:
+			#	bCorr += 1
 
 
 			self.n += 1
 			print("CORRECT GROUNDSTATE:", self.X/self.n)
 			print("Steps taken at iteration " +str(i) + ": ", numIter)
 
-			print("MWPM correct ", bCorr / self.n)
+			#print("MWPM correct ", bCorr / self.n)
 			iterations[i] = numIter
 
 

@@ -1,6 +1,7 @@
 import numpy as np
 from RL import RLsys
 from RL_actor import RLsys as RL_act
+from RL_learner import RLsys as RL_learn
 from Env import Env
 from GenerateToricData import Generate
 from keras.models import load_model
@@ -11,12 +12,110 @@ import math
 from Blossom import Blossom 
 import time
 from QNet import QNet
+import pathos
+import multiprocess as mp
+import random
 
-class MainClass
+def adHocProcess1(n):
+	print('Starting demo process 1!')
+	time.sleep(n[0])
+	print('Ending demo process 1!')
+def adHocProcess2(n):
+	print('Starting demo process 2!')
+	time.sleep(n[0])
+	print('Ending demo process 2!')
+	
+class Bundle:
+	def __init__(self,weights):
+		self.memory = []
+		self.comRep = np.load('ToricCodeComputer.npy')
+		self.humRep=np.load('ToricCodeHuman.npy')
+		self.gradientStorage = []
+		self.miniBatchSize = 32
+		self.stoppVillkor = True
+		self.size = self.comRep.shape[0]
+		self.weights = weights
+		self.run()
+		
+		#self.checkGS = np.load("Tweaks/checkGS.npy")
+	def actor(self,weights):
+		print('Initializing actor!')
+		actorRL = RL_act(4,self.size)
+		actorRL.qnet.network.set_weights(weights)
+		
+		humRep = self.humRep
+		comRep = self.comRep
+		
+		# Antalet träningsfall
+		n = humRep.shape[2]
+		"""
+		incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
+		stepR = np.load("Tweaks/stepR.npy")
+		"""
+		stepR = -1
+		numSteps = 0
+		
+		
+		self.memory=(actorRL.memory)
+		"""
+		if self.gsRGrowth:
+			A = np.load("Tweaks/AGS.npy")
+			B = np.load("Tweaks/BGS.npy")
+			w = np.load("Tweaks/wGS.npy")
+			b = np.load("Tweaks/bGS.npy")
+		"""
+		while self.stoppVillkor:
+			i = random.randint(0,n)
+			state = np.copy(comRep[:,:,i])
+			humanRep = humRep[:,:,i]
+			
+			env = Env(state, humanRep, checkGroundState=False)
+			#env.incorrectGsR = incorrectGsR
+			env.stepR = stepR
+			"""
+			if self.epsilonDecay:
+				actorRL.epsilon = ((self.k+trainingIteration+12000)/self.k)**(self.alpha)
+			if self.gsRGrowth:
+				env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
+			else:
+				env.correctGsR = self.fR
+			"""
+			r = 0
+			
+			while len(env.getErrors()) > 0:
+				numSteps += 1
+				observation = env.getObservation ()
+				a, e = actorRL.choose_action(observation)
+				r = env.moveError(a, e)
+				new_observation = env.getObservation()
+
+
+				actorRL.storeTransition(observation[:,:,e], a, r, new_observation)
+				print(len(self.memory))
+
+	def learner(self,weights):
+		print('Initializing learner!')
+		rl = RL_learn(4,self.size)
+		rl.qnet.network.set_weights(weights)
+		while self.stoppVillkor:
+			batch = []
+			print(len(self.memory))
+			if len(self.memory) > 0:
+				for i in range(self.miniBatchSize):
+					j = random.randint(0,len(self.memory))
+					batch[i] = self.memory[j]
+				gradients = rl.gradPrep(batch)
+				self.gradientStorage.append(gradients)
+				print(self.gradientStorage)
+	
+	def run(self)
+				
+class MainClass:
 	def __init__(self):
 		# Alla booleans
 		self.loadNetwork = False #train an existing network
 		self.gsRGrowth = np.load("Tweaks/GSgrowth.npy")
+		self.start = time.time()
 		
 		self.checkGS = np.load("Tweaks/checkGS.npy")
 		
@@ -33,73 +132,41 @@ class MainClass
 		self.networkName = 'trainedNetwork42.h5' 
 		
 		self.saveRate = 100 #how often the network is saved
-
+		self.miniBatchSize = 32
 		# creates a new filename for numSteps each time we run the code
-		self.getFilename()
-		self.size = self.comrep.shape[0]
+		self.size = self.comRep.shape[0]
 		self.avgTol = 1000 # Den mängd datapunkter som average tas över
 		self.fR = np.load("Tweaks/correctGsR.npy") # asymptotic Ground State reward
 		self.stoppVillkor = True
 		
 		self.globalQnet = QNet(self.size)
+		self.gradientStorage = []
+		
 		if self.loadNetwork:
 			importNetwork = load_model(self.networkName)
 			self.GlobalQnet.network = importNetwork
 		
-		
+		self.memoryList = []
 		self.run()
 		
 		
 		
 		# En actor rör sig i enviromenten och samlar in data till minnesbanken
-	def actor(self)
-		actorRL = RL_act(4,size)
-		actorRL.qnet = self.GlobalQnet
-		
-		humRep = self.humRep
-		comRep = self.comRep
-		
-		# Antalet träningsfall
-		n = humrep.shape[2]
-		incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
-		stepR = np.load("Tweaks/stepR.npy")
-		numSteps = 0
-		if self.gsRGrowth:
-			A = np.load("Tweaks/AGS.npy")
-			B = np.load("Tweaks/BGS.npy")
-			w = np.load("Tweaks/wGS.npy")
-			b = np.load("Tweaks/bGS.npy")
-		
-		while self.stoppVillkor:
-			i = randint(0,n)
-			state = np.copy(comRep[:,:,i])
-			humanRep = humRep[:,:,i]
-			
-			env = Env(state, humanRep, checkGroundState=self.checkGS)
-			env.incorrectGsR = incorrectGsR
-			env.stepR = stepR
-			
-			if self.epsilonDecay:
-				rl.epsilon = ((self.k+trainingIteration+12000)/self.k)**(self.alpha)
-			if self.gsRGrowth:
-				env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
-			else:
-				env.correctGsR = self.fR
-			r = 0
-			
-			while len(env.getErrors()) > 0:
-				numSteps += 1
-				observation = env.getObservation ()
-				a, e = rl.choose_action(observation)
-				r = env.moveError(a, e)
-				new_observation = env.getObservation()
-
-
-				rl.storeTransition(observation[:,:,e], a, r, new_observation)
-		
-		
-		
-		
+	
+	
+	
+	def parameterServer(self):
+		print(self.gradientStorage)
+	
+	def demoprocess1(self,n):
+		print('Starting demo process 1!')
+		sleep(n)
+		print('Ending demo process 1!')
+	
+	def demoprocess2(self,n):
+		print('Starting demo process 2!')
+		sleep(n)
+		print('Ending demo process 2!')
 		
 	def rotateHumanRep(self,humanRep,j):
 		tmp = np.concatenate([humanRep, humanRep[:,0:1]],axis=1)
@@ -107,14 +174,35 @@ class MainClass
 		humanRep = np.rot90(tmp1,j)
 		state = humanRep[0:(humanRep.shape[0]-1),0:(humanRep.shape[1]-1)]
 		return state
+	
+	
+	def __call__(self):
+		actor()
+	
+	def run(self):
+		weights = self.globalQnet.network.get_weights()
+		bundle = Bundle()
+		
+		print('About to initialize!')
+		act1 = mp.Process(target = bundle.actor, args=(weights,))
+		print('Something should be initialized!')
+		learn1 = mp.Process(target = bundle.learner, args= (weights,))
+		print('Everything should be initialized!')
+		
+		act1.start()
+		learn1.start()
 		
 		
-	def run(self)
 		
-		
+		""" Följande Ad Hoc-process är testad och funkar!
+		p1 = mp.Process(target = adHocProcess1, args=([1],))
+		p2 = mp.Process(target = adHocProcess2, args=([2],))
+		p1.start()
+		p2.start()
+		"""
 		
 		while self.stoppVillkor:
-			self.stoppVillkor = # Något logiskt evaluerbart påstående som är sant tills vi är klara
+			self.stoppVillkor = (time.time()-self.start < 100)
 		
 	
 	

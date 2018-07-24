@@ -13,10 +13,10 @@ class Tweaker:
 			
 	
 		# Antal iterationer som ska tränas
-		self.trainingIterations = 1000000
+		self.trainingIterations = 50000
 		
 		# Antal iterationer som ska testas
-		self.testIterations = 10000
+		self.testIterations = 30000
 		
 		
 		""" Belöningsparametrar"""
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 	np.save("Tweaks/AGS.npy",tweak.AGS)
 	np.save("Tweaks/BGS.npy",tweak.BGS)
 	np.save("Tweaks/wGS.npy",tweak.wGS)
-	np.save("Tweaks/bGS.npy",tweak.bGS)
+	np.save("Tweaks/bbGS.npy",tweak.bGS)
 	np.save("Tweaks/epsilonDecay.npy",tweak.epsilonDecay)
 	np.save("Tweaks/epsilon.npy",tweak.epsilon)
 	np.save("Tweaks/epsilonShape.npy",tweak.epsilonShape)

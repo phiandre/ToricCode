@@ -1,13 +1,10 @@
 import numpy as np
 from RL import RLsys
 from Env import Env
-from GenerateToricData import Generate
 from keras.models import load_model
 import time
 import os.path
-import pickle
 import math
-from Blossom import Blossom 
 import time
 
 class MainClass:
@@ -95,6 +92,8 @@ class MainClass:
 		
 		averager = np.zeros(comRep.shape[2]*4) # Används till att räkna ut hur sannolikt algoritmen återvänder till rätt grundtillstånd
 		
+		start = time.time()
+		
 		n=0
 		
 		rl.epsilon = np.load("Tweaks/epsilon.npy")
@@ -152,27 +151,33 @@ class MainClass:
 						average = np.sum(averager)/n
 					else:
 						average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
+				
+				"""
 				print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
+				
 				if self.checkGS:
 					if n<self.avgTol:
 						print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")
 					else:
 						print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
 					steps[trainingIteration] = numSteps
-				
+				"""
 				
 
 				if((trainingIteration+1) % self.saveRate == 0):
-					tmp = list('Networks/trainedNetwork1.h5')
+					"""tmp = list('Networks/trainedNetwork1.h5')
 					tmp[23] = str(self.static_element)
 					filename = "".join(tmp)
 
 					np.save(self.filename,steps[0:(trainingIteration+1)])
-
+					"""
+					filename = 'GSBigNerdwork.h5'
 					rl.qnet.network.save(filename)
 					
 				trainingIteration = trainingIteration + 1
-
+				if (time.time()-start) > 28800:
+					print('Made it through: ' + str(trainingIteration+1))
+					exit()
 
 		
 

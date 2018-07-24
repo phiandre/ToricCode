@@ -35,13 +35,9 @@ class QNet:
 		self.network = Sequential()
 		self.network.add(Conv2D(512, (3,3), strides=(2,2), data_format = "channels_last" ,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
 		#self.network.add(Dense(10,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
-		self.network.add(Conv2D(256, (2, 2), strides=(2, 2), data_format = "channels_last" ,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
 		self.network.add(Flatten())
-		self.network.add(Dense(64, activation='relu'))
-		self.network.add(Dense(32, activation='relu'))
-		self.network.add(Dense(32, activation='relu'))
-
-		self.network.add(Dense(32, activation='relu'))
+		self.network.add(Dense(8, activation='relu'))
+		self.network.add(Dense(8, activation='relu'))
 
 		self.network.add(Dense(4))
 		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
@@ -75,3 +71,14 @@ class QNet:
 		else:
 			BS = data.shape[0]
 		self.network.fit(data, true_Q, epochs=1, batch_size=BS, verbose=0)
+	def gradCalc(self,state,Qtrue):
+		outputTensor = self.network.output
+		
+		loss = mean_squared_error(Qtrue,outputTensor)
+		
+		listOfVariableTensors = self.network.trainable_weights
+		gradients = K.gradients(loss, listOfVariableTensors)
+		sess = tf.InteractiveSession()
+		sess.run(tf.global_variables_initializer())
+		evaluated_gradients = sess.run(gradients,feed_dict={self.network.input:state})
+		return evaluated_gradients
