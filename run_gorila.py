@@ -26,8 +26,8 @@ def adHocProcess2(n):
 	print('Ending demo process 2!')
 	
 class Bundle:
-	def __init__(self,weights):
-		self.memory = []
+	def __init__(self,weights,memory):
+		self.memory = memory
 		self.comRep = np.load('ToricCodeComputer.npy')
 		self.humRep=np.load('ToricCodeHuman.npy')
 		self.gradientStorage = []
@@ -108,7 +108,7 @@ class Bundle:
 				self.gradientStorage.append(gradients)
 				print(self.gradientStorage)
 	
-	def run(self)
+
 				
 class MainClass:
 	def __init__(self):
@@ -181,7 +181,8 @@ class MainClass:
 	
 	def run(self):
 		weights = self.globalQnet.network.get_weights()
-		bundle = Bundle()
+		memory = mp.Manager.list()
+		bundle = Bundle(weights,memory)
 		
 		print('About to initialize!')
 		act1 = mp.Process(target = bundle.actor, args=(weights,))
