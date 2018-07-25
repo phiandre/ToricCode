@@ -26,22 +26,21 @@ def adHocProcess2(n):
 	print('Ending demo process 2!')
 	
 class Bundle:
-	def __init__(self,weights,memory):
+	def __init__(self,weights,memory,gradientStorage):
 		self.memory = memory
 		self.comRep = np.load('ToricCodeComputer.npy')
 		self.humRep=np.load('ToricCodeHuman.npy')
-		self.gradientStorage = []
-		self.miniBatchSize = 32
+		self.gradientStorage = gradientStorage
+		self.miniBatchSize = 64
 		self.stoppVillkor = True
 		self.size = self.comRep.shape[0]
 		self.weights = weights
-		self.run()
 		
 		#self.checkGS = np.load("Tweaks/checkGS.npy")
-	def actor(self,weights):
+	def actor(self):
 		print('Initializing actor!')
 		actorRL = RL_act(4,self.size)
-		actorRL.qnet.network.set_weights(weights)
+		actorRL.qnet.network.set_weights(self.weights)
 		
 		humRep = self.humRep
 		comRep = self.comRep
@@ -56,7 +55,7 @@ class Bundle:
 		numSteps = 0
 		
 		
-		self.memory=(actorRL.memory)
+		actorRL.memory = self.memory
 		"""
 		if self.gsRGrowth:
 			A = np.load("Tweaks/AGS.npy")
@@ -91,22 +90,26 @@ class Bundle:
 
 
 				actorRL.storeTransition(observation[:,:,e], a, r, new_observation)
-				print(len(self.memory))
+				print("Memory according to actor:\n",len(self.memory))
+				
 
-	def learner(self,weights):
+	def learner(self):
 		print('Initializing learner!')
 		rl = RL_learn(4,self.size)
-		rl.qnet.network.set_weights(weights)
+		rl.qnet.network.set_weights(self.weights)
 		while self.stoppVillkor:
 			batch = []
-			print(len(self.memory))
+			print("Memory according to LEARNER:\n",len(self.memory))
 			if len(self.memory) > 0:
 				for i in range(self.miniBatchSize):
-					j = random.randint(0,len(self.memory))
-					batch[i] = self.memory[j]
+					j = random.randint(0,(len(self.memory)-1))
+					batch.append(self.memory[j])
 				gradients = rl.gradPrep(batch)
+				print("length of gradients:")
+				print(len(gradients[1]))
 				self.gradientStorage.append(gradients)
-				print(self.gradientStorage)
+				#print(self.gradientStorage)
+				
 	
 
 				
@@ -155,7 +158,8 @@ class MainClass:
 	
 	
 	
-	def parameterServer(self):
+	def parameterServer(self, weights, gradientStorage):
+		
 		print(self.gradientStorage)
 	
 	def demoprocess1(self,n):
@@ -180,14 +184,16 @@ class MainClass:
 		actor()
 	
 	def run(self):
+		manager = mp.Manager()
 		weights = self.globalQnet.network.get_weights()
-		memory = mp.Manager.list()
-		bundle = Bundle(weights,memory)
+		memory = manager.list()
+		gradientStorage = manager.list()
+		bundle = Bundle(weights,memory,gradientStorage)
 		
 		print('About to initialize!')
-		act1 = mp.Process(target = bundle.actor, args=(weights,))
+		act1 = mp.Process(target = bundle.actor)
 		print('Something should be initialized!')
-		learn1 = mp.Process(target = bundle.learner, args= (weights,))
+		learn1 = mp.Process(target = bundle.learner)
 		print('Everything should be initialized!')
 		
 		act1.start()

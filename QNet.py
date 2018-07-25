@@ -16,6 +16,8 @@ from keras.layers import Conv2D
 from keras import optimizers
 import numpy as np
 from keras import backend as K
+from keras import losses
+import tensorflow as tf
 
 # Class definition
 class QNet:
@@ -38,10 +40,11 @@ class QNet:
 		self.network.add(Flatten())
 		self.network.add(Dense(8, activation='relu'))
 		self.network.add(Dense(8, activation='relu'))
+		self.network.add(Dense(8, activation='relu'))
 
 		self.network.add(Dense(4))
 		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-		print(self.network.summary())
+		#print(self.network.summary())
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which predicts the Q associated which state and action.
 		@param
@@ -74,11 +77,12 @@ class QNet:
 	def gradCalc(self,state,Qtrue):
 		outputTensor = self.network.output
 		
-		loss = mean_squared_error(Qtrue,outputTensor)
+		loss = losses.mean_squared_error(Qtrue,outputTensor)
 		
 		listOfVariableTensors = self.network.trainable_weights
 		gradients = K.gradients(loss, listOfVariableTensors)
-		sess = tf.InteractiveSession()
-		sess.run(tf.global_variables_initializer())
+		sess = tf.InteractiveSession() #TF
+		sess.run(tf.global_variables_initializer()) #TF
 		evaluated_gradients = sess.run(gradients,feed_dict={self.network.input:state})
+		sess.close()
 		return evaluated_gradients

@@ -99,6 +99,7 @@ class RLsys:
 	def gradPrep(self,batch):
 		state = np.zeros((len(batch),self.state_size,self.state_size,1))
 		Q = np.zeros((len(batch),4))
+		i = 0
 		for transition in batch:
 			
 			state_ = transition[0]
@@ -121,7 +122,8 @@ class RLsys:
 				Q_[action] = reward
 			
 			Q[i,:] = Q_
-		gradients = qnet.gradCalc(state,Q)
+			i += 1
+		gradients = self.qnet.gradCalc(state,Q)
 		return gradients
 		
 	"""
