@@ -146,21 +146,23 @@ class ParameterServer:
 		print('Initializing parameter server')
 		while self.stoppVillkor:
 			#print(len(self.gradientStorage))
-			if len(self.gradientStorage) > 8 and self.vacantStorage.value:
+			if self.vacantStorage.value:
 				self.vacantStorage.value = False
-				print('Updating network')
-				
-				averageStep = [-self.alpha*sum(x)/len(self.gradientStorage) for x in zip(*self.gradientStorage)]
-				self.weights = [sum(x) for x in zip(averageStep,self.weights)]
-				self.gradientStorage[:]=[]
+				if len(self.gradientStorage) > 8:
+					
+					print('Updating network')
+					
+					averageStep = [-self.alpha*sum(x)/len(self.gradientStorage) for x in zip(*self.gradientStorage)]
+					self.weights = [sum(x) for x in zip(averageStep,self.weights)]
+					self.gradientStorage[:]=[]
+					self.vacantStorage.value = True
+					print(self.gradientStorage)
+					self.globalCounter.value += 1
+					if all(self.updateCheck):
+						self.updateCheck = [not i for i in self.updateCheck]
+						self.globalCounter.value = 0
+					print('I got this far')
 				self.vacantStorage.value = True
-				print(self.gradientStorage)
-				self.globalCounter.value += 1
-				if all(self.updateCheck):
-					self.updateCheck = [not i for i in self.updateCheck]
-					self.globalCounter.value = 0
-				print('I got this far')
-				
 				
 
 				
@@ -230,8 +232,7 @@ class MainClass:
 		return state
 	
 	
-	def __call__(self):
-		actor()
+
 	
 	def run(self):
 		manager = mp.Manager()
