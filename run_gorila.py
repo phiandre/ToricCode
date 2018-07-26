@@ -61,7 +61,7 @@ class Bundle:
 			b = np.load("Tweaks/bGS.npy")
 		"""
 		while self.stoppVillkor:
-			i = random.randint(0,n)
+			i = random.randint(0,(n-1))
 			state = np.copy(comRep[:,:,i])
 			humanRep = humRep[:,:,i]
 			start = time.time()
