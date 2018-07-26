@@ -27,17 +27,16 @@ def adHocProcess2(n):
 	print('Ending demo process 2!')
 	
 class Bundle:
-	def __init__(self,weights,memory,gradientStorage,globalCounter,updateCheck, checkerQueue, globalStep, vacantStorage):
+	def __init__(self,weights,memory,gradientStorage,globalCounter,updateCheck, checkerQueue, globalStep):
 		self.memory = memory
 		self.comRep = np.load('ToricCodeComputer.npy')
 		self.humRep=np.load('ToricCodeHuman.npy')
 		self.gradientStorage = gradientStorage
-		self.miniBatchSize = 64
+		self.miniBatchSize = 8
 		self.stoppVillkor = True
 		self.size = self.comRep.shape[0]
 		self.weights = weights
-		self.vacantStorage = vacantStorage
-		self.counter = globalCounter
+		self.globalCounter = globalCounter
 		self.updateCheck = updateCheck
 		self.checkerQueue = checkerQueue
 		self.globalStep = globalStep
@@ -73,6 +72,7 @@ class Bundle:
 			i = random.randint(0,n)
 			state = np.copy(comRep[:,:,i])
 			humanRep = humRep[:,:,i]
+			start = time.time()
 			
 			env = Env(state, humanRep, checkGroundState=False)
 			#env.incorrectGsR = incorrectGsR
@@ -96,6 +96,9 @@ class Bundle:
 
 
 				actorRL.storeTransition(observation[:,:,e], a, r, new_observation)
+			if time.time()-start > 5:
+				actorRL.qnet.network.set_weights(self.weights)
+				start = time.time()
 				
 
 	def learner(self):
@@ -104,7 +107,6 @@ class Bundle:
 		rl = RL_learn(4,self.size)
 		rl.qnet.network.set_weights(self.weights)
 		n = 0
-		self.updateCheck.append(False)
 		while not indexQueue:
 			if self.checkerQueue.value:
 				self.checkerQueue.value = False
@@ -115,24 +117,22 @@ class Bundle:
 		
 		while self.stoppVillkor:
 			batch = []
-			if len(self.memory) > 0 and self.vacantStorage.value:
-				self.vacantStorage.value = False
+			if len(self.memory) > 0:
 				for i in range(self.miniBatchSize):
 					j = random.randint(0,(len(self.memory)-1))
 					batch.append(self.memory[j])
 				gradients = rl.gradPrep(batch)
 				self.gradientStorage.append(gradients)
-				self.vacantStorage.value = True
 
 				if n % 4 == 0:
 					rl.qnet.network.set_weights(self.weights)
-				if (self.counter.value >= self.globalStep.value) and (not self.updateCheck[identity]):
+				if (self.globalCounter.value >= self.globalStep.value) and (not self.updateCheck[identity]):
 					rl.targetNet.network.set_weights(self.weights)
 					self.updateCheck[identity] = True
 				n += 1
 				
 class ParameterServer:
-	def __init__(self, weights, gradientStorage, globalCounter, updateCheck, globalStep, vacantStorage):
+	def __init__(self, weights, gradientStorage, globalCounter, updateCheck, globalStep):
 		self.weights = weights
 		self.gradientStorage = gradientStorage
 		self.stoppVillkor = True
@@ -140,29 +140,23 @@ class ParameterServer:
 		self.globalStep = globalStep
 		self.globalCounter = globalCounter
 		self.alpha = 0.001
-		self.vacantStorage = vacantStorage
 		
 	def networkOptimizer(self):
 		print('Initializing parameter server')
 		while self.stoppVillkor:
-			#print(len(self.gradientStorage))
-			if self.vacantStorage.value:
-				self.vacantStorage.value = False
-				if len(self.gradientStorage) > 8:
-					
-					print('Updating network')
-					
-					averageStep = [-self.alpha*sum(x)/len(self.gradientStorage) for x in zip(*self.gradientStorage)]
-					self.weights = [sum(x) for x in zip(averageStep,self.weights)]
-					self.gradientStorage[:]=[]
-					self.vacantStorage.value = True
-					print(self.gradientStorage)
-					self.globalCounter.value += 1
-					if all(self.updateCheck):
-						self.updateCheck = [not i for i in self.updateCheck]
-						self.globalCounter.value = 0
-					print('I got this far')
-				self.vacantStorage.value = True
+			if len(self.gradientStorage) > 4:
+				
+				print('Updating network...')
+				
+				averageStep = [-self.alpha*sum(x)/len(self.gradientStorage) for x in zip(*self.gradientStorage)]
+				self.weights = [sum(x) for x in zip(averageStep,self.weights)]
+				self.gradientStorage[:]=[]
+				self.globalCounter.value += 1
+				print(self.globalCounter.value)
+				if all(self.updateCheck):
+					print('Target Networks are synced...')
+					self.updateCheck = [not i for i in self.updateCheck]
+					self.globalCounter.value = 0
 				
 
 				
@@ -214,15 +208,7 @@ class MainClass:
 	
 				#print(self.gradientStorage)
 	
-	def demoprocess1(self,n):
-		print('Starting demo process 1!')
-		sleep(n)
-		print('Ending demo process 1!')
-	
-	def demoprocess2(self,n):
-		print('Starting demo process 2!')
-		sleep(n)
-		print('Ending demo process 2!')
+
 		
 	def rotateHumanRep(self,humanRep,j):
 		tmp = np.concatenate([humanRep, humanRep[:,0:1]],axis=1)
@@ -248,12 +234,11 @@ class MainClass:
 		globalCounter = manager.Value('i',0)
 		checkerQueue = manager.Value('boolean',True)
 		updateCheck = manager.list()
-		globalStep = manager.Value('i',1000)
-		vacantStorage = manager.Value('boolean',True)
+		globalStep = manager.Value('i',10)
 		
 		
-		bundle = Bundle(weights,memory,gradientStorage, globalCounter, updateCheck, checkerQueue, globalStep, vacantStorage)
-		parameterServer = ParameterServer(globalWeightList,gradientStorage, globalCounter, updateCheck, globalStep, vacantStorage)
+		bundle = Bundle(weights,memory,gradientStorage, globalCounter, updateCheck, checkerQueue, globalStep)
+		parameterServer = ParameterServer(globalWeightList,gradientStorage, globalCounter, updateCheck, globalStep)
 		
 		act1 = mp.Process(target = bundle.actor)
 		learn1 = mp.Process(target = bundle.learner)
@@ -272,10 +257,18 @@ class MainClass:
 		p1.start()
 		p2.start()
 		"""
-		
+		saveStart = time.time()
 		while self.stoppVillkor:
-			self.stoppVillkor = (time.time()-self.start < 100)
-		
+			
+			if (time.time() - saveStart) > self.saveRate:
+				print('Saving network')
+				self.globalQnet.network.set_weights(globalWeightList)
+				self.globalQnet.network.save('Networks/GorilaNetwork.h5')
+				saveStart = time.time()
+			self.stoppVillkor = True
+		act1.join()
+		learn1.join()
+		param.join()
 	
 	
 """""""""""""""""""""""""""""""""""""""""""""
