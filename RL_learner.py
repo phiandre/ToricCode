@@ -29,7 +29,7 @@ class RLsys:
 			actions: the possible actions of the system.
 			state_size: the size of the state matrix.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100, reward_decay=0.9, e_greedy=0.9):
+	def __init__(self, actions, state_size, miniBatchSize = 8, TNRate = 100, reward_decay=0.9, e_greedy=0.9):
 		# Save parameters for later use
 		self.state_size = state_size
 		self.actions = actions
@@ -114,7 +114,7 @@ class RLsys:
 			Q_ = self.qnet.predictQ(state_)[0,:]
 			if observation_p != 'terminal':
 				
-				predQ = self.predQ(observation_p)
+				predQ = self.predTargetQ(observation_p)
 
 				
 				Q_[action] = reward + self.gamma * predQ.max()

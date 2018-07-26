@@ -76,7 +76,6 @@ class QNet:
 		self.network.fit(data, true_Q, epochs=1, batch_size=BS, verbose=0)
 	def gradCalc(self,state,Qtrue):
 		outputTensor = self.network.output
-		
 		loss = losses.mean_squared_error(Qtrue,outputTensor)
 		
 		listOfVariableTensors = self.network.trainable_weights

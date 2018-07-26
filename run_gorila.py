@@ -15,6 +15,7 @@ from QNet import QNet
 import pathos
 import multiprocess as mp
 import random
+import tensorflow as tf
 
 def adHocProcess1(n):
 	print('Starting demo process 1!')
@@ -26,7 +27,7 @@ def adHocProcess2(n):
 	print('Ending demo process 2!')
 	
 class Bundle:
-	def __init__(self,weights,memory,gradientStorage):
+	def __init__(self,weights,memory,gradientStorage,globalCounter,updateCheck, checkerQueue, globalStep, vacantStorage):
 		self.memory = memory
 		self.comRep = np.load('ToricCodeComputer.npy')
 		self.humRep=np.load('ToricCodeHuman.npy')
@@ -35,6 +36,11 @@ class Bundle:
 		self.stoppVillkor = True
 		self.size = self.comRep.shape[0]
 		self.weights = weights
+		self.vacantStorage = vacantStorage
+		self.counter = globalCounter
+		self.updateCheck = updateCheck
+		self.checkerQueue = checkerQueue
+		self.globalStep = globalStep
 		
 		#self.checkGS = np.load("Tweaks/checkGS.npy")
 	def actor(self):
@@ -90,27 +96,72 @@ class Bundle:
 
 
 				actorRL.storeTransition(observation[:,:,e], a, r, new_observation)
-				print("Memory according to actor:\n",len(self.memory))
 				
 
 	def learner(self):
 		print('Initializing learner!')
+		indexQueue = False
 		rl = RL_learn(4,self.size)
 		rl.qnet.network.set_weights(self.weights)
+		n = 0
+		self.updateCheck.append(False)
+		while not indexQueue:
+			if self.checkerQueue.value:
+				self.checkerQueue.value = False
+				self.updateCheck.append(False)
+				identity = len(self.updateCheck)-1
+				self.checkerQueue.value = True
+				indexQueue = True
+		
 		while self.stoppVillkor:
 			batch = []
-			print("Memory according to LEARNER:\n",len(self.memory))
-			if len(self.memory) > 0:
+			if len(self.memory) > 0 and self.vacantStorage.value:
+				self.vacantStorage.value = False
 				for i in range(self.miniBatchSize):
 					j = random.randint(0,(len(self.memory)-1))
 					batch.append(self.memory[j])
 				gradients = rl.gradPrep(batch)
-				print("length of gradients:")
-				print(len(gradients[1]))
 				self.gradientStorage.append(gradients)
-				#print(self.gradientStorage)
+				self.vacantStorage.value = True
+
+				if n % 4 == 0:
+					rl.qnet.network.set_weights(self.weights)
+				if (self.counter.value >= self.globalStep.value) and (not self.updateCheck[identity]):
+					rl.targetNet.network.set_weights(self.weights)
+					self.updateCheck[identity] = True
+				n += 1
 				
-	
+class ParameterServer:
+	def __init__(self, weights, gradientStorage, globalCounter, updateCheck, globalStep, vacantStorage):
+		self.weights = weights
+		self.gradientStorage = gradientStorage
+		self.stoppVillkor = True
+		self.updateCheck = updateCheck
+		self.globalStep = globalStep
+		self.globalCounter = globalCounter
+		self.alpha = 0.001
+		self.vacantStorage = vacantStorage
+		
+	def networkOptimizer(self):
+		print('Initializing parameter server')
+		while self.stoppVillkor:
+			#print(len(self.gradientStorage))
+			if len(self.gradientStorage) > 8 and self.vacantStorage.value:
+				self.vacantStorage.value = False
+				print('Updating network')
+				
+				averageStep = [-self.alpha*sum(x)/len(self.gradientStorage) for x in zip(*self.gradientStorage)]
+				self.weights = [sum(x) for x in zip(averageStep,self.weights)]
+				self.gradientStorage[:]=[]
+				self.vacantStorage.value = True
+				print(self.gradientStorage)
+				self.globalCounter.value += 1
+				if all(self.updateCheck):
+					self.updateCheck = [not i for i in self.updateCheck]
+					self.globalCounter.value = 0
+				print('I got this far')
+				
+				
 
 				
 class MainClass:
@@ -158,9 +209,8 @@ class MainClass:
 	
 	
 	
-	def parameterServer(self, weights, gradientStorage):
-		
-		print(self.gradientStorage)
+	
+				#print(self.gradientStorage)
 	
 	def demoprocess1(self,n):
 		print('Starting demo process 1!')
@@ -186,18 +236,32 @@ class MainClass:
 	def run(self):
 		manager = mp.Manager()
 		weights = self.globalQnet.network.get_weights()
+		
+		globalWeightList = manager.list()
+		for layer in weights:
+			globalWeightList.append(layer)
+		
+		"""Shared stuff"""
 		memory = manager.list()
 		gradientStorage = manager.list()
-		bundle = Bundle(weights,memory,gradientStorage)
+		globalCounter = manager.Value('i',0)
+		checkerQueue = manager.Value('boolean',True)
+		updateCheck = manager.list()
+		globalStep = manager.Value('i',1000)
+		vacantStorage = manager.Value('boolean',True)
 		
-		print('About to initialize!')
+		
+		bundle = Bundle(weights,memory,gradientStorage, globalCounter, updateCheck, checkerQueue, globalStep, vacantStorage)
+		parameterServer = ParameterServer(globalWeightList,gradientStorage, globalCounter, updateCheck, globalStep, vacantStorage)
+		
 		act1 = mp.Process(target = bundle.actor)
-		print('Something should be initialized!')
 		learn1 = mp.Process(target = bundle.learner)
-		print('Everything should be initialized!')
+		param = mp.Process(target = parameterServer.networkOptimizer)
+		
 		
 		act1.start()
 		learn1.start()
+		param.start()
 		
 		
 		
