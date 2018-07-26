@@ -147,7 +147,7 @@ class ParameterServer:
 				self.gradientStorage[:]=[]
 				self.globalCounter.value += 1
 				print('Update count: ',self.globalCounter.value)
-			if all(self.updateCheck):
+			if (len(self.updateCheck)>0) and all(self.updateCheck):
 				print('Target Networks are synced!')
 				self.updateCheck[:] = [not i for i in self.updateCheck]
 				self.globalCounter.value = 0
@@ -189,8 +189,7 @@ class MainClass:
 		if self.loadNetwork:
 			importNetwork = load_model(self.networkName)
 			self.GlobalQnet.network = importNetwork
-		
-		self.memoryList = []
+			
 		self.run()
 		
 		

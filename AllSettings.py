@@ -13,7 +13,7 @@ class Tweaker:
 			
 	
 		# Antal iterationer som ska tränas
-		self.trainingIterations = 50000
+		self.trainingIterations = 100000
 		
 		# Antal iterationer som ska testas
 		self.testIterations = 30000

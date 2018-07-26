@@ -29,7 +29,7 @@ class RLsys:
 			actions: the possible actions of the system.
 			state_size: the size of the state matrix.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 1000000, reward_decay=0.9, e_greedy=0.9):
+	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 100000, reward_decay=0.9, e_greedy=0.8):
 		# Save parameters for later use
 		self.state_size = state_size
 		self.actions = actions
