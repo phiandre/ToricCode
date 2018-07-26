@@ -17,14 +17,6 @@ import multiprocess as mp
 import random
 import tensorflow as tf
 
-def adHocProcess1(n):
-	print('Starting demo process 1!')
-	time.sleep(n[0])
-	print('Ending demo process 1!')
-def adHocProcess2(n):
-	print('Starting demo process 2!')
-	time.sleep(n[0])
-	print('Ending demo process 2!')
 	
 class Bundle:
 	def __init__(self,weights,memory,gradientStorage,globalCounter,updateCheck, checkerQueue, globalStep):
@@ -73,7 +65,7 @@ class Bundle:
 			state = np.copy(comRep[:,:,i])
 			humanRep = humRep[:,:,i]
 			start = time.time()
-			
+			numSteps = 0
 			env = Env(state, humanRep, checkGroundState=False)
 			#env.incorrectGsR = incorrectGsR
 			env.stepR = stepR
@@ -116,8 +108,8 @@ class Bundle:
 				indexQueue = True
 		
 		while self.stoppVillkor:
-			batch = []
 			if len(self.memory) > 0:
+				batch = []
 				for i in range(self.miniBatchSize):
 					j = random.randint(0,(len(self.memory)-1))
 					batch.append(self.memory[j])
@@ -140,6 +132,7 @@ class ParameterServer:
 		self.globalStep = globalStep
 		self.globalCounter = globalCounter
 		self.alpha = 0.001
+		self.updateTimer = time.time()
 		
 	def networkOptimizer(self):
 		print('Initializing parameter server')
@@ -147,16 +140,17 @@ class ParameterServer:
 			if len(self.gradientStorage) > 4:
 				
 				print('Updating network...')
-				
+				print('Time between updates: ',(time.time()-self.updateTimer))
+				self.updateTimer = time.time()
 				averageStep = [-self.alpha*sum(x)/len(self.gradientStorage) for x in zip(*self.gradientStorage)]
-				self.weights = [sum(x) for x in zip(averageStep,self.weights)]
+				self.weights[:] = [sum(x) for x in zip(averageStep,self.weights)]
 				self.gradientStorage[:]=[]
 				self.globalCounter.value += 1
-				print(self.globalCounter.value)
-				if all(self.updateCheck):
-					print('Target Networks are synced...')
-					self.updateCheck = [not i for i in self.updateCheck]
-					self.globalCounter.value = 0
+				print('Update count: ',self.globalCounter.value)
+			if all(self.updateCheck):
+				print('Target Networks are synced!')
+				self.updateCheck[:] = [not i for i in self.updateCheck]
+				self.globalCounter.value = 0
 				
 
 				
@@ -222,42 +216,39 @@ class MainClass:
 	
 	def run(self):
 		manager = mp.Manager()
-		weights = self.globalQnet.network.get_weights()
-		
-		globalWeightList = manager.list()
-		for layer in weights:
-			globalWeightList.append(layer)
-		
-		"""Shared stuff"""
-		memory = manager.list()
-		gradientStorage = manager.list()
-		globalCounter = manager.Value('i',0)
-		checkerQueue = manager.Value('boolean',True)
-		updateCheck = manager.list()
-		globalStep = manager.Value('i',10)
 		
 		
-		bundle = Bundle(weights,memory,gradientStorage, globalCounter, updateCheck, checkerQueue, globalStep)
+		
+		"""Delade saker"""
+		globalWeightList = manager.list()							# Nätverkets vikter
+		globalWeightList[:] = self.globalQnet.network.get_weights()
+		memory = manager.list()										# Minnesbuffert
+		gradientStorage = manager.list()							# Här förvaras gradienter tills nätverket uppdateras
+		globalCounter = manager.Value('i',0)						# Hur många gånger nätverket uppdaterats sedan senaste Targetsynkning
+		checkerQueue = manager.Value('boolean',True)				# True = ledigt för learner att få identitet
+		updateCheck = manager.list()								# När index för alla learners är True så är Targetsynkning över
+		globalStep = manager.Value('i',10)							# Antal uppdateringar som ska ske mellan Targetsynkningar
+		
+		"""Initiera instanser av parameterServer and Bundle"""
+		# En bundle är en grupp actors och learners med gemensam minnesbuffert
+		bundle = Bundle(self.globalQnet.network.get_weights(),memory,gradientStorage, globalCounter, updateCheck, checkerQueue, globalStep)
+		# På parameterservern förvaras och uppdateras nätverkets vikter
 		parameterServer = ParameterServer(globalWeightList,gradientStorage, globalCounter, updateCheck, globalStep)
 		
+		"""Definiera processer"""
+		# Här definieras
 		act1 = mp.Process(target = bundle.actor)
 		learn1 = mp.Process(target = bundle.learner)
 		param = mp.Process(target = parameterServer.networkOptimizer)
 		
-		
+		"""Starta processer"""
 		act1.start()
 		learn1.start()
 		param.start()
 		
 		
-		
-		""" Följande Ad Hoc-process är testad och funkar!
-		p1 = mp.Process(target = adHocProcess1, args=([1],))
-		p2 = mp.Process(target = adHocProcess2, args=([2],))
-		p1.start()
-		p2.start()
-		"""
 		saveStart = time.time()
+		
 		while self.stoppVillkor:
 			
 			if (time.time() - saveStart) > self.saveRate:
@@ -266,6 +257,8 @@ class MainClass:
 				self.globalQnet.network.save('Networks/GorilaNetwork.h5')
 				saveStart = time.time()
 			self.stoppVillkor = True
+		
+		"""run() får ej avslutas före processerna, då run() har alla delade saker i sig"""
 		act1.join()
 		learn1.join()
 		param.join()
