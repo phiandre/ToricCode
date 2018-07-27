@@ -16,6 +16,11 @@ import pathos
 import multiprocess as mp
 import random
 import tensorflow as tf
+import os
+from keras.models import clone_model
+#import matplotlib.pyplot as plt
+#from pympler.tracker import SummaryTracker as ST
+#import gc
 
 	
 class Bundle:
@@ -82,7 +87,11 @@ class Bundle:
 			while len(env.getErrors()) > 0:
 				numSteps += 1
 				observation = env.getObservation ()
+				#actStart = time.time()
 				a, e = actorRL.choose_action(observation)
+				#actStop = time.time()
+				#actTime = actStop - actStart
+				#print('Time to make decision: ',actTime)
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()
 
@@ -91,6 +100,7 @@ class Bundle:
 			if time.time()-start > 5:
 				actorRL.qnet.network.set_weights(self.weights)
 				start = time.time()
+				#time.sleep(10000)
 				
 
 	def learner(self):
@@ -98,7 +108,9 @@ class Bundle:
 		indexQueue = False
 		rl = RL_learn(4,self.size)
 		rl.qnet.network.set_weights(self.weights)
+		weighties = rl.qnet.network.get_weights()
 		n = 0
+		memory_usage = list()
 		while not indexQueue:
 			if self.checkerQueue.value:
 				self.checkerQueue.value = False
@@ -106,7 +118,6 @@ class Bundle:
 				identity = len(self.updateCheck)-1
 				self.checkerQueue.value = True
 				indexQueue = True
-		
 		while self.stoppVillkor:
 			if len(self.memory) > 0:
 				batch = []
@@ -114,12 +125,24 @@ class Bundle:
 					j = random.randint(0,(len(self.memory)-1))
 					batch.append(self.memory[j])
 				gradients = rl.gradPrep(batch)
+				rl = RL_learn(4,self.size)
+				rl.qnet.network.set_weights(self.weights)
+				rl.targetNet.network.set_weights(weighties)
 				self.gradientStorage.append(gradients)
-
-				if n % 4 == 0:
-					rl.qnet.network.set_weights(self.weights)
+				"""
+				memory_usage.append(process.memory_info().rss)
+				
+				if memory_usage[-1] > 2*memory_usage[0]:
+					print("plotting stuff")
+					plt.plot(list(range(len(memory_usage))),memory_usage)
+					plt.show()
+					exit()
+				"""
+				#if n % 4 == 0:
+				#	rl.qnet.network.set_weights(self.weights)
 				if (self.globalCounter.value >= self.globalStep.value) and (not self.updateCheck[identity]):
 					rl.targetNet.network.set_weights(self.weights)
+					weighties = rl.targetNet.network.get_weights()
 					self.updateCheck[identity] = True
 				n += 1
 				
@@ -147,6 +170,8 @@ class ParameterServer:
 				self.gradientStorage[:]=[]
 				self.globalCounter.value += 1
 				print('Update count: ',self.globalCounter.value)
+
+				#time.sleep(10000)
 			if (len(self.updateCheck)>0) and all(self.updateCheck):
 				print('Target Networks are synced!')
 				self.updateCheck[:] = [not i for i in self.updateCheck]
@@ -175,7 +200,7 @@ class MainClass:
 		
 		self.networkName = 'trainedNetwork42.h5' 
 		
-		self.saveRate = 100 #how often the network is saved
+		self.saveRate = 30 #how often the network is saved
 		self.miniBatchSize = 32
 		# creates a new filename for numSteps each time we run the code
 		self.size = self.comRep.shape[0]
@@ -214,6 +239,7 @@ class MainClass:
 
 	
 	def run(self):
+
 		manager = mp.Manager()
 		
 		
@@ -267,4 +293,5 @@ class MainClass:
 Mainmetod, här körs själva simuleringen.
 """""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
+	os.system('cls')
 	MainClass()

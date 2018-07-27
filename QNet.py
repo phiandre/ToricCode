@@ -9,6 +9,7 @@ and ouput the associated approximation Q(s,a).
 
 # Imports
 from keras.models import Sequential
+from keras.models import clone_model
 from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers import Dropout
@@ -17,7 +18,9 @@ from keras import optimizers
 import numpy as np
 from keras import backend as K
 from keras import losses
+import gc
 import tensorflow as tf
+
 
 # Class definition
 class QNet:
@@ -75,13 +78,46 @@ class QNet:
 			BS = data.shape[0]
 		self.network.fit(data, true_Q, epochs=1, batch_size=BS, verbose=0)
 	def gradCalc(self,state,Qtrue):
-		outputTensor = self.network.output
-		loss = losses.mean_squared_error(Qtrue,outputTensor)
+		#killable_network = clone_model(self.network)
 		
-		listOfVariableTensors = self.network.trainable_weights
-		gradients = K.gradients(loss, listOfVariableTensors)
-		sess = tf.InteractiveSession() #TF
-		sess.run(tf.global_variables_initializer()) #TF
-		evaluated_gradients = sess.run(gradients,feed_dict={self.network.input:state})
-		sess.close()
+		"""
+		outputTensor = self.network.output
+		
+		with outputTensor.as_default():
+			
+			#outputTensor = killable_network.output
+			loss = losses.mean_squared_error(Qtrue,outputTensor)
+			
+			listOfVariableTensors = self.network.trainable_weights
+			#listOfVariableTensors = killable_network.trainable_weights
+			gradients = K.gradients(loss, listOfVariableTensors)
+			sess = tf.InteractiveSession() #TF
+			sess.run(tf.global_variables_initializer()) #TF
+			evaluated_gradients = sess.run(gradients,feed_dict={self.network.input:state})
+			#evaluated_gradients = sess.run(gradients,feed_dict={killable_network.input:state})
+			sess.close()
+		"""
+		#with K.get_session() as sess:
+		weights = self.network.trainable_weights
+		#weights = [tensor for tensor in self.network.trainable_weights if self.network.get_layer(tensor.name[:-2]).trainable]
+		
+		optimizer = self.network.optimizer
+		gradients = optimizer.get_gradients(self.network.total_loss,weights)
+		
+		input_tensors=[self.network.inputs[0], self.network.sample_weights[0], self.network.targets[0], K.learning_phase()]
+		get_gradients = K.function(inputs = input_tensors, outputs = gradients)
+		inputs = [state, [1], Qtrue, 0]
+		#print('sess = tf.Session()\n\n')
+		evaluated_gradients = get_gradients(inputs)
+		#print('nu ska jag cleara')
+		K.clear_session()
+		#self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+		#print('eee')
+		#self.network.set_weights(weighties)
+		#print("self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])		print('K.clear_session()\n\n')")
+		#print('nu har jag clearat')
+		#print('graph: ',graph)
+		#sess.close()
+		#K.get_session().run(graph)
+		#print("nu har jag setat")
 		return evaluated_gradients
