@@ -13,10 +13,10 @@ class Tweaker:
 			
 	
 		# Antal iterationer som ska tränas
-		self.trainingIterations = 1000000
+		self.trainingIterations = 300000
 		
 		# Antal iterationer som ska testas
-		self.testIterations = 10000
+		self.testIterations = 30000
 		
 		
 		""" Belöningsparametrar"""
@@ -56,15 +56,15 @@ class Tweaker:
 		""" Epsilon decay """
 		
 		# Använd avtagande epsilon
-		self.epsilonDecay = False
+		self.epsilonDecay = True
 		
 		# Värde på epsilon (endast relevant om ej avtagande)
 		self.epsilon = 0.1
 		
 		# Epsilonkurvans form oberoende av antal iterationer
-		self.epsilonShape = False
+		self.epsilonShape = True
 		
-		self.alpha = -0.7
+		self.alpha = -0.9
 		
 		if self.epsilonShape:
 			self.k = self.trainingIterations / 10
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 	np.save("Tweaks/AGS.npy",tweak.AGS)
 	np.save("Tweaks/BGS.npy",tweak.BGS)
 	np.save("Tweaks/wGS.npy",tweak.wGS)
-	np.save("Tweaks/bGS.npy",tweak.bGS)
+	np.save("Tweaks/bbGS.npy",tweak.bGS)
 	np.save("Tweaks/epsilonDecay.npy",tweak.epsilonDecay)
 	np.save("Tweaks/epsilon.npy",tweak.epsilon)
 	np.save("Tweaks/epsilonShape.npy",tweak.epsilonShape)

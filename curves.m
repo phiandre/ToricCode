@@ -1,10 +1,10 @@
 clear
 clc
 % Viktigt! För representativa kurvor, ange antal iterationer
-iterations = 200000;
+iterations = 3600*8;
 
 % För konstant form oavsett antal iterationer, sätt värde för kurvan till 1
-epsilonShape = 0;
+epsilonShape = 1;
 errorShape = 0;
 groundStateShape = 0;
 
@@ -18,7 +18,7 @@ subplot(2,2,1)
 
 
 
-alfa = -0.7; % "flyttar änden" på kurvan
+alfa = -0.9; % "flyttar änden" på kurvan
 
 x = 1:iterations;
 
