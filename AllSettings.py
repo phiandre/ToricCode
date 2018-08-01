@@ -17,6 +17,9 @@ class Tweaker:
 		
 		# Antal iterationer som ska testas
 		self.testIterations = 30000
+
+		#Just nu låter jag epsilon bero av tid istället
+		self.time = 3600*22/10
 		
 		
 		""" Belöningsparametrar"""
@@ -67,7 +70,7 @@ class Tweaker:
 		self.alpha = -0.9
 		
 		if self.epsilonShape:
-			self.k = self.trainingIterations / 10
+			self.k = self.time / 10
 		else:
 			self.k = 7000
 		

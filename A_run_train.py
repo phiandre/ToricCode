@@ -80,7 +80,7 @@ class MainClass:
 		return state
 		
 	def run(self):
-		totalTime = 3600 * 32
+		totalTime = 3600 * 22
 		runs = 10
 		actions = 4
 		comRep = np.load('ToricCodeComputer.npy')
@@ -98,7 +98,7 @@ class MainClass:
 			
 			startIteration = time.time()
 			tn_rate = xxxx * 100
-			
+			start = time.time()
 			experiment += 1
 			filename = 'A' + str(experiment) + '.h5'
 			rl = RLsys(actions, size, TNRate = tn_rate)
@@ -157,7 +157,7 @@ class MainClass:
 					numSteps = 0
 					
 					if self.epsilonDecay:
-						rl.epsilon = ((self.k+trainingIteration+12000)/self.k)**(self.alpha)
+						rl.epsilon = ((self.k+(time.time()-startIteration))/self.k)**(self.alpha)
 					if self.gsRGrowth:
 						env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
 					else:
