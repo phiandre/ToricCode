@@ -26,7 +26,7 @@ class QNet:
 			state_size: the size of the state part of the input.
 			action_size: the size of the action part of the input.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, state_size):
+	def __init__(self, state_size,optt='adam'):
 
 		K.set_image_dim_ordering('tf')
 		# Save the state and action sizes as well as the overall input size.
@@ -44,7 +44,7 @@ class QNet:
 		#self.network.add(Dense(32, activation='relu'))
 
 		self.network.add(Dense(4))
-		self.network.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+		self.network.compile(loss='mean_squared_error', optimizer=optt, metrics=['accuracy'])
 		#print(self.network.summary())
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Method which predicts the Q associated which state and action.

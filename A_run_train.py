@@ -17,6 +17,7 @@ class MainClass:
 		# Alla booleans
 		self.loadNetwork = False #train an existing network
 		self.gsRGrowth = np.load("Tweaks/GSgrowth.npy")
+		self.diagnostics = False
 		
 		self.checkGS = np.load("Tweaks/checkGS.npy")
 		
@@ -79,16 +80,23 @@ class MainClass:
 		return state
 		
 	def run(self):
+		totalTime = 3600 * 32
+		runs = 10
 		actions = 4
 		comRep = np.load('ToricCodeComputer.npy')
 		humRep=np.load('ToricCodeHuman.npy')
 		size = comRep.shape[0]
 		
+		if self.diagnostics:
+			stepTimeList = np.zeros(200)
+			diaCount = 0
+		
 		start = time.time()
 		experiment = 0
 		
-		for xxxx in range(1,11)
+		for xxxx in range(1,11):
 			
+			startIteration = time.time()
 			tn_rate = xxxx * 100
 			
 			experiment += 1
@@ -125,6 +133,17 @@ class MainClass:
 			
 			
 			for i in range(comRep.shape[2]):
+				if (time.time() - startIteration) > totalTime/runs:
+					"""
+					tmp = list('Networks/trainedNetwork1.h5')
+					tmp[23] = str(self.static_element)
+					filename = "".join(tmp)
+					"""
+					
+					rl.qnet.network.save(filename)
+					print("Iterations: ",trainingIteration)
+					break
+					
 				for j in range(4):
 					state = np.copy(comRep[:,:,i])
 					state = np.rot90(state,j)
@@ -145,8 +164,9 @@ class MainClass:
 						env.correctGsR = self.fR
 					r = 0
 
-
+					diagnosticStart = time.time()
 					while len(env.getErrors()) > 0:
+						
 						numSteps = numSteps + 1
 						observation = env.getObservation()
 						a, e = rl.choose_action(observation)
@@ -156,7 +176,15 @@ class MainClass:
 
 						rl.storeTransition(observation[:,:,e], a, r, new_observation)
 						rl.learn()
-
+						if self.diagnostics:
+							diagnosticStop = time.time()
+							stepTimeList[diaCount] = diagnosticStop - diagnosticStart
+							diagnosticStart = time.time()
+							diaCount += 1
+							if diaCount >= 200:
+								avgTime = np.sum(stepTimeList)/200
+								print("Average step time: ",avgTime)
+								exit()
 					"""
 					if self.checkGS:
 						if r != 0:
@@ -168,8 +196,9 @@ class MainClass:
 							average = np.sum(averager)/n
 						else:
 							average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
-					
-					
+					"""
+					print("\nTotal progress: " + str(100*(time.time()-start)/(totalTime)) + " %")
+					print("Progress on " + "A" + str(experiment) +": " + str(100*(time.time() - startIteration)/(totalTime/runs)) +" %")
 					print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
 					if self.checkGS:
 						if n<self.avgTol:
@@ -177,7 +206,7 @@ class MainClass:
 						else:
 							print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
 						steps[trainingIteration] = numSteps
-					"""
+					
 					
 
 					if((trainingIteration+1) % self.saveRate == 0):
@@ -191,7 +220,8 @@ class MainClass:
 						rl.qnet.network.save(filename)
 					
 					
-					if (time.time() - start) > 3600*8
+					
+					if (time.time() - start) > 3600*8:
 						"""
 						tmp = list('Networks/trainedNetwork1.h5')
 						tmp[23] = str(self.static_element)

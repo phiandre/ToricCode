@@ -29,15 +29,15 @@ class RLsys:
 			actions: the possible actions of the system.
 			state_size: the size of the state matrix.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, actions, state_size, miniBatchSize = 32, TNRate = 100 , memorySize = 1000000, reward_decay=0.9, e_greedy=0.9):
+	def __init__(self, actions, state_size, optt='adam', miniBatchSize = 32, TNRate = 100 , memorySize = 1000000, reward_decay=0.9, e_greedy=0.9):
 		# Save parameters for later use
 		self.state_size = state_size
 		self.actions = actions
 		self.gamma = reward_decay
 		self.epsilon = e_greedy
 		# Produce neural network
-		self.qnet = QNet(self.state_size)
-		self.targetNet = QNet(self.state_size)
+		self.qnet = QNet(self.state_size,optt)
+		self.targetNet = QNet(self.state_size,optt)
 		self.targetNet.network = clone_model(self.qnet.network)
 		self.memorySize = memorySize
 		self.memory = list()
