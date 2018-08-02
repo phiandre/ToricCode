@@ -67,8 +67,6 @@ class Env:
 			int: reward, 10 för att ta bort, -1 för ingen skillnad.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	
-	def moveSegment(self, action, segmentIndex):
-		firstPos = self.getOddSegments()[segmentIndex,:]
 	
 	def moveError(self, action, errorIndex):
 		# Kolla antal errors innan

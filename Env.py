@@ -56,6 +56,14 @@ class Env:
 	def getErrors(self):					
 		return self.errors
 
+
+
+	
+	def moveSegment(self, action, segmentIndex):
+		firstPos = self.getOddSegments()[segmentIndex,:]
+		secondPos = self.getPos(action, firstPos)
+		
+		
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Flyttar errors, och släcker ut som två errors möter varandra.
 	Actions följer: [u = 0, d = 1, l = 2, r = 3]
@@ -145,17 +153,25 @@ class Env:
 		nextPos = np.array(position, copy=True)
 		# Beroende på action väljs steg
 		if action == 0:
-			if nextPos[0] != 0:
+			if nextPos[0] == 0:
+				nextPos[0] = self.length - 1
+			else:
 				nextPos[0] -= 1  
 		if action == 1:
-			if nextPos[0] != self.length - 1:
+			if nextPos[0] == self.length - 1:
+				nextPos[0] = 0
+			else:
 				nextPos[0] += 1
 		if action == 2:
-			if nextPos[1] != 0:
+			if nextPos[1] == 0:
+				nextPos[1] = self.length - 1
+			else:
 				nextPos[1] -= 1
 		if action == 3:
-			if nextPos[1] != self.length - 1:
-				nextPos[1] += 1	
+			if nextPos[1] == self.length - 1:
+				nextPos[1] = 0
+			else:
+				nextPos[1] += 1
 		# Returnera nya positionen för felet
 		return nextPos
 
@@ -173,10 +189,7 @@ class Env:
 			numerror=self.errors.shape[0]
 			observation=np.zeros((self.length,self.length,numerror))
 			for i in range(numerror):
-				errorIndex = self.getErrors()[i,:]
-				state_ = np.copy(self.state)
-				state_[errorIndex[0], errorIndex[1]] = -1
-				observation[:,:,i]= state_
+				observation[:,:,i]=self.centralize(self.errors[i,:])
 			return observation
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
