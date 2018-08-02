@@ -89,7 +89,7 @@ class MainClass:
 		start = time.time()
 		experiment = 0
 		
-		for xxxx in range(1,11)
+		for xxxx in range(1,11):
 			
 			tn_rate = xxxx * 100
 			
@@ -158,6 +158,8 @@ class MainClass:
 
 						rl.storeTransition(observation[:,:,e], a, r, new_observation)
 						rl.learn()
+					
+					print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
 
 					"""
 					if self.checkGS:
@@ -172,7 +174,6 @@ class MainClass:
 							average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
 					
 					
-					print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
 					if self.checkGS:
 						if n<self.avgTol:
 							print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")
@@ -193,7 +194,7 @@ class MainClass:
 						rl.qnet.network.save(filename)
 					
 					
-					if (time.time() - start) > 3600*8
+					if (time.time() - start) > 3600*8:
 						"""
 						tmp = list('Networks/trainedNetwork1.h5')
 						tmp[23] = str(self.static_element)

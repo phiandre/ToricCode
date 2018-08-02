@@ -145,25 +145,17 @@ class Env:
 		nextPos = np.array(position, copy=True)
 		# Beroende på action väljs steg
 		if action == 0:
-			if nextPos[0] == 0:
-				nextPos[0] = self.length - 1
-			else:
+			if nextPos[0] != 0:
 				nextPos[0] -= 1  
 		if action == 1:
-			if nextPos[0] == self.length - 1:
-				nextPos[0] = 0
-			else:
+			if nextPos[0] != self.length - 1:
 				nextPos[0] += 1
 		if action == 2:
-			if nextPos[1] == 0:
-				nextPos[1] = self.length - 1
-			else:
+			if nextPos[1] != 0:
 				nextPos[1] -= 1
 		if action == 3:
-			if nextPos[1] == self.length - 1:
-				nextPos[1] = 0
-			else:
-				nextPos[1] += 1
+			if nextPos[1] != self.length - 1:
+				nextPos[1] += 1	
 		# Returnera nya positionen för felet
 		return nextPos
 
@@ -181,7 +173,10 @@ class Env:
 			numerror=self.errors.shape[0]
 			observation=np.zeros((self.length,self.length,numerror))
 			for i in range(numerror):
-				observation[:,:,i]=self.centralize(self.errors[i,:])
+				errorIndex = self.getErrors()[i,:]
+				state_ = np.copy(self.state)
+				state_[errorIndex[0], errorIndex[1]] = -1
+				observation[:,:,i]= state_
 			return observation
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
