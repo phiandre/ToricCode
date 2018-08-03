@@ -75,23 +75,27 @@ class Env:
 		secondPos = self.getPos(action, firstPos)
 		
 		# Uppdatera humanState
+		#TODO: FIXA HUMANSTATE
 		if self.checkGroundState:
+			flip = True
 			# Positionen för felet i humanState
 			firstHumPos=2*firstPos+1
 			# Positionen för felets nya plats i humanState
 			secondHumPos=2*secondPos+1
 			if action==0 and firstPos[0]==0:
-				vertexPos = [0, firstHumPos[1]]
+				flip = False
+				
 			elif action==1 and firstPos[0]==self.length - 1:
-				vertexPos = [0, firstHumPos[1]]
+				flip = False
 			elif action==2 and firstPos[1]==0:
-				vertexPos = [firstHumPos[0], 0]
+				flip = False
 			elif action==3 and firstPos[1]==self.length - 1:
-				vertexPos = [firstHumPos[0], 0]
+				flip = False
 			else:
 				vertexPos = 1/2 * (firstHumPos + secondHumPos)
 				vertexPos = vertexPos.astype(int)
-			self.humanState[vertexPos[0], vertexPos[1]] *= -1
+			if flip:
+				self.humanState[vertexPos[0], vertexPos[1]] *= -1
 		
 		#  Uppdatera den gamla positionen
 		self.state[firstPos[0], firstPos[1]] = 0
@@ -235,3 +239,16 @@ class Env:
 		return np.transpose(np.nonzero(self.segments))
 	
 
+if __name__ == '__main__':
+	np.set_printoptions(threshold=np.nan, linewidth=300)
+	comRep = np.load('ToricCodeComputer.npy')
+	humRep=np.load('ToricCodeHuman.npy')
+	c = comRep[:,:,0]
+	h = humRep[:,:,0]
+	print("comRep:\n", c)
+	print("humRep\n", h)
+	env = Env(c,h, checkGroundState= True)
+	env.moveError(3,1)
+	
+	print("humAfter\n", env.humanState)
+	
