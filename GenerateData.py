@@ -1,7 +1,8 @@
 import numpy as np
 import random
 import pickle
-
+import time
+from Blossom import Blossom
 
 class Generate:
 	
@@ -187,58 +188,69 @@ class Generate:
 
 			
 if __name__ == '__main__':
-	size = 5 #Storlek på gittret
-	numGenerations = np.load("Tweaks/trainingIterations.npy") # Antalet träningsfall som ska skapas
-	testGenerations = np.load("Tweaks/testIterations.npy") # Antalet testfall som ska skapas
-	testProb = np.load("Tweaks/PeTest.npy") # error rate för ***testdata***
-	Pe = np.load("Tweaks/Pe.npy")
-	errorProb = Pe
-	Pei = np.load("Tweaks/Pei.npy")
-	AE = np.load("Tweaks/AE.npy")
-	BE = np.load("Tweaks/BEcap.npy")
-	wE = np.load("Tweaks/wE.npy")
-	bE = np.load("Tweaks/bE.npy")
-	errorGrowth = np.load("Tweaks/errorGrowth.npy")
+	k = np.zeros(len(list(range(5,61,2))))
+	index = 0
+	for s in range(5,61,2):
+		size = s #Storlek på gittret
+		numGenerations = np.load("Tweaks/trainingIterations.npy") # Antalet träningsfall som ska skapas
+		testGenerations = np.load("Tweaks/testIterations.npy") # Antalet testfall som ska skapas
+		testProb = np.load("Tweaks/PeTest.npy") # error rate för ***testdata***
+		Pe = np.load("Tweaks/Pe.npy")
+		errorProb = Pe
+		Pei = np.load("Tweaks/Pei.npy")
+		AE = np.load("Tweaks/AE.npy")
+		BE = np.load("Tweaks/BEcap.npy")
+		wE = np.load("Tweaks/wE.npy")
+		bE = np.load("Tweaks/bE.npy")
+		errorGrowth = np.load("Tweaks/errorGrowth.npy")
 
-	generator = Generate()
-	#Skapar träningsdata
-	tmpHuman = np.zeros((size*2,size*2,numGenerations))
-	tmpComputer = np.zeros((size,size,numGenerations))
-	for i in range(numGenerations):
-		if errorGrowth:
-			errorProb = AE * np.tanh(wE*(i+1+bE))+BE
-		human, computer = generator.generateData(size,errorProb, False)
-		tmpHuman[:,:,i] = human
-		tmpComputer[:,:,i] = computer
-	
-	errorProb = testProb
-	#Skapar testdata
-	tmpHumanTest = np.zeros((size*2,size*2,testGenerations))
-	tmpComputerTest = np.zeros((size,size,testGenerations))
-	for i in range(testGenerations):
-		humanTest, computerTest = generator.generateData(size,errorProb, False)
-		tmpHumanTest[:,:,i] = humanTest
-		tmpComputerTest[:,:,i] = computerTest
+		generator = Generate()
+		#Skapar träningsdata
+		tmpHuman = np.zeros((size*2,size*2,numGenerations))
+		tmpComputer = np.zeros((size,size,numGenerations))
+		for i in range(numGenerations):
+			if errorGrowth:
+				errorProb = AE * np.tanh(wE*(i+1+bE))+BE
+			human, computer = generator.generateData(size,errorProb, False)
+			tmpHuman[:,:,i] = human
+			tmpComputer[:,:,i] = computer
 
+		errorProb = testProb
+		#Skapar testdata
+		tmpHumanTest = np.zeros((size*2,size*2,testGenerations))
+		tmpComputerTest = np.zeros((size,size,testGenerations))
+		for i in range(testGenerations):
+			humanTest, computerTest = generator.generateData(size,errorProb, False)
+			tmpHumanTest[:,:,i] = humanTest
+			tmpComputerTest[:,:,i] = computerTest
 
-	"""
-	for i in range(numGenerations):
-		label = 1
-		labeltest = 1
-		for j in range(size):
-			for k in range(size):
-
-				if tmpComputer[:,:,i][j,k] == 1:
-					tmpComputer[:,:,i][j,k] = label
-					label +=1
-
-	for i in range(testGenerations):
-		labeltest = 1
-		for j in range(size):
-			for k in range(size):
-				if tmpComputerTest[:,:,i][j,k] == 1:
-					tmpComputerTest[:,:,i][j,k] = labeltest
-					labeltest += 1
-
-	"""
-	generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
+		start = time.time()
+		for i in range(numGenerations):
+			Blossom(tmpComputer[:,:,i])
+		finish = time.time()
+		print("Total time elapsed for size " + str(s) + ": " + str(finish - start))
+		print("Time per state for size " + str(s) + ": " + str( (finish - start) / numGenerations))
+		k[index] = ((finish-start)/numGenerations)
+		index += 1
+		"""
+		for i in range(numGenerations):
+			label = 1
+			labeltest = 1
+			for j in range(size):
+				for k in range(size):
+		
+					if tmpComputer[:,:,i][j,k] == 1:
+						tmpComputer[:,:,i][j,k] = label
+						label +=1
+		
+		for i in range(testGenerations):
+			labeltest = 1
+			for j in range(size):
+				for k in range(size):
+					if tmpComputerTest[:,:,i][j,k] == 1:
+						tmpComputerTest[:,:,i][j,k] = labeltest
+						labeltest += 1
+		
+		"""
+		generator.saveToFile(tmpHuman, tmpComputer, tmpHumanTest, tmpComputerTest)
+	np.save('PlotThis', k)
