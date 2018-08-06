@@ -41,6 +41,7 @@ class Env:
 		self.correctGsR = 5
 		self.incorrectGsR = -1
 		self.elimminationR = -1
+		self.punishment = -10
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Hittar alla fel och uppdaterar matrisen errors där
@@ -72,7 +73,7 @@ class Env:
 		# Positionen för felet som skall flyttas
 		firstPos = self.errors[errorIndex, :]
 		# Nya positionen för felet givet action och position
-		secondPos = self.getPos(action, firstPos)
+		secondPos, allowed = self.getPos(action, firstPos)
 		
 		# Uppdatera humanState
 		#TODO: FIXA HUMANSTATE
@@ -115,6 +116,8 @@ class Env:
 					return self.incorrectGsR
 		if amountErrors > len(self.errors):
 			return self.elimminationR
+		if not allowed:
+			return self.punishment
 		return self.stepR
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -148,21 +151,27 @@ class Env:
 	def getPos(self, action, position):
 		# Kopiera tidigare position så vi får ny pekare
 		nextPos = np.array(position, copy=True)
+
+		allowed = False
 		# Beroende på action väljs steg
 		if action == 0:
 			if nextPos[0] != 0:
-				nextPos[0] -= 1  
+				nextPos[0] -= 1
+				allowed = True
 		if action == 1:
 			if nextPos[0] != self.length - 1:
 				nextPos[0] += 1
+				allowed = True
 		if action == 2:
 			if nextPos[1] != 0:
 				nextPos[1] -= 1
+				allowed = True
 		if action == 3:
 			if nextPos[1] != self.length - 1:
-				nextPos[1] += 1	
+				nextPos[1] += 1
+				allowed = True
 		# Returnera nya positionen för felet
-		return nextPos
+		return nextPos, allowed
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Skapa en 3D-matris där plaketter är samma tillstånd som state

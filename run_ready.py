@@ -3,7 +3,7 @@
 """""""""""""""""""""
 import numpy as np
 from RL import RLsys
-from Env import Env
+from Env_hard import Env
 from BlossomEnv import Env as BEnv
 from Blossom import Blossom
 from GenerateToricData import Generate
@@ -21,8 +21,8 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork32.h5'
-		self.maxNumberOfIterations = 10000
+		self.networkName = 'Networks/trainedNetwork31.h5'
+		self.maxNumberOfIterations = 30000
 		
 		self.X = 0
 		self.n = 0
@@ -97,6 +97,7 @@ class MainClass:
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
 
+			"""
 			if np.count_nonzero(state) > 0:
 				state_ =np.copy(state)
 				state_ = self.labelState(state_,size)
@@ -107,7 +108,7 @@ class MainClass:
 					error1 = element[0]+1
 					error2 = element[1]+1
 					blossomReward = Benv.blossomCancel(error1, error2)
-
+			"""
 			env = Env(state,human,checkGroundState=True)
 			numIter = 0
 			while len(env.getErrors()) > 0:
@@ -127,8 +128,10 @@ class MainClass:
 			if r == env.correctGsR:
 				self.X += 1
 
+			"""
 			if blossomReward == Benv.correctGsR:
 				bCorr += 1
+			"""
 
 
 			self.n += 1

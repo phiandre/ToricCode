@@ -1,6 +1,6 @@
 import numpy as np
 from RL import RLsys
-from Env import Env
+from Env_hard import Env
 from GenerateToricData import Generate
 from keras.models import load_model
 import time
@@ -85,129 +85,111 @@ class MainClass:
 		comRep = np.load('ToricCodeComputer.npy')
 		humRep=np.load('ToricCodeHuman.npy')
 		size = comRep.shape[0]
-		
-		start = time.time()
-		experiment = 0
-		
-		for xxxx in range(1,11):
-			
-			tn_rate = xxxx * 100
-			
-			experiment += 1
-			filename = 'A' + str(experiment) + '.h5'
-			rl = RLsys(actions, size, TNRate = tn_rate)
-			if self.loadNetwork:
-				importNetwork = load_model(self.networkName)
-				rl.qnet.network = importNetwork
-			
-			steps = np.zeros(comRep.shape[2]*4)
-			
-			averager = np.zeros(comRep.shape[2]*4) # Används till att räkna ut hur sannolikt algoritmen återvänder till rätt grundtillstånd
-			
-			n=0
-			
-			rl.epsilon = np.load("Tweaks/epsilon.npy")
-			
-			trainingIteration = 0
-			if self.gsRGrowth:
-				A = np.load("Tweaks/AGS.npy")
-				B = np.load("Tweaks/BGS.npy")
-				w = np.load("Tweaks/wGS.npy")
-				b = np.load("Tweaks/bGS.npy")
 
-			incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
-			stepR = np.load("Tweaks/stepR.npy")
-			
-			
-			
-		
-			
-			
-			
-			
-			
-			for i in range(comRep.shape[2]):
-				for j in range(4):
-					state = np.copy(comRep[:,:,i])
-					state = np.rot90(state,j)
+
+		rl = RLsys(actions, size)
+		if self.loadNetwork:
+			importNetwork = load_model(self.networkName)
+			rl.qnet.network = importNetwork
+
+		steps = np.zeros(comRep.shape[2]*4)
+
+		averager = np.zeros(comRep.shape[2]*4) # Används till att räkna ut hur sannolikt algoritmen återvänder till rätt grundtillstånd
+
+		n=0
+
+		rl.epsilon = np.load("Tweaks/epsilon.npy")
+
+		trainingIteration = 0
+		if self.gsRGrowth:
+			A = np.load("Tweaks/AGS.npy")
+			B = np.load("Tweaks/BGS.npy")
+			w = np.load("Tweaks/wGS.npy")
+			b = np.load("Tweaks/bGS.npy")
+
+		incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
+		stepR = np.load("Tweaks/stepR.npy")
+
+
+
+
+
+
+
+
+
+		for i in range(comRep.shape[2]):
+			for j in range(4):
+				state = np.copy(comRep[:,:,i])
+				state = np.rot90(state,j)
+
+				humanRep = humRep[:,:,i]
+				humanRep = self.rotateHumanRep(humanRep,j)
+
+				env = Env(state, humanRep, checkGroundState=self.checkGS)
+				env.incorrectGsR = incorrectGsR
+				env.stepR = stepR
+				numSteps = 0
+
+				if self.epsilonDecay:
+					rl.epsilon = ((self.k+trainingIteration+12000)/self.k)**(self.alpha)
+				if self.gsRGrowth:
+					env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
+				else:
+					env.correctGsR = self.fR
+				r = 0
+
+
+				while len(env.getErrors()) > 0:
+					numSteps = numSteps + 1
+					observation = env.getObservation()
+					a, e = rl.choose_action(observation)
+					r = env.moveError(a, e)
+					new_observation = env.getObservation()
+
+
+					rl.storeTransition(observation[:,:,e], a, r, new_observation)
+					rl.learn()
+
+				print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
+
+				"""
+				if self.checkGS:
+					if r != 0:
+						if r == env.correctGsR:
+							averager[n] = 1
+						n += 1
 					
-					humanRep = humRep[:,:,i]
-					humanRep = self.rotateHumanRep(humanRep,j)
-					
-					env = Env(state, humanRep, checkGroundState=self.checkGS)
-					env.incorrectGsR = incorrectGsR
-					env.stepR = stepR
-					numSteps = 0
-					
-					if self.epsilonDecay:
-						rl.epsilon = ((self.k+trainingIteration+12000)/self.k)**(self.alpha)
-					if self.gsRGrowth:
-						env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
+					if n < self.avgTol:
+						average = np.sum(averager)/n
 					else:
-						env.correctGsR = self.fR
-					r = 0
+						average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
+				
+				
+				if self.checkGS:
+					if n<self.avgTol:
+						print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")
+					else:
+						print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
+					steps[trainingIteration] = numSteps
+				"""
 
 
-					while len(env.getErrors()) > 0:
-						numSteps = numSteps + 1
-						observation = env.getObservation()
-						a, e = rl.choose_action(observation)
-						r = env.moveError(a, e)
-						new_observation = env.getObservation()
+				if((trainingIteration+1) % self.saveRate == 0):
+
+					tmp = list('Networks/trainedNetwork1.h5')
+					tmp[23] = str(self.static_element)
+					filename = "".join(tmp)
+
+					np.save(self.filename,steps[0:(trainingIteration+1)])
+
+					rl.qnet.network.save(filename)
 
 
-						rl.storeTransition(observation[:,:,e], a, r, new_observation)
-						rl.learn()
-					
-					print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
 
-					"""
-					if self.checkGS:
-						if r != 0:
-							if r == env.correctGsR:
-								averager[n] = 1
-							n += 1
-						
-						if n < self.avgTol:
-							average = np.sum(averager)/n
-						else:
-							average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
-					
-					
-					if self.checkGS:
-						if n<self.avgTol:
-							print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")
-						else:
-							print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
-						steps[trainingIteration] = numSteps
-					"""
-					
 
-					if((trainingIteration+1) % self.saveRate == 0):
-						"""
-						tmp = list('Networks/trainedNetwork1.h5')
-						tmp[23] = str(self.static_element)
-						filename = "".join(tmp)
-						"""
-						#np.save(self.filename,steps[0:(trainingIteration+1)])
 
-						rl.qnet.network.save(filename)
-					
-					
-					if (time.time() - start) > 3600*8:
-						"""
-						tmp = list('Networks/trainedNetwork1.h5')
-						tmp[23] = str(self.static_element)
-						filename = "".join(tmp)
-						"""
-						
-						rl.qnet.network.save(filename)
-						print("Iterations: ",trainingIteration)
-						exit()
-						
-						
-						
-					trainingIteration = trainingIteration + 1
+				trainingIteration = trainingIteration + 1
 
 
 		
