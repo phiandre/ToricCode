@@ -15,10 +15,12 @@ class StopWatch:
 		return self.Stop-self.Start
 	def interval(self):
 		self.IntervalStop = time.time()
-		intervalTime = self.IntervalStop - self.IntevalStart
+		intervalTime = self.IntervalStop - self.IntervalStart
 		self.IntervalStart = time.time()
-		self.Intevals.append(intervalTime)
+		self.Intervals.append(intervalTime)
 		self.n += 1
 		return intervalTime
-	def average(self)
+	def average(self):
 		return sum(self.Intervals)/self.n
+	def totalTime(self):
+		return sum(self.Intervals)
