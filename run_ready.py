@@ -21,7 +21,7 @@ class MainClass:
 		#TODO värden som skall sättas innan varje körning
 		self.graphix = False
 		self.saveData = False
-		self.networkName = 'Networks/trainedNetwork32.h5'
+		self.networkName = 'Networks/Network100kMEM.h5'
 		self.maxNumberOfIterations = 10000
 		
 		self.X = 0
@@ -86,7 +86,7 @@ class MainClass:
 		rl.qnet.network = importNetwork
 		bCorr = 0
 		largeNum = 0
-		rl.changeEpsilon(0)
+		rl.changeEpsilon(0.2)
 		humRep=np.load('ToricCodeHumanTest.npy')
 		comRep=np.load('ToricCodeComputerTest.npy')
 		print(comRep[:,:,3])
@@ -96,7 +96,7 @@ class MainClass:
 			dist = 0
 			state=comRep[:,:,i]
 			human=humRep[:,:,i]
-
+			"""
 			if np.count_nonzero(state) > 0:
 				state_ =np.copy(state)
 				state_ = self.labelState(state_,size)
@@ -107,7 +107,7 @@ class MainClass:
 					error1 = element[0]+1
 					error2 = element[1]+1
 					blossomReward = Benv.blossomCancel(error1, error2)
-
+			"""
 			env = Env(state,human,checkGroundState=True)
 			numIter = 0
 			while len(env.getErrors()) > 0:
@@ -118,10 +118,11 @@ class MainClass:
 				observation = env.getObservation()
 				#self.printQ(observation, rl)
 				#print(env.state)
+				print("ERRORS: ", len(env.getErrors()))
 				a, e = rl.choose_action(observation)
 				r = env.moveError(a, e)
 				new_observation = env.getObservation()
-				if numIter > 50:
+				if numIter > 500:
 					print(env.state)
 
 			if r == env.correctGsR:

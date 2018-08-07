@@ -11,7 +11,7 @@
 ##########
 import math
 import numpy as np
-
+import time
 
 ###############
 # Klassen Env #
@@ -26,12 +26,18 @@ class Env:
 			groundState: grundtillståndet, värde från 0 till 3.
 			checkGroundState: beroende på om man vill kolla grundtillstånd.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, compState, humanState=np.zeros(0), groundState=0, checkGroundState=False):
+	def __init__(self, compState, humanState=np.zeros(0), windowSize = 5, segmentSize = 3, groundState=0, checkGroundState=False, copy=True):
 		# Spara viktiga matriser och variabler
 		self.checkGroundState = checkGroundState
-		self.state = np.copy(compState) 
-		self.humanState = np.copy(humanState) 
+		if copy:
+			self.state = np.copy(compState)
+			self.humanState = np.copy(humanState)
+		else:
+			self.state = compState
+			self.humanState = humanState
 		self.length = self.state.shape[0]
+		self.segmentSize = segmentSize
+		self.windowSize = windowSize
 		self.groundState = groundState
 		# Uppdatera platser där fel finns
 		self.updateErrors()
@@ -39,7 +45,7 @@ class Env:
 		self.stepR = -1
 		self.correctGsR = 5
 		self.incorrectGsR = -1
-		self.elimminationR = -1
+		self.elimminationR = 5
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
 	Hittar alla fel och uppdaterar matrisen errors där
@@ -99,6 +105,7 @@ class Env:
 			self.state[secondPos[0], secondPos[1]] = 1
 		else:
 			self.state[secondPos[0],secondPos[1]] = 0
+
 		# Kolla igenom igen var fel finns
 		self.updateErrors()
 		# I fallet att vi är klara, se om vi har bevarat grundtillstånd
@@ -129,9 +136,23 @@ class Env:
 		colmid=int(np.ceil(self.state.shape[1]/2))
 		state_=np.concatenate((state_[:,colmid:],state_[:,0:colmid]),1)
 		state_=np.concatenate((state_[rowmid:,:],state_[0:rowmid,:]),0)
-		
-		return state_
-	
+		colmid -= 1
+		rowmid -= 1
+		lower_x = int((colmid-np.floor(self.windowSize/2)))
+		higher_x = int((colmid+np.ceil(self.windowSize/2)))
+		lower_y = int((rowmid-np.floor(self.windowSize/2)))
+		higher_y = int((rowmid+np.ceil(self.windowSize/2)))
+		"""
+		print("rowmid", rowmid)
+		print("colmid", colmid)
+		print("lower_x", lower_x)
+		print("higher_x", higher_x)
+		print("lower_y", lower_y)
+		print("higher_y", higher_y)
+		"""
+		state = state_[lower_x:higher_x, lower_y:higher_y]
+		return state
+
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Returnerar positionen efter att ha rört sig i en viss riktning.
 		@param
@@ -175,14 +196,21 @@ class Env:
 			numpy: matrisen som beskrivs ovan.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getObservation(self):
+		alone = True
 		if len(self.errors)==0:
-			return 'terminal'
+			alone = False
+			return 'terminal', alone
 		else:
 			numerror=self.errors.shape[0]
-			observation=np.zeros((self.length,self.length,numerror))
+			observation=np.zeros((self.windowSize,self.windowSize,numerror))
 			for i in range(numerror):
-				observation[:,:,i]=self.centralize(self.errors[i,:])
-			return observation
+				centralizedState = self.centralize(self.errors[i,:])
+				#print("centr\n", centralizedState)
+				observation[:,:,i] = centralizedState
+				if len(np.transpose(np.nonzero(centralizedState))) > 1:
+					alone = False
+			return observation, alone
+
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Avgör vilket grundtillstånd vi befinner oss i
@@ -223,6 +251,156 @@ class Env:
 		copyEnv = Env(copyState, copyHuman, self.groundState, self.checkGroundState)
 		# Returnera kopia
 		return copyEnv
-		
+
+
+	def zoomOut(self):
+		new_length = int(self.length/self.segmentSize)
+		new_state = np.zeros((new_length , new_length))
+		for i in range(new_length):
+			for j in range(new_length):
+				partition = self.state[i*self.segmentSize:(i+1)*self.segmentSize,j*self.segmentSize:(j+1)*self.segmentSize]
+				if len(np.transpose(np.nonzero(partition))) != 0:
+					new_state[i,j] = 1
+		return new_state
+
+	def longMove(self, action, coords):
+		xcoord = int(coords[0])
+		ycoord = int(coords[1])
+
+		segmentStart_x = self.segmentSize*xcoord
+		segmentEnd_x = self.segmentSize*(xcoord+1)
+		segmentStart_y = self.segmentSize*ycoord
+		segmentEnd_y = self.segmentSize*(ycoord+1)
+
+		partition = self.state[segmentStart_x:segmentEnd_x, segmentStart_y:segmentEnd_y]
+		#print("partition\n", partition)
+		error_x, error_y = np.where(partition == 1)
+		#print("errorx: ", error_x, " errory: ", error_y)
+		#error_x += 1
+		#error_y += 1
+		#partition = self.state[(segmentStart_x-1):(segmentEnd_x+1), (segmentStart_y-1):(segmentEnd_y+1)]
+
+		absolute_x = error_x[0] + segmentStart_x
+		absolute_y = error_y[0] + segmentStart_y
+		#print("abs_x ", absolute_x, " abs_y", absolute_y)
+
+		absoluteCoords = np.array([absolute_x,absolute_y])
+
+		errorList = self.getErrors().tolist()
+		#print("errorList", errorList)
+		#print("index", list(absoluteCoords))
+		errorIndex = errorList.index(absoluteCoords.tolist())
+
+
+		if action == 0:
+			while len(np.transpose(np.nonzero(partition))) > 0:
+				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
+				self.moveError(action,errorIndex)
+				if absoluteCoords[0] != 0:
+					absoluteCoords[0] -= 1
+				else:
+					absoluteCoords[0] = self.length-1
+
+		elif action == 1:
+			while len(np.transpose(np.nonzero(partition))) > 0:
+				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
+				self.moveError(action, errorIndex)
+				if absoluteCoords[0] != self.length - 1:
+					absoluteCoords[0] += 1
+				else:
+					absoluteCoords[0] = 0
+
+		elif action == 2:
+			while len(np.transpose(np.nonzero(partition))) > 0:
+				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
+				self.moveError(action, errorIndex)
+				if absoluteCoords[1] != 0:
+					absoluteCoords[1]-= 1
+				else:
+					absoluteCoords[1] = self.length-1
+
+		elif action == 3:
+			while len(np.transpose(np.nonzero(partition))) > 0:
+				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
+				self.moveError(action, errorIndex)
+				if absoluteCoords[1] != self.length - 1:
+					absoluteCoords[1] += 1
+				else:
+					absoluteCoords[1] = 0
+
+
+
+	def pairErrors(self, coords):
+		xcoord = coords[0]
+		ycoord = coords[1]
+
+		segmentStart_x = self.segmentSize * xcoord
+		segmentEnd_x = self.segmentSize*(xcoord + 1)
+		segmentStart_y = self.segmentSize * ycoord
+		segmentEnd_y = self.segmentSize * (ycoord + 1)
+
+		partition = self.state[segmentStart_x:segmentEnd_x, segmentStart_y:segmentEnd_y]
+		#humanPartiton = self.humanState[2*segmentStart_x:2*segmentEnd_x, 2*segmentStart_y:2*segmentEnd_y]
+		x, y = np.where(self.state == 1)
+
+		if len(x) == 0:
+			return
+
+		x1 = x[0]
+		y1 = y[0]
+		x2 = x[1]
+		y2 = y[1]
+
+		ydist = y2-y1
+		xdist = x2-x1
+		print("errors", self.getErrors())
+		#partitionEnv = Env(partition, humanPartiton, checkGroundState=self.checkGroundState, copy = False)
+		partitionEnv = Env(partition, checkGroundState=self.checkGroundState, copy=False)
+		if ydist<0:
+			for i in range(np.abs(ydist)):
+				partitionEnv.moveError(2,0)
+				print("errors1", self.getErrors())
+
+		else:
+			for i in range(np.abs(ydist)):
+				partitionEnv.moveError(3,0)
+				print("errors2", self.getErrors())
+
+		for i in range(np.abs(xdist)):
+			partitionEnv.moveError(1,0)
+			print("errors3", self.getErrors())
+		self.updateErrors()
+
+
+
+
+
+if __name__ == '__main__':
+	"""
+	comRep = np.load('ToricCodeComputer.npy')
+	humRep = np.load('ToricCodeHuman.npy')
+
+	state = comRep[:, :, 0]
+	human = humRep[:, :, 0]
+
+	print("state\n", state)
+	print("human\n", human)
+	"""
+	state = np.zeros((9,9))
+	state[0,5] = 1
+	state[5,3] = 1
+
+	env = Env(state)
+	print("in \n", env.state)
+	zoomedOutState = env.zoomOut()
+	zoomedOut = Env(zoomedOutState)
+	print("out \n", zoomedOut.state)
+	env.longMove(1,np.array([0,1]))
+
+	env.pairErrors(np.array([1,1]))
+	print("after\n", env.state)
+
+
+
 	
 

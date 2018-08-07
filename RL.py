@@ -18,6 +18,7 @@ import keras
 import math
 import numpy as np
 import pandas as pd
+import time
 
 
 # Class definition
@@ -29,15 +30,16 @@ class RLsys:
 			actions: the possible actions of the system.
 			state_size: the size of the state matrix.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, actions, state_size, optt='adam', miniBatchSize = 32, TNRate = 100 , memorySize = 1000000, reward_decay=0.9, e_greedy=0.9):
+	def __init__(self, actions, state_size, optt='adam', miniBatchSize = 32, TNRate = 100 , memorySize = 1000000, reward_decay=0.9, e_greedy=0.9, windowSize = 5):
 		# Save parameters for later use
 		self.state_size = state_size
 		self.actions = actions
 		self.gamma = reward_decay
 		self.epsilon = e_greedy
+		self.windowSize = windowSize
 		# Produce neural network
-		self.qnet = QNet(self.state_size,optt)
-		self.targetNet = QNet(self.state_size,optt)
+		self.qnet = QNet(self.state_size,optt, windowSize=windowSize)
+		self.targetNet = QNet(self.state_size,optt, windowSize=windowSize)
 		self.targetNet.network = clone_model(self.qnet.network)
 		self.memorySize = memorySize
 		self.memory = list()
@@ -83,6 +85,7 @@ class RLsys:
 			# slumpa error här
 		
 		# returnera action och error
+
 		return action, error
 		
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -123,16 +126,15 @@ class RLsys:
 			reward: the immediate reward received.
 			observation_p: the resulting observation.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def learn(self):
+	def learn(self, alone= False):
 		# Q is the more optimal Q
 		B = list()
 		for i in range(self.miniBatchSize):
 			j = np.random.randint(0,len(self.memory))
 			B.append(self.memory[j])
 		
-		state = np.zeros((self.miniBatchSize,self.state_size,self.state_size,1))
+		state = np.zeros((self.miniBatchSize,self.windowSize,self.windowSize,1))
 		Q = np.zeros((self.miniBatchSize,4))
-		
 		for i in range(self.miniBatchSize):
 			
 			transition = B[i]
@@ -145,9 +147,8 @@ class RLsys:
 			state_ = state_[:,:,np.newaxis]
 
 			state[i,:,:,:] = state_
-
 			Q_ = self.qnet.predictQ(state_)[0,:]
-			if observation_p != 'terminal':
+			if observation_p != 'terminal' and not alone:
 				
 				predQ = self.predTargetQ(observation_p)
 
@@ -165,14 +166,17 @@ class RLsys:
 				Q_[action] = reward
 			
 			Q[i,:] = Q_
+
+
 		self.qnet.improveQ(state, Q)
+
 		self.count += 1
 		if self.count % self.TNRate == 0:
 			self.targetNet.network.set_weights(self.qnet.network.get_weights())
 			#print("targetNet: ", self.targetNet.network.get_weights())
 			#print("qnet: ", self.qnet.network.get_weights())
 			
-			
+
 		"""
 		Q = self.qnet.predictQ(state)[0,:]
 		# Check if we are at terminal state
