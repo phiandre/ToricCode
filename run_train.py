@@ -99,6 +99,7 @@ class MainClass:
 		n=0
 
 		rl.epsilon = np.load("Tweaks/epsilon.npy")
+		rl.gamma = 0.6
 
 		trainingIteration = 0
 		if self.gsRGrowth:
@@ -112,7 +113,7 @@ class MainClass:
 
 		segmentSize = 3
 
-		rl2 = RLsys(actions, int(size/segmentSize), windowSize=3)
+		rl2 = RLsys(actions, int(size/segmentSize), windowSize=7)
 
 
 
@@ -140,32 +141,39 @@ class MainClass:
 					env.correctGsR = self.fR
 				r = 0
 				alone = False
+				env.elimminationR = 10
 
 				while (not alone) and (len(env.getErrors()) > 0):
 					numSteps = numSteps + 1
-					observation, x = env.getObservation()
-					a, e = rl.choose_action(observation)
+					observation, x, indexVector = env.getObservation()
+					a, e = rl.choose_action(observation, indexVector)
+					#print("error ", e)
 					r = env.moveError(a, e)
-					new_observation, alone = env.getObservation()
+					new_observation, alone, newIndexVector = env.getObservation()
 
 
-					rl.storeTransition(observation[:,:,e], a, r, new_observation)
+					#rl.storeTransition(observation[:,:,list(indexVector).index(e)], a, r, new_observation)
+					rl.storeTransition(observation[list(indexVector).index(e),:,:], a, r, new_observation)
 					rl.learn(alone)
 
-					if numSteps % 10 == 0:
+					if(numSteps % 20 == 0):
 						print("Errors remaining: ", len(env.getErrors()))
-				#print("I am zooming out...\n", env.state)
+
+
+				print("I am zooming out...")
 				zoomedOutState = env.zoomOut()
-				zoomedOutEnv = Env(zoomedOutState, windowSize=3)
+				zoomedOutEnv = Env(zoomedOutState, windowSize=7)
+				zoomedOutEnv.elimminationR = -1
 				#print("Zoomed out state \n", zoomedOutEnv.state)
 
 				while len(env.getErrors()) > 0:
-					numSteps = numSteps + 1
-					print("zoomedOutEnv\n", zoomedOutEnv.state)
-					print("env\n", env.state)
-					print("len", len(env.getErrors()))
-					observation, x = zoomedOutEnv.getObservation()
-					a, e = rl2.choose_action(observation)
+
+					#print("zoomedOutEnv\n", zoomedOutEnv.state)
+					#print("env\n", env.state)
+					#print("len", len(env.getErrors()))
+					observation, x, indexVector = zoomedOutEnv.getObservation()
+
+					a, e = rl2.choose_action(observation, indexVector)
 					index = zoomedOutEnv.getErrors()[e,:]
 
 
@@ -173,23 +181,25 @@ class MainClass:
 
 					annihilation = (zoomedOutEnv.state[nextPos[0],nextPos[1]]==1)
 					r2 = zoomedOutEnv.moveError(a, e)
-					env.longMove(a,index)
+					longStep = env.longMove(a,index)
+					numSteps += longStep
 					if annihilation:
-						env.pairErrors(nextPos)
+						pairSteps, reward = env.pairErrors(nextPos)
+						numSteps += pairSteps
 
-					if numSteps % 10 == 0:
-						print("Errors remaining: ", len(env.getErrors()))
 
-					new_observation, alone = zoomedOutEnv.getObservation()
-					rl2.storeTransition(observation[:, :, e], a, r2, new_observation)
+
+					new_observation, alone, newindexVector = zoomedOutEnv.getObservation()
+
+					rl2.storeTransition(observation[list(indexVector).index(e),:, :], a, r2, new_observation)
 					rl2.learn(alone=False)
 
 
 
+					if (numSteps % 20 == 0):
+						print("Errors remaining: ", len(env.getErrors()))
 
-
-
-
+				print("Steps taken at iteration " + str(trainingIteration) + ": ", numSteps)
 
 
 
@@ -206,7 +216,7 @@ class MainClass:
 						average = np.sum(averager[(n-self.avgTol):n])/self.avgTol
 				
 				
-				print("Steps taken at iteration " +str(trainingIteration) + ": ", numSteps)
+				
 				if self.checkGS:
 					if n<self.avgTol:
 						print("Probability of correct GS last " + str(n) + ": " + str(average*100) + " %")

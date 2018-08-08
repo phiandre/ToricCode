@@ -41,7 +41,7 @@ class Env:
 		self.groundState = groundState
 		# Uppdatera platser där fel finns
 		self.updateErrors()
-		
+		self.numErrors = 10
 		self.stepR = -1
 		self.correctGsR = 5
 		self.incorrectGsR = -1
@@ -197,19 +197,44 @@ class Env:
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	def getObservation(self):
 		alone = True
+		numerror=self.numErrors
+		indexVector = np.zeros(numerror)
 		if len(self.errors)==0:
 			alone = False
-			return 'terminal', alone
+
+			return 'terminal', alone, indexVector
 		else:
-			numerror=self.errors.shape[0]
-			observation=np.zeros((self.windowSize,self.windowSize,numerror))
-			for i in range(numerror):
-				centralizedState = self.centralize(self.errors[i,:])
-				#print("centr\n", centralizedState)
-				observation[:,:,i] = centralizedState
-				if len(np.transpose(np.nonzero(centralizedState))) > 1:
+			#observation=np.zeros((self.windowSize,self.windowSize, numerror))
+			observation=np.zeros((numerror,self.windowSize,self.windowSize))
+			added = 0
+			indexList = list(range(len(self.getErrors())))
+
+			while( (added != numerror) and len(indexList)>0 ):
+				index = indexList.pop(np.random.randint(0,len(indexList)))
+				centralizedState = self.centralize(self.errors[index,:])
+				if len(np.transpose(np.nonzero(centralizedState))) == 1:
+					continue
+				else:
+					indexVector[added] = index
+					#observation[:,:, added] = centralizedState
+					observation[added,:,:] = centralizedState
+					added += 1
 					alone = False
-			return observation, alone
+			if added == 0:
+				indexList = list(range(len(self.getErrors())))
+				while ( (added != numerror) and len(indexList)>0 ):
+					index = indexList.pop(np.random.randint(0, len(indexList)))
+					centralizedState = self.centralize(self.errors[index, :])
+					indexVector[added] = index
+					#observation[:, :, added] = centralizedState
+					observation[added,:, :] = centralizedState
+					added += 1
+
+			#observation = observation[:,:,0:added]
+			observation = observation[0:added,:,:,np.newaxis]
+			indexVector = indexVector[0:added]
+
+			return observation, alone, indexVector
 
 
 	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -287,15 +312,14 @@ class Env:
 		absoluteCoords = np.array([absolute_x,absolute_y])
 
 		errorList = self.getErrors().tolist()
-		#print("errorList", errorList)
-		#print("index", list(absoluteCoords))
 		errorIndex = errorList.index(absoluteCoords.tolist())
 
-
+		steps = 0
 		if action == 0:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
 				self.moveError(action,errorIndex)
+				steps+=1
 				if absoluteCoords[0] != 0:
 					absoluteCoords[0] -= 1
 				else:
@@ -305,6 +329,7 @@ class Env:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
 				self.moveError(action, errorIndex)
+				steps += 1
 				if absoluteCoords[0] != self.length - 1:
 					absoluteCoords[0] += 1
 				else:
@@ -314,6 +339,7 @@ class Env:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
 				self.moveError(action, errorIndex)
+				steps += 1
 				if absoluteCoords[1] != 0:
 					absoluteCoords[1]-= 1
 				else:
@@ -323,16 +349,20 @@ class Env:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
 				self.moveError(action, errorIndex)
+				steps += 1
 				if absoluteCoords[1] != self.length - 1:
 					absoluteCoords[1] += 1
 				else:
 					absoluteCoords[1] = 0
 
+		return steps
 
 
 	def pairErrors(self, coords):
+		print("In pair errors")
 		xcoord = coords[0]
 		ycoord = coords[1]
+
 
 		segmentStart_x = self.segmentSize * xcoord
 		segmentEnd_x = self.segmentSize*(xcoord + 1)
@@ -340,36 +370,45 @@ class Env:
 		segmentEnd_y = self.segmentSize * (ycoord + 1)
 
 		partition = self.state[segmentStart_x:segmentEnd_x, segmentStart_y:segmentEnd_y]
-		#humanPartiton = self.humanState[2*segmentStart_x:2*segmentEnd_x, 2*segmentStart_y:2*segmentEnd_y]
-		x, y = np.where(self.state == 1)
+
+		humanPartiton = self.humanState[2*segmentStart_x:2*segmentEnd_x, 2*segmentStart_y:2*segmentEnd_y]
+
+
+		x, y = np.where(partition == 1)
 
 		if len(x) == 0:
-			return
+			if len(self.getErrors() == 0):
+				if self.evaluateGroundState() == 0:
+					r = self.correctGsR
+				else:
+					r = -1
+			else:
+				r = -1
+			return 0,r
 
 		x1 = x[0]
 		y1 = y[0]
 		x2 = x[1]
 		y2 = y[1]
-
 		ydist = y2-y1
 		xdist = x2-x1
-		print("errors", self.getErrors())
-		#partitionEnv = Env(partition, humanPartiton, checkGroundState=self.checkGroundState, copy = False)
-		partitionEnv = Env(partition, checkGroundState=self.checkGroundState, copy=False)
+
+		partitionEnv = Env(partition, humanPartiton, checkGroundState=self.checkGroundState, copy = False)
+		#partitionEnv = Env(partition, checkGroundState=self.checkGroundState, copy=False)
+		r = 0
+		print("After")
 		if ydist<0:
 			for i in range(np.abs(ydist)):
-				partitionEnv.moveError(2,0)
-				print("errors1", self.getErrors())
-
+				r = partitionEnv.moveError(2,0)
 		else:
 			for i in range(np.abs(ydist)):
-				partitionEnv.moveError(3,0)
-				print("errors2", self.getErrors())
+				r = partitionEnv.moveError(3,0)
 
 		for i in range(np.abs(xdist)):
-			partitionEnv.moveError(1,0)
-			print("errors3", self.getErrors())
+			r = partitionEnv.moveError(1,0)
+
 		self.updateErrors()
+		return int(np.abs(xdist)+np.abs(ydist)), r
 
 
 

@@ -188,7 +188,7 @@ class Generate:
 
 			
 if __name__ == '__main__':
-	size = 9 #Storlek på gittret
+	size = 15 #Storlek på gittret
 	numGenerations = np.load("Tweaks/trainingIterations.npy") # Antalet träningsfall som ska skapas
 	testGenerations = np.load("Tweaks/testIterations.npy") # Antalet testfall som ska skapas
 	testProb = np.load("Tweaks/PeTest.npy") # error rate för ***testdata***

@@ -64,10 +64,10 @@ class RLsys:
 			int: the given action based on the state.
 			int: the associated error.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def choose_action(self, observation):
+	def choose_action(self, observation, indexVector):
 
 		# ska returnera z-dimensionen
-		numErrors = observation.shape[2]
+		numErrors = observation.shape[0]
 		# de olika Q för alla errors
 		predQ = self.predQ(observation)
 
@@ -76,12 +76,12 @@ class RLsys:
 			# Select the best action
 			index = np.unravel_index(predQ.argmax(), predQ.shape)			
 			# hämta det bästa action för ett visst error
-			action = index[0]
-			error = index[1]
+			action = index[1]
+			error = int(indexVector[index[0]])
 		else:
 			# Choose random action and error
 			action = np.random.choice(self.actions)
-			error = np.random.choice(range(numErrors))
+			error = int(indexVector[np.random.choice(range(numErrors))])
 			# slumpa error här
 		
 		# returnera action och error
@@ -104,9 +104,13 @@ class RLsys:
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
+		"""
 		for x in range(numErrors):
 			state = observation[:,:,x, np.newaxis]
 			predQ[:,x] = self.targetNet.predictQ(state)
+		"""
+		predQ = self.targetNet.predictQ(observation)
+
 		return predQ
 
 	def predQ(self,observation):
@@ -114,9 +118,13 @@ class RLsys:
 		# de olika Q för alla errors
 		predQ = np.zeros([4, numErrors])
 		# evaluera Q för de olika errors
+		"""
 		for x in range(numErrors):
 			state = observation[:,:,x, np.newaxis]
+			print("pred shape", state.shape)
 			predQ[:,x] = self.qnet.predictQ(state)
+		"""
+		predQ = self.qnet.predictQ(observation)
 		return predQ
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	Trains the neural network given the outcome of the action.
@@ -144,10 +152,13 @@ class RLsys:
 			reward = transition[2]
 			observation_p = transition[3]
 
-			state_ = state_[:,:,np.newaxis]
+			state_ = state_[:,:]
 
 			state[i,:,:,:] = state_
-			Q_ = self.qnet.predictQ(state_)[0,:]
+
+			Q_ = self.qnet.predictQ(state_[np.newaxis,:,:])[0,:]
+
+
 			if observation_p != 'terminal' and not alone:
 				
 				predQ = self.predTargetQ(observation_p)
@@ -160,7 +171,7 @@ class RLsys:
 
 				#targetQVector = self.targetNet.predictQ[observation_p[:,:,error]]
 				#targetQ = targetQVector[action]
-
+				#print("predQ\n", predQ)
 				Q_[action] = reward + self.gamma * predQ.max()
 			else:
 				Q_[action] = reward
