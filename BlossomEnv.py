@@ -38,7 +38,7 @@ class Env:
 		
 		self.stepR = -1
 		self.correctGsR = 5
-		self.incorrectGsR = -5
+		self.incorrectGsR = -1
 		self.elimminationR = -1
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -288,10 +288,12 @@ class Env:
 		errorIndex = np.array((i[0],j[0]))
 		
 		#print("errorIndex2:\n", errorIndex)
-		
+		steps = 0
+
 		for i in range(np.abs(xdist[0])):
 			if xdist[0] < 0:
 				r, increased = self.moveError(2,errorIndex, error1, error2)
+				steps += 1
 				if increased:
 					
 					if (errorIndex[1] - 1) < 0:
@@ -302,6 +304,7 @@ class Env:
 					errorIndex = np.array((np.where(self.state == error1)))
 			else:
 				r, increased = self.moveError(3,errorIndex, error1, error2)
+				steps += 1
 				if increased:
 					if (errorIndex[1]+1) >= self.length:
 						errorIndex[1] = 0
@@ -313,6 +316,7 @@ class Env:
 		for i in range(np.abs(ydist[0])):
 			if ydist[0] < 0:
 				r, increased = self.moveError(0,errorIndex, error1, error2)
+				steps += 1
 				if increased:
 					if (errorIndex[0]-1) < 0:
 						errorIndex[0] = self.length-1
@@ -322,6 +326,7 @@ class Env:
 					errorIndex = np.array((np.where(self.state == error1)))
 			else:
 				r, increased = self.moveError(1,errorIndex, error1, error2)
+				steps += 1
 				if increased:
 					if (errorIndex[0] + 1) >= self.length:
 						errorIndex[0] = 0
@@ -330,7 +335,7 @@ class Env:
 				else:
 					errorIndex = np.array((np.where(self.state == error1)))
 		
-		return r
+		return r, steps
 		
 	def chooseMatch(self, match):
 		combinations = 1

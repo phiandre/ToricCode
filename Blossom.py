@@ -1,9 +1,10 @@
 from os import system
-from Env import Env
+from BlossomEnv import Env
 import numpy as np
 import os.path
 from random import shuffle
 from itertools import groupby
+import time
 
 class Blossom:
 	
@@ -13,7 +14,7 @@ class Blossom:
 				obs: an env.getObservation() of a state
 	"""
 	def __init__(self, state):
-		self.state = np.copy(state)
+		self.state = state
 		self.inputFile = 'MAC_blossom/state_graph.txt'
 		self.outputFile = 'MAC_blossom/result.txt'
 		
@@ -61,13 +62,25 @@ class Blossom:
 		self.computeMWPM()
 			
 			
-		
+	def labelState(self, s, size):
+		state = s
+		label = 1
+		for j in range(size):
+			for k in range(size):
+				if state[j,k] == 1:
+					state[j,k] = label
+					label +=1
+		return state
 	
 	def createGraph(self, state):
+		#print("State\n", state)
 		obs = Env(state).getObservation()
 		originalErrorIndex = self.getErrorIndices(state)
+		#print("state\n", obs[0][0,:,:])
 		amountOfErrors = self.getAmountOfErrors(obs[:,:,0])
+		#print("amountofErrors: ", amountOfErrors)
 		amountOfEdges = 2*(np.sum(i for i in range(0,amountOfErrors)))
+		#print("amountOfEdges: ", amountOfEdges)
 		self.edgeList.clear()
 		self.distances.clear()
 		#self.edgeList.append(str(amountOfErrors) + " " + str(amountOfEdges))
@@ -75,13 +88,20 @@ class Blossom:
 	
 		for i in range(obs.shape[2]):
 			state = obs[:,:,i]
+			#print("state before\n", state_)
+			#state = self.labelState(np.copy(state_), state_.shape[0])
 			#print("state:\n", state)
 			self.errorIndex[i+1] = originalErrorIndex[i]
 			errors = self.getErrorIndices(state)
+			#print("errors", errors)
 			currentError = np.array((int(np.floor(obs.shape[0]/2)), int(np.floor(obs.shape[0]/2)))) #index of center position
+			#print("currentError", currentError)
 			for error in errors:
 				errorNumber = int(state[error[0],error[1]])
 				centerNumber = int(state[currentError[0],currentError[1]])
+
+				#print("errorNumber: ", errorNumber)
+				#print("centerNumber: ", centerNumber)
 				if errorNumber == centerNumber:
 					continue
 				dist = self.getDistance(currentError, error)
@@ -95,6 +115,8 @@ class Blossom:
 		#shuffle(self.edgeList)
 		self.edgeList.insert(0, str(amountOfErrors) + " " + str(amountOfEdges))
 
+		#print("edgeList:", self.edgeList)
+		#print("distances: ", self.distances)
 		self.createGraphAsTxt(self.edgeList)
 		self.computeMWPM()
 		
@@ -208,6 +230,7 @@ class Blossom:
 		Execute C++ implementation of the Blossom algorithm to compute a MWPM 
 	"""
 	def computeMWPM(self):
+		print("In here")
 		system("MAC_blossom/blossom5 -e " + str(self.inputFile) + " -w " + str(self.outputFile) +" -V")
 	
 	"""
@@ -232,9 +255,9 @@ class Blossom:
 				
 				#matching_node_1 = self.errorIndex[int(first_node)+1]
 				#matching_node_2 = self.errorIndex[int(second_node)+1]
-				dist = int(self.distances[first_node+ ", "+  second_node])
+				#dist = int(self.distances[first_node+ ", "+  second_node])
 				self.cost += int(self.distances[first_node+ ", "+  second_node])
-				l.append( (int(first_node), int(second_node), dist ))
+				l.append( (int(first_node), int(second_node)))
 
 		
 		return l		
@@ -243,20 +266,16 @@ class Blossom:
 		return self.cost
 		
 if __name__ == '__main__':
-	A = np.zeros((5,5))
-	A[0,3] = 1
-	A[1,3] = 2
-	A[2,1] = 3
-	A[2,4] = 4
-	A[3,0] = 5
-	A[3,2] = 6
-	A[4,1] = 7
-	A[4,4] = 8
-	
-	matchings = list()
-	for i in range(25):
-		B = Blossom(A)
-		matchings.append(B.readResult())
-	
-	matches = [k for k,v in groupby(sorted(matchings))]
-	print(matches)
+	comRep = np.load('ToricCodeComputer.npy')
+	start = time.time()
+	for i in range(comRep.shape[2]):
+		tmp = time.time()
+		state = np.copy(comRep[:,:,i])
+		Blossom(state)
+		tmp_fin = time.time()
+		print("Time elapsed since last completion:", tmp_fin-tmp)
+		print("Average: ", (tmp_fin-start)/(i+1))
+	finish = time.time()
+	print("Total time elapsed: ", finish-start)
+	print("Time per state: ", (finish-start)/100)
+

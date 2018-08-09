@@ -19,6 +19,7 @@ class MainClass:
 		# Alla booleans
 		self.loadNetwork = False #train an existing network
 		self.gsRGrowth = np.load("Tweaks/GSgrowth.npy")
+		self.windowsize = 7
 		
 		self.checkGS = np.load("Tweaks/checkGS.npy")
 		
@@ -33,7 +34,7 @@ class MainClass:
 		
 		self.networkName = 'trainedNetwork42.h5' 
 		
-		self.saveRate = 100 #how often the network is saved
+		self.saveRate = 2 #how often the network is saved
 
 		# creates a new filename for numSteps each time we run the code
 		self.getFilename()
@@ -87,7 +88,7 @@ class MainClass:
 		size = comRep.shape[0]
 		
 
-		rl = RLsys(actions, size)
+		rl = RLsys(actions, size, windowSize = self.windowsize)
 		if self.loadNetwork:
 			importNetwork = load_model(self.networkName)
 			rl.qnet.network = importNetwork
@@ -99,7 +100,7 @@ class MainClass:
 		n=0
 
 		rl.epsilon = np.load("Tweaks/epsilon.npy")
-		rl.gamma = 0.6
+		rl.gamma = 0.9
 
 		trainingIteration = 0
 		if self.gsRGrowth:
@@ -113,7 +114,7 @@ class MainClass:
 
 		segmentSize = 3
 
-		rl2 = RLsys(actions, int(size/segmentSize), windowSize=7)
+		rl2 = RLsys(actions, int(size/segmentSize), windowSize=self.windowsize)
 
 
 
@@ -128,7 +129,7 @@ class MainClass:
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 
-				env = Env(state, humanRep, checkGroundState=self.checkGS, segmentSize=segmentSize)
+				env = Env(state, humanRep, checkGroundState=self.checkGS, segmentSize=segmentSize, windowSize= self.windowsize)
 				env.incorrectGsR = incorrectGsR
 				env.stepR = stepR
 				numSteps = 0
@@ -141,7 +142,7 @@ class MainClass:
 					env.correctGsR = self.fR
 				r = 0
 				alone = False
-				env.elimminationR = 10
+				env.elimminationR = 1
 
 				while (not alone) and (len(env.getErrors()) > 0):
 					numSteps = numSteps + 1
@@ -150,8 +151,11 @@ class MainClass:
 					#print("error ", e)
 					r = env.moveError(a, e)
 					new_observation, alone, newIndexVector = env.getObservation()
-
-
+					#print('State: \n', env.state)
+					"""
+					if alone:
+						r = len(env.getErrors()) * -2.5
+					"""
 					#rl.storeTransition(observation[:,:,list(indexVector).index(e)], a, r, new_observation)
 					rl.storeTransition(observation[list(indexVector).index(e),:,:], a, r, new_observation)
 					rl.learn(alone)
@@ -159,7 +163,9 @@ class MainClass:
 					if(numSteps % 20 == 0):
 						print("Errors remaining: ", len(env.getErrors()))
 
-
+				print("Steps taken at iteration " + str(trainingIteration) + ": ", numSteps)
+				print("Errors remaining: ", len(env.getErrors()))
+				"""
 				print("I am zooming out...")
 				zoomedOutState = env.zoomOut()
 				zoomedOutEnv = Env(zoomedOutState, windowSize=7)
@@ -199,11 +205,11 @@ class MainClass:
 					if (numSteps % 20 == 0):
 						print("Errors remaining: ", len(env.getErrors()))
 
-				print("Steps taken at iteration " + str(trainingIteration) + ": ", numSteps)
+				
 
 
 
-				"""
+				
 				if self.checkGS:
 					if r != 0:
 						if r == env.correctGsR:
@@ -224,7 +230,6 @@ class MainClass:
 						print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
 					steps[trainingIteration] = numSteps
 				"""
-
 
 				if((trainingIteration+1) % self.saveRate == 0):
 

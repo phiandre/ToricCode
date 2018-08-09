@@ -26,20 +26,27 @@ class QNet:
 			state_size: the size of the state part of the input.
 			action_size: the size of the action part of the input.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def __init__(self, state_size,optt='adam'):
+	def __init__(self, state_size,optt='adam', windowSize  = 5):
 
 		K.set_image_dim_ordering('tf')
 		# Save the state and action sizes as well as the overall input size.
 		self.state_size = state_size
 		# Define a Neural Network based on these parameters
 		self.network = Sequential()
-		self.network.add(Conv2D(512, (3,3), strides=(2,2), data_format = "channels_last" ,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
+		if windowSize == 3:
+			self.network.add(Dense(64,input_shape=[windowSize, windowSize, 1], activation='relu'))
+			self.network.add(Flatten())
+			self.network.add(Dense(8, activation='relu'))
+		else:
+			self.network.add(Conv2D(512, (3,3), strides=(1,1), data_format = "channels_last" ,input_shape=[windowSize, windowSize, 1], activation='relu'))
+			self.network.add(Flatten())
+			self.network.add(Dense(64, activation='relu'))
+			self.network.add(Dense(32, activation='relu'))
+			self.network.add(Dense(16, activation='relu'))
+			self.network.add(Dense(8, activation='relu'))
 		#self.network.add(Dense(10,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
-		#self.network.add(Conv2D(256, (2, 2), strides=(2, 2), data_format = "channels_last" ,input_shape=[self.state_size, self.state_size, 1], activation='relu'))
-		self.network.add(Flatten())
-		self.network.add(Dense(32, activation='relu'))
-		self.network.add(Dense(16, activation='relu'))
-		self.network.add(Dense(8, activation='relu'))
+		#self.network.add(Conv2D(256, (2,2), strides=(1,1), data_format = "channels_last" , activation='relu'))
+
 
 		#self.network.add(Dense(32, activation='relu'))
 
@@ -54,9 +61,9 @@ class QNet:
 		@return
 			float: the value of the predicted Q.
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	def predictQ(self, state):
+	def predictQ(self, data):
 		# Concatenate the state and action data.
-		data = np.expand_dims(state, axis=0)
+		#data = np.expand_dims(state, axis=0)
 		# Predict the value of Q
 		return self.network.predict(data)
 

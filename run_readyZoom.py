@@ -14,10 +14,12 @@ import time
 
 class MainClass:
     def __init__(self):
+
         # Alla booleans
         self.loadNetwork = True  # train an existing network
         self.gsRGrowth = np.load("Tweaks/GSgrowth.npy")
-
+        self.windowSize = 5
+        self.windowSize2 = 5
         self.checkGS = True
 
         # Epsilon decay parameters
@@ -27,7 +29,8 @@ class MainClass:
             self.alpha = np.load("Tweaks/alpha.npy")  # flyttar "änden" på epsilon-kurvan
             self.k = np.load("Tweaks/k.npy")  # flyttar "mitten" på epsilon-kurvan
 
-        self.networkName = 'Networks/Network100kMEM.h5'
+        self.networkName = 'Networks/trainedNetwork33.h5'
+        self.networkNameZoom = 'Networks/Network100kMEM.h5'
 
         self.saveRate = 100  # how often the network is saved
 
@@ -77,12 +80,15 @@ class MainClass:
         humRep = np.load('ToricCodeHumanTest.npy')
         size = comRep.shape[0]
         segmentSize = 3
-        rl = RLsys(actions, size)
-        rl2 = RLsys(actions, int(size / segmentSize), windowSize=5)
+        rl = RLsys(actions, size, windowSize = self.windowSize)
+        rl2 = RLsys(actions, int(size / segmentSize), windowSize = self.windowSize)
         if self.loadNetwork:
-            importNetwork = load_model(self.networkName)
-            rl.qnet.network = importNetwork
-            rl2.qnet.network = importNetwork
+            importNetwork1 = load_model(self.networkName)
+            importNetwork2 = load_model(self.networkNameZoom)
+            rl.qnet.network = importNetwork1
+            print(rl.qnet.network.summary())
+
+            rl2.qnet.network = importNetwork2
         rl.epsilon = 0
         rl.gamma = 0.6
         rl2.epsilon = 0
@@ -117,7 +123,7 @@ class MainClass:
                 humanRep = humRep[:, :, i]
                 humanRep = self.rotateHumanRep(humanRep, j)
 
-                env = Env(state, humanRep, checkGroundState=self.checkGS, segmentSize=segmentSize)
+                env = Env(state, humanRep, checkGroundState=self.checkGS, segmentSize=segmentSize, windowSize= self.windowSize)
                 env.incorrectGsR = incorrectGsR
                 env.stepR = stepR
                 numSteps = 0
@@ -138,10 +144,12 @@ class MainClass:
                     BlossomObject = Blossom(state_)
                     MWPM = BlossomObject.readResult()
                     Benv = BEnv(state_, humanRep, checkGroundState=True)
+                    minSteps = 0
                     for element in MWPM:
                         error1 = element[0] + 1
                         error2 = element[1] + 1
-                        blossomReward = Benv.blossomCancel(error1, error2)
+                        blossomReward, steps = Benv.blossomCancel(error1, error2)
+                        minSteps += steps
 
                 while (not alone) and (len(env.getErrors()) > 0):
                     numSteps = numSteps + 1
@@ -149,15 +157,16 @@ class MainClass:
                     a, e = rl.choose_action(observation, indexVector)
                     r = env.moveError(a, e)
                     new_observation, alone, newIndexVector = env.getObservation()
+                    #print('State: \n', env.state)
 
 
-                    if (numSteps % 20 == 0):
-                        print("Errors remaining: ", len(env.getErrors()))
+                   # if (numSteps % 20 == 0):
+                        #print("Errors remaining: ", len(env.getErrors()))
                     if numSteps > 1000:
                         print('State: \n', env.state)
                 print("I am zooming out...")
                 zoomedOutState = env.zoomOut()
-                zoomedOutEnv = Env(zoomedOutState, windowSize=5)
+                zoomedOutEnv = Env(zoomedOutState, windowSize = self.windowSize2)
                 zoomedOutEnv.elimminationR = -1
                 # print("Zoomed out state \n", zoomedOutEnv.state)
 
@@ -174,17 +183,20 @@ class MainClass:
 
                     annihilation = (zoomedOutEnv.state[nextPos[0], nextPos[1]] == 1)
                     r2 = zoomedOutEnv.moveError(a, e)
-                    longStep = env.longMove(a, index)
+                    np.set_printoptions(linewidth=np.inf)
+
+                    longStep, r = env.longMove(a, index)
+
+
                     numSteps += longStep
                     if annihilation:
                         pairSteps, r = env.pairErrors(nextPos)
-
                         numSteps += pairSteps
                     new_observation, alone, newindexVector = zoomedOutEnv.getObservation()
 
 
-                    if (numSteps % 20 == 0):
-                        print("Errors remaining: ", len(env.getErrors()))
+                    #if (numSteps % 20 == 0):
+                        #print("Errors remaining: ", len(env.getErrors()))
 
                 print("Steps taken at iteration " + str(trainingIteration) + ": ", numSteps)
                 if r == env.correctGsR:
@@ -234,6 +246,7 @@ class MainClass:
 Mainmetod, här körs själva simuleringen.
 """""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
+
     MainClass()
 
 

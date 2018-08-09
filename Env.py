@@ -41,7 +41,7 @@ class Env:
 		self.groundState = groundState
 		# Uppdatera platser där fel finns
 		self.updateErrors()
-		self.numErrors = 10
+		self.numErrors = 5
 		self.stepR = -1
 		self.correctGsR = 5
 		self.incorrectGsR = -1
@@ -136,6 +136,7 @@ class Env:
 		colmid=int(np.ceil(self.state.shape[1]/2))
 		state_=np.concatenate((state_[:,colmid:],state_[:,0:colmid]),1)
 		state_=np.concatenate((state_[rowmid:,:],state_[0:rowmid,:]),0)
+
 		colmid -= 1
 		rowmid -= 1
 		lower_x = int((colmid-np.floor(self.windowSize/2)))
@@ -233,6 +234,7 @@ class Env:
 			#observation = observation[:,:,0:added]
 			observation = observation[0:added,:,:,np.newaxis]
 			indexVector = indexVector[0:added]
+			#print("Observation shape: ",observation.shape)
 
 			return observation, alone, indexVector
 
@@ -318,7 +320,7 @@ class Env:
 		if action == 0:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
-				self.moveError(action,errorIndex)
+				r = self.moveError(action,errorIndex)
 				steps+=1
 				if absoluteCoords[0] != 0:
 					absoluteCoords[0] -= 1
@@ -328,7 +330,7 @@ class Env:
 		elif action == 1:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
-				self.moveError(action, errorIndex)
+				r = self.moveError(action, errorIndex)
 				steps += 1
 				if absoluteCoords[0] != self.length - 1:
 					absoluteCoords[0] += 1
@@ -338,7 +340,7 @@ class Env:
 		elif action == 2:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
-				self.moveError(action, errorIndex)
+				r = self.moveError(action, errorIndex)
 				steps += 1
 				if absoluteCoords[1] != 0:
 					absoluteCoords[1]-= 1
@@ -348,18 +350,16 @@ class Env:
 		elif action == 3:
 			while len(np.transpose(np.nonzero(partition))) > 0:
 				errorIndex = self.getErrors().tolist().index(list(absoluteCoords))
-				self.moveError(action, errorIndex)
+				r = self.moveError(action, errorIndex)
 				steps += 1
 				if absoluteCoords[1] != self.length - 1:
 					absoluteCoords[1] += 1
 				else:
 					absoluteCoords[1] = 0
-
-		return steps
+		return steps, r
 
 
 	def pairErrors(self, coords):
-		print("In pair errors")
 		xcoord = coords[0]
 		ycoord = coords[1]
 
@@ -384,7 +384,7 @@ class Env:
 					r = -1
 			else:
 				r = -1
-			return 0,r
+			return 0, r
 
 		x1 = x[0]
 		y1 = y[0]
@@ -393,7 +393,8 @@ class Env:
 		ydist = y2-y1
 		xdist = x2-x1
 
-		partitionEnv = Env(partition, humanPartiton, checkGroundState=self.checkGroundState, copy = False)
+		partitionEnv = Env(partition, humanPartiton, checkGroundState=True, copy = False)
+		partitionEnv.correctGsR = self.correctGsR
 		#partitionEnv = Env(partition, checkGroundState=self.checkGroundState, copy=False)
 		r = 0
 		print("After")
