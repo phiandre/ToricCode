@@ -66,5 +66,6 @@ class StopWatch:
 	def unpause(self):
 		self.Start = time.time() - self.passedTime
 		self.IntervalStart = time.time() - self.intervalTime
+		self.stopped = False
 	def totalTime(self):
 		return sum(self.Intervals)
