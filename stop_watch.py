@@ -10,6 +10,11 @@ class StopWatch:
 		self.n = 0
 	def start(self):
 		self.Start = time.time()
+		self.Stop = time.time()
+		self.IntervalStart = time.time()
+		self.IntervalStop = time.time()
+		self.Intervals =  []
+		self.n = 0
 	def stop(self):
 		self.Stop = time.time()
 		return self.Stop-self.Start
