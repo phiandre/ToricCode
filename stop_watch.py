@@ -11,6 +11,7 @@ class StopWatch:
 		self.passedTime = 0
 		self.intervalTime = 0
 		self.currentInterval = 0
+		self.stopped = False
 		
 	def start(self):
 		self.Start = time.time()
@@ -22,13 +23,20 @@ class StopWatch:
 		self.passedTime = 0
 		self.intervalTime = 0
 		self.currentInterval = 0
+		self.stopped = False
 		
 	def stop(self):
-		self.Stop = time.time()
-		self.passedTime = self.Stop-self.Start
-		self.intervalTime = self.Stop - self.IntervalStart
-		self.Intervals[self.currentInterval] = self.intervalTime
-		return self.passedTime
+		if not self.stopped:
+			self.Stop = time.time()
+			self.passedTime = self.Stop-self.Start
+			self.intervalTime = self.Stop - self.IntervalStart
+			self.Intervals[self.currentInterval] = self.intervalTime
+			self.stopped = True
+			return self.passedTime
+		else:
+			print("Can't stop, since already stopped or paused!")
+			print("Returning time passed before stopping occured.")
+			return self.passedTime
 		
 	def interval(self):
 		self.IntervalStop = time.time()
@@ -44,9 +52,16 @@ class StopWatch:
 		return sum(self.Intervals)/self.n
 	
 	def pause(self):
-		self.passedTime = time.time() - self.Start
-		self.intervalTime = time.time()- self.IntervalStart
-		return self.passedTime
+		if not self.stopped:
+			self.passedTime = time.time() - self.Start
+			self.intervalTime = time.time()- self.IntervalStart
+			self.stopped = True
+			return self.passedTime
+		else:
+			print("Can't pause, since already stopped or paused!")
+			print("Returning time passed before stopping occured.")
+			return self.passedTime
+		
 	
 	def unpause(self):
 		self.Start = time.time() - self.passedTime
