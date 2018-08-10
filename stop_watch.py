@@ -32,6 +32,7 @@ class StopWatch:
 			self.intervalTime = self.Stop - self.IntervalStart
 			self.Intervals[self.currentInterval] = self.intervalTime
 			self.stopped = True
+			self.IntervalStop = time.time()
 			return self.passedTime
 		else:
 			print("Can't stop, since already stopped or paused!")
@@ -39,14 +40,24 @@ class StopWatch:
 			return self.passedTime
 		
 	def interval(self):
-		self.IntervalStop = time.time()
-		intervalTime = self.IntervalStop - self.IntervalStart
-		self.IntervalStart = time.time()
-		self.Intervals[self.currentInterval] = intervalTime
-		self.Intervals.append(0)
-		self.currentInterval +=1
-		self.n += 1
-		return intervalTime
+		if not self.stopped:
+			self.IntervalStop = time.time()
+			intervalTime = self.IntervalStop - self.IntervalStart
+			self.IntervalStart = time.time()
+			self.Intervals[self.currentInterval] = intervalTime
+			self.Intervals.append(0)
+			self.currentInterval +=1
+			self.n += 1
+			return intervalTime
+		else:
+			print('Returning time of interval before stopping occured.')
+			print('New interval will begin when unpaused.')
+			intervalTime = self.Intervals[self.currentInterval]
+			self.Intervals.append(0)
+			self.currentInterval += 1
+			self.n += 1
+			self.intervalTime = 0
+			return intervalTime
 		
 	def average(self):
 		return sum(self.Intervals)/self.n
