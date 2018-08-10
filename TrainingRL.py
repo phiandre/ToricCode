@@ -1,0 +1,213 @@
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Policy for the approximation of the Q-function.
+
+Utilizes a QNet object as the associated neural
+network. Selects appropriate action based on an
+epsilon-greedy policy.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""
+
+# Imports
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import Flatten
+from keras.models import clone_model
+from QNet import QNet
+import keras
+import math
+import numpy as np
+import pandas as pd
+import time
+from stop_watch import StopWatch
+
+
+# Class definition
+class RLsys:
+
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	RL class constructor.
+		@param
+			actions: the possible actions of the system.
+			state_size: the size of the state matrix.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def __init__(self, actions, state_size, optt='adam', miniBatchSize = 32, TNRate = 100 , memorySize = 1000000, reward_decay=0.9, e_greedy=0.9, windowSize = 5):
+		# Save parameters for later use
+		self.state_size = state_size
+		self.actions = actions
+		self.gamma = reward_decay
+		self.epsilon = e_greedy
+		self.windowSize = windowSize
+		# Produce neural network
+		self.qnet = QNet(self.state_size,optt, windowSize=windowSize)
+		self.targetNet = QNet(self.state_size,optt, windowSize=windowSize)
+		self.targetNet.network = clone_model(self.qnet.network)
+		self.memorySize = memorySize
+		self.memory = list()
+		self.TNRate = TNRate
+		self.count = 0
+		self.miniBatchSize = miniBatchSize
+	
+	def storeTransition(self, oldState, action, reward, newState):
+		if len(self.memory) >= self.memorySize:
+			i = np.random.randint(0,self.memorySize)
+			self.memory[i] = (oldState, action, reward, newState)
+		else:
+			self.memory.append((oldState, action, reward, newState))
+	
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Method which returns the action based on specified state and error.
+		@param
+			observation: the current state of the system, centered
+			around the errors. Dimensionality: NxNxE, where E is the
+			amount of errors we wish to evaluate actions for.
+		@return
+			int: the given action based on the state.
+			int: the associated error.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def choose_action(self, observation):
+
+		# ska returnera z-dimensionen
+		#numErrors = observation.shape[0]
+		# de olika Q för alla errors
+		predQ = self.predQ(observation)
+
+		# Check the epsilon-greedy criterion
+		if np.random.uniform() > self.epsilon:
+			# Select the best action
+			index = np.unravel_index(predQ.argmax(), predQ.shape)			
+			# hämta det bästa action för ett visst error
+			action = index[1]
+			
+		else:
+			# Choose random action and error
+			action = np.random.choice(self.actions)
+			# slumpa error här
+		
+		# returnera action och error
+
+		return action
+		
+	""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Returns the predicted Q-value for each error in each direction
+		@param:
+			observation: the current state of the system, centered
+			around the errors. Dimensionality: NxNxE, where E is the
+			amount of errors we wish to evaluate actions for.
+		
+		@return:
+			predQ: 2D-vector with Q-values for each error in the
+			observation.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def predTargetQ(self,observation):
+		obs = observation[np.newaxis, :, :, np.newaxis]
+		# evaluera Q för de olika errors
+		"""
+		for x in range(numErrors):
+			state = observation[:,:,x, np.newaxis]
+			predQ[:,x] = self.targetNet.predictQ(state)
+		"""
+		predQ = self.targetNet.predictQ(obs)
+
+		return predQ
+
+	def predQ(self,observation):
+		obs = observation[np.newaxis, :, :, np.newaxis]
+		# evaluera Q för de olika errors
+		"""
+		for x in range(numErrors):
+			state = observation[:,:,x, np.newaxis]
+			print("pred shape", state.shape)
+			predQ[:,x] = self.qnet.predictQ(state)
+		"""
+		predQ = self.qnet.predictQ(obs)
+		return predQ
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Trains the neural network given the outcome of the action.
+		@param
+			state: the previous state of the system.
+			action: the action taken.
+			reward: the immediate reward received.
+			observation_p: the resulting observation.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	def learn(self):
+		# Q is the more optimal Q
+		B = list()
+		for i in range(self.miniBatchSize):
+			j = np.random.randint(0,len(self.memory))
+			B.append(self.memory[j])
+		
+		state = np.zeros((self.miniBatchSize,self.windowSize,self.windowSize,1))
+		Q = np.zeros((self.miniBatchSize,4))
+		for i in range(self.miniBatchSize):
+			
+			transition = B[i]
+			
+			state_ = transition[0]
+			action = transition[1]
+			reward = transition[2]
+			observation_p = transition[3]
+			
+			state_ = state_[:,:,np.newaxis]
+			state[i,:,:,:] = state_
+			
+			Q_ = self.qnet.predictQ(state_[np.newaxis,:,:])[0,:]
+
+			if observation_p != 'terminal':
+				predQ = self.predTargetQ(observation_p)
+				#predQ = self.predQ(observation_p)
+				#index = np.unravel_index(predQ.argmax(), predQ.shape)
+				# hämta det bästa action för ett visst error
+				#action = index[0]
+				#error = index[1]
+
+				#targetQVector = self.targetNet.predictQ[observation_p[:,:,error]]
+				#targetQ = targetQVector[action]
+				#print("predQ\n", predQ)
+				Q_[action] = reward + self.gamma * predQ.max()
+			else:
+				Q_[action] = reward
+			
+			Q[i,:] = Q_
+		
+	
+		self.qnet.improveQ(state, Q)
+		self.count += 1
+		
+		if self.count % self.TNRate == 0:
+			self.targetNet.network.set_weights(self.qnet.network.get_weights())
+			#print("targetNet: ", self.targetNet.network.get_weights())
+			#print("qnet: ", self.qnet.network.get_weights())
+		"""
+		Q = self.qnet.predictQ(state)[0,:]
+		# Check if we are at terminal state
+		if observation_p != 'terminal':
+			# ska returnera z-dimensionen
+			predQ = self.predQ(observation_p)
+			# Update the approximation of Q
+			Q[action] = reward + self.gamma * predQ.max()
+		else:
+			# Update the approximation of Q
+			Q[action] = reward
+
+		# Update the neural network
+		self.qnet.improveQ(state, Q)
+		"""
+
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	Changes the epsilon in the epsilon-greedy policy.
+		@param
+			epsilon: the new epsilon.
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""       
+	def changeEpsilon(self, epsilon):
+		self.epsilon = epsilon
+
+
+if __name__ == '__main__':
+
+	rl = RLsys(4, 3)
+	M = np.zeros([3, 3, 2])
+	a, c = rl.choose_action(M)
+	print(a)
+	print(c)

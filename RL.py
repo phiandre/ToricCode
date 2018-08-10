@@ -19,6 +19,7 @@ import math
 import numpy as np
 import pandas as pd
 import time
+from stop_watch import StopWatch
 
 
 # Class definition
@@ -151,18 +152,14 @@ class RLsys:
 			action = transition[1]
 			reward = transition[2]
 			observation_p = transition[3]
-
+			
 			state_ = state_[:,:]
-
 			state[i,:,:,:] = state_
-
+			
 			Q_ = self.qnet.predictQ(state_[np.newaxis,:,:])[0,:]
 
-
 			if observation_p != 'terminal' and not alone:
-				
 				predQ = self.predTargetQ(observation_p)
-
 				#predQ = self.predQ(observation_p)
 				#index = np.unravel_index(predQ.argmax(), predQ.shape)
 				# hämta det bästa action för ett visst error
@@ -172,22 +169,21 @@ class RLsys:
 				#targetQVector = self.targetNet.predictQ[observation_p[:,:,error]]
 				#targetQ = targetQVector[action]
 				#print("predQ\n", predQ)
+				s.start()
 				Q_[action] = reward + self.gamma * predQ.max()
 			else:
 				Q_[action] = reward
 			
 			Q[i,:] = Q_
-
-
+		
+	
 		self.qnet.improveQ(state, Q)
-
 		self.count += 1
+		
 		if self.count % self.TNRate == 0:
 			self.targetNet.network.set_weights(self.qnet.network.get_weights())
 			#print("targetNet: ", self.targetNet.network.get_weights())
 			#print("qnet: ", self.qnet.network.get_weights())
-			
-
 		"""
 		Q = self.qnet.predictQ(state)[0,:]
 		# Check if we are at terminal state

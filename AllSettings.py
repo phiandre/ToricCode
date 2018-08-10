@@ -13,10 +13,10 @@ class Tweaker:
 			
 	
 		# Antal iterationer som ska tränas
-		self.trainingIterations = 300000
+		self.trainingIterations = 1000
 		
 		# Antal iterationer som ska testas
-		self.testIterations = 30000
+		self.testIterations = 1000
 
 		#Just nu låter jag epsilon bero av tid istället
 		self.time = 3600*22/10
@@ -59,13 +59,13 @@ class Tweaker:
 		""" Epsilon decay """
 		
 		# Använd avtagande epsilon
-		self.epsilonDecay = True
+		self.epsilonDecay = False
 		
 		# Värde på epsilon (endast relevant om ej avtagande)
-		self.epsilon = 0.1
+		self.epsilon = 0.4
 		
 		# Epsilonkurvans form oberoende av antal iterationer
-		self.epsilonShape = True
+		self.epsilonShape = False
 		
 		self.alpha = -0.9
 		

@@ -1,14 +1,15 @@
 import numpy as np
-from RL import RLsys
+#from RL import RLsys
 from Env import Env
-from GenerateToricData import Generate
 from keras.models import load_model
 import time
 import os.path
 import pickle
 import math
-from Blossom import Blossom 
 import time
+from stop_watch import StopWatch
+from TrainingEnv import Env as TrainingEnv
+from TrainingRL import RLsys
 
 class MainClass:
 	
@@ -107,7 +108,7 @@ class MainClass:
 			A = np.load("Tweaks/AGS.npy")
 			B = np.load("Tweaks/BGS.npy")
 			w = np.load("Tweaks/wGS.npy")
-			b = np.load("Tweaks/bGS.npy")
+			b = np.load("Tweaks/bbGS.npy")
 
 		incorrectGsR = np.load("Tweaks/incorrectGsR.npy")
 		stepR = np.load("Tweaks/stepR.npy")
@@ -115,11 +116,9 @@ class MainClass:
 		segmentSize = 3
 
 		rl2 = RLsys(actions, int(size/segmentSize), windowSize=self.windowsize)
+	
 
-
-
-
-
+		outer_start = time.time()
 
 		for i in range(comRep.shape[2]):
 			for j in range(4):
@@ -129,42 +128,51 @@ class MainClass:
 				humanRep = humRep[:,:,i]
 				humanRep = self.rotateHumanRep(humanRep,j)
 
-				env = Env(state, humanRep, checkGroundState=self.checkGS, segmentSize=segmentSize, windowSize= self.windowsize)
-				env.incorrectGsR = incorrectGsR
-				env.stepR = stepR
+				#env = Env(state, humanRep, checkGroundState=self.checkGS, segmentSize=segmentSize, windowSize= self.windowsize)
+				#env.incorrectGsR = incorrectGsR
+				#env.stepR = stepR
 				numSteps = 0
-
+				
+				trainingEnv = TrainingEnv(state, humanRep, checkGroundState=self.checkGS, segmentSize = segmentSize, windowSize = self.windowsize)
+				
 				if self.epsilonDecay:
 					rl.epsilon = ((self.k+trainingIteration+12000)/self.k)**(self.alpha)
 				if self.gsRGrowth:
-					env.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
+					trainingEnv.correctGsR = A*np.tanh(w*(trainingIteration+b)) + B
 				else:
-					env.correctGsR = self.fR
+					trainingEnv.correctGsR = self.fR
 				r = 0
-				alone = False
-				env.elimminationR = 1
-
-				while (not alone) and (len(env.getErrors()) > 0):
-					numSteps = numSteps + 1
-					observation, x, indexVector = env.getObservation()
-					a, e = rl.choose_action(observation, indexVector)
-					#print("error ", e)
-					r = env.moveError(a, e)
-					new_observation, alone, newIndexVector = env.getObservation()
-					#print('State: \n', env.state)
-					"""
-					if alone:
-						r = len(env.getErrors()) * -2.5
-					"""
-					#rl.storeTransition(observation[:,:,list(indexVector).index(e)], a, r, new_observation)
-					rl.storeTransition(observation[list(indexVector).index(e),:,:], a, r, new_observation)
-					rl.learn(alone)
-
-					if(numSteps % 20 == 0):
-						print("Errors remaining: ", len(env.getErrors()))
+				
+				
+				trainingEnv.elimminationR = 5
+				while( len(trainingEnv.getErrors()) > 0):
+					trainingEnv.markError()
+					new_observation = trainingEnv.getObservation()
+					while( new_observation != 'terminal'):
+						numSteps = numSteps + 1
+						
+						#observation, x, indexVector = env.getObservation()
+						observation = trainingEnv.getObservation()
+						
+						#a, e = rl.choose_action(observation, indexVector)
+						a = rl.choose_action(observation)
+						#print("error ", e)
+						r = trainingEnv.moveError(a)
+						new_observation = trainingEnv.getObservation()
+						#print('State: \n', env.state)
+						"""
+						if alone:
+							r = len(env.getErrors()) * -2.5
+						"""
+						#rl.storeTransition(observation[:,:,list(indexVector).index(e)], a, r, new_observation)
+						rl.storeTransition(observation, a, r, new_observation)
+						
+						rl.learn()
+						if(numSteps % 20 == 0):
+							print("Errors remaining: ", len(trainingEnv.getErrors()))
 
 				print("Steps taken at iteration " + str(trainingIteration) + ": ", numSteps)
-				print("Errors remaining: ", len(env.getErrors()))
+				print("Errors remaining: ", len(trainingEnv.getErrors()))
 				"""
 				print("I am zooming out...")
 				zoomedOutState = env.zoomOut()
@@ -230,7 +238,6 @@ class MainClass:
 						print("Probability of correct GS last " + str(self.avgTol) + ": " + str(average*100) + " %")
 					steps[trainingIteration] = numSteps
 				"""
-
 				if((trainingIteration+1) % self.saveRate == 0):
 
 					tmp = list('Networks/trainedNetwork1.h5')
@@ -246,7 +253,6 @@ class MainClass:
 
 
 				trainingIteration = trainingIteration + 1
-
 
 		
 
