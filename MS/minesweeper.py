@@ -19,7 +19,6 @@ class MineSweeperEnv:
 			for j in range(self.width):
 				tmpRow.append(whiteBlock*2)
 			self.view.append(tmpRow)
-		print(self.view[0][1])
 		
 		self.firstClick = True
 		
@@ -38,7 +37,6 @@ class MineSweeperEnv:
 			for j in range(self.width):
 				tmpRow.append(whiteBlock*2)
 			self.view.append(tmpRow)
-		print(self.view[0][1])
 		
 		self.score = 0
 		row_range = np.linspace(0,self.height,num=self.height,endpoint = False)
@@ -115,10 +113,6 @@ class MineSweeperEnv:
 		
 		window = self.grid[windowRowStart:windowRowEnd,windowColStart:windowColEnd]
 		neighborMines = np.count_nonzero(window)
-		print(row)
-		print(col)
-		print(len(self.view))
-		print(len(self.view[0]))
 		self.view[gridRow][col] = ' ' + str(neighborMines)
 		
 		
