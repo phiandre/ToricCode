@@ -66,7 +66,7 @@ class Drawer:
 					iRowList.append(self.syndromeEmpty)
 				else:
 					iRowList.append(self.syndromeExcitation)
-			iRow = " " + " ".join(element for element in iRowList) +"\n"
+			iRow = " " + "   ".join(element for element in iRowList) +"\n"
 			symbolSyndrome.append(iRow)
 		output = vertexRow + vertexRow.join(row for row in symbolSyndrome)
 		print(output)
